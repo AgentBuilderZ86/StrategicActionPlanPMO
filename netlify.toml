@@ -1,5 +1,7 @@
 [build]
-  command = "pnpm build"
+  # Applique les migrations Prisma sur la base (DATABASE_URL fourni par Netlify)
+  # puis build Next.js.
+  command = "pnpm prisma migrate deploy && pnpm build"
   publish = ".next"
 
 # Le plugin officiel adapte le runtime Next.js (App Router, route handlers,
