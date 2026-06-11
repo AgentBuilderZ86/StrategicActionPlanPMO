@@ -10,6 +10,8 @@ import {
   computeTrend,
   type AggAction,
 } from './aggregations';
+import { pivot, crossMatrix } from './analyses';
+import type { DimensionKey } from './constants';
 
 /** Renvoie le plan « actif » (le plus récent). En V1, un seul plan de démo. */
 export async function getActivePlan(planId?: string) {
@@ -78,3 +80,24 @@ export async function getDashboardData(planId: string, periode?: Periode) {
 }
 
 export type DashboardData = Awaited<ReturnType<typeof getDashboardData>>;
+
+export async function getAnalysesData(
+  planId: string,
+  dim: DimensionKey,
+  dim2: DimensionKey,
+  periode?: Periode,
+) {
+  const rows = await prisma.action.findMany({
+    where: periodeWhere(planId, periode),
+    include: ACTION_INCLUDE,
+  });
+  const actions: AggAction[] = rows.map(serializeAction);
+  return {
+    pivot: pivot(actions, dim),
+    cross: crossMatrix(actions, dim, dim2),
+    dim,
+    dim2,
+  };
+}
+
+export type AnalysesData = Awaited<ReturnType<typeof getAnalysesData>>;

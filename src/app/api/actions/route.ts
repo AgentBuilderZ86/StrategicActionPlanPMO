@@ -22,6 +22,7 @@ export async function GET(req: Request) {
     if (q.get('axeId')) where.axeId = q.get('axeId')!;
     if (q.get('statut')) where.statut = q.get('statut')!;
     if (q.get('priorite')) where.priorite = q.get('priorite')!;
+    if (q.get('responsable')) where.responsable = q.get('responsable')!;
 
     const search = q.get('q');
     if (search) {
