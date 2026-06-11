@@ -1,0 +1,19 @@
+[build]
+  command = "pnpm build"
+  publish = ".next"
+
+# Le plugin officiel adapte le runtime Next.js (App Router, route handlers,
+# middleware) à Netlify Functions/Edge. Netlify l'installe automatiquement.
+[[plugins]]
+  package = "@netlify/plugin-nextjs"
+
+[build.environment]
+  NODE_VERSION = "20"
+
+# Variables à définir dans l'UI Netlify (Site settings → Environment) :
+#   DATABASE_URL     → chaîne Postgres (Neon/Supabase) en production
+#   NEXTAUTH_SECRET  → secret aléatoire (openssl rand -base64 32)
+#   NEXTAUTH_URL     → URL publique du site
+#
+# IMPORTANT : en production, basculer le provider Prisma sur "postgresql"
+# dans prisma/schema.prisma (SQLite ne persiste pas sur Netlify).

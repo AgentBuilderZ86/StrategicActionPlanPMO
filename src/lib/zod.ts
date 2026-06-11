@@ -7,7 +7,7 @@ export const roleEnum = z.enum(ROLES);
 
 // Accepte une date ISO (string) ou null/undefined ; renvoie Date | null
 const dateOpt = z
-  .union([z.string().min(1), z.date(), z.null()])
+  .union([z.string(), z.date(), z.null()])
   .optional()
   .transform((v) => {
     if (v === null || v === undefined || v === '') return null;
