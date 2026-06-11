@@ -26,11 +26,12 @@ export async function GET(req: Request) {
 
     const search = q.get('q');
     if (search) {
+      const mode = 'insensitive' as const;
       where.OR = [
-        { titre: { contains: search } },
-        { description: { contains: search } },
-        { responsable: { contains: search } },
-        { commentaire: { contains: search } },
+        { titre: { contains: search, mode } },
+        { description: { contains: search, mode } },
+        { responsable: { contains: search, mode } },
+        { commentaire: { contains: search, mode } },
       ];
     }
 

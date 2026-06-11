@@ -11,9 +11,9 @@
   NODE_VERSION = "20"
 
 # Variables à définir dans l'UI Netlify (Site settings → Environment) :
-#   DATABASE_URL     → chaîne Postgres (Neon/Supabase) en production
+#   DATABASE_URL     → chaîne Postgres (Neon/Supabase)
 #   NEXTAUTH_SECRET  → secret aléatoire (openssl rand -base64 32)
-#   NEXTAUTH_URL     → URL publique du site
+#   NEXTAUTH_URL     → URL publique du site (ex. https://pmostrategic.netlify.app)
 #
-# IMPORTANT : en production, basculer le provider Prisma sur "postgresql"
-# dans prisma/schema.prisma (SQLite ne persiste pas sur Netlify).
+# Le schéma Postgres doit être initialisé une fois (prisma db push + db:seed)
+# en pointant DATABASE_URL sur la base Neon.
