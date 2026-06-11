@@ -1,34 +1,42 @@
 import { prisma } from '@/lib/prisma';
-import { ok, fail, handleError } from '@/lib/api';
+import { ok, handleError } from '@/lib/api';
 import { seedDemo } from '@/lib/seed';
 
 export const dynamic = 'force-dynamic';
 
 /**
- * Endpoint d'initialisation à usage unique : crée le jeu de démonstration sur
- * la base connectée. Protégé par une clé (?key=) comparée à NEXTAUTH_SECRET.
- * Par sécurité, ne réamorce que si la base est vide, sauf ?force=1.
+ * Endpoint d'initialisation : crée le jeu de démonstration sur la base
+ * connectée.
  *
- * À retirer (ou laisser, il est inerte une fois la base peuplée) après le
- * premier amorçage en production.
+ * - Si la base est VIDE (aucun utilisateur) : amorçage autorisé sans clé
+ *   (bootstrap à usage unique, inoffensif — ne fait qu'insérer le jeu démo).
+ * - Si la base contient déjà des données : réamorçage destructif autorisé
+ *   uniquement avec ?key=<NEXTAUTH_SECRET>&force=1.
+ *
+ * L'endpoint se verrouille de lui-même une fois la base peuplée.
  */
 export async function GET(req: Request) {
   try {
     const url = new URL(req.url);
     const key = url.searchParams.get('key');
+    const force = url.searchParams.get('force') === '1';
     const secret = process.env.NEXTAUTH_SECRET;
 
-    if (!secret || key !== secret) {
-      return fail('FORBIDDEN', 'Clé invalide', 403);
-    }
-
-    const force = url.searchParams.get('force') === '1';
     const existing = await prisma.user.count();
-    if (existing > 0 && !force) {
-      return ok({
-        seeded: false,
-        message: `Base déjà initialisée (${existing} utilisateur(s)). Utilisez ?force=1 pour réamorcer.`,
-      });
+
+    if (existing > 0) {
+      if (key !== secret || !secret) {
+        return ok({
+          seeded: false,
+          message: `Base déjà initialisée (${existing} utilisateur(s)). Réamorçage : ?key=<NEXTAUTH_SECRET>&force=1.`,
+        });
+      }
+      if (!force) {
+        return ok({
+          seeded: false,
+          message: 'Ajoutez ?force=1 pour réamorcer (destructif).',
+        });
+      }
     }
 
     const result = await seedDemo(prisma);
