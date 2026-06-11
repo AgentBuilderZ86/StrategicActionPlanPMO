@@ -1,5 +1,7 @@
 node_modules
 dist
+dist-standalone
+PMO-Control-Tower-preview.html
 dist-ssr
 *.local
 .DS_Store
