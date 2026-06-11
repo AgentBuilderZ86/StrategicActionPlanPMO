@@ -1,18 +1,20 @@
 // PMO — Plan d'action stratégique multi-pays / multi-entités
 //
-// Provider SQLite en développement (imposé par le SPEC). SQLite ne supporte
-// pas les `enum` natifs Prisma : les colonnes d'énumération (statut, priorité,
-// rôle) sont donc des `String` dont les valeurs autorisées sont contrôlées
-// côté application via Zod (voir src/lib/constants.ts). En production, le
-// provider peut être basculé sur `postgresql` (Neon/Supabase) sans changer
-// le code applicatif.
+// Provider PostgreSQL (Neon/Supabase), compatible Netlify. Les colonnes
+// d'énumération (statut, priorité, rôle) sont des `String` validés côté
+// application via Zod (voir src/lib/constants.ts), choix conservé depuis la
+// phase SQLite pour rester portable. Pour repasser en SQLite en local,
+// remettre provider = "sqlite" et une DATABASE_URL "file:./dev.db".
 
 generator client {
   provider = "prisma-client-js"
+  // "native" pour le dev local ; "rhel-openssl-3.0.x" pour le runtime
+  // serverless de Netlify (AWS Lambda / Amazon Linux 2023, OpenSSL 3).
+  binaryTargets = ["native", "rhel-openssl-3.0.x"]
 }
 
 datasource db {
-  provider = "sqlite"
+  provider = "postgresql"
   url      = env("DATABASE_URL")
 }
 

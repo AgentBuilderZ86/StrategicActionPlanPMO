@@ -12,7 +12,7 @@ actions, pilotage de l'avancement, analyses multi-axes et vues exécutives
 - **Next.js 14** (App Router) + **TypeScript strict**
 - **Tailwind CSS** (design tokens, sans lib UI lourde)
 - **Recharts** pour la data-viz
-- **Prisma** + **SQLite** en développement (Postgres en production)
+- **Prisma** + **PostgreSQL** (Neon/Supabase ; compatible Netlify)
 - **NextAuth** (credentials) avec rôles `ADMIN` / `PMO` / `CONTRIBUTEUR` / `LECTEUR`
 - **Zod** pour la validation (API + formulaires), **react-hook-form**
 - **SheetJS** (export Excel) · ESLint + Prettier · **Vitest**
@@ -21,11 +21,14 @@ actions, pilotage de l'avancement, analyses multi-axes et vues exécutives
 
 ```bash
 pnpm install
-cp .env.example .env          # DATABASE_URL, NEXTAUTH_SECRET, NEXTAUTH_URL
-pnpm db:push                  # crée le schéma SQLite
+cp .env.example .env          # DATABASE_URL (Postgres), NEXTAUTH_SECRET, NEXTAUTH_URL
+pnpm db:push                  # crée le schéma sur la base Postgres
 pnpm db:seed                  # jeu de démonstration
 pnpm dev                      # http://localhost:3000
 ```
+
+> Besoin d'une base gratuite ? Créez un projet sur **neon.tech** et copiez la
+> *connection string* dans `DATABASE_URL`.
 
 ### Comptes de démonstration (mot de passe `demo1234`)
 
@@ -69,8 +72,8 @@ pnpm dev                      # http://localhost:3000
 tendance), `SnapshotCopil`, plus les modèles NextAuth (`User` porte le `role`).
 Règle dérivée : `enRetard = dateFin < today && statut != TERMINE` (jamais stockée).
 
-> SQLite ne supporte pas les `enum` Prisma natifs : statut/priorité/rôle sont des
-> `String` validés par Zod (`src/lib/constants.ts`).
+> Statut/priorité/rôle sont des `String` validés par Zod (`src/lib/constants.ts`),
+> choix portable conservé depuis la phase SQLite.
 
 ## API (route handlers)
 
@@ -88,8 +91,15 @@ Réponses typées ; erreurs normalisées `{ error: { code, message, details? } }
 `netlify.toml` inclut `@netlify/plugin-nextjs`. Définir dans l'UI Netlify :
 `DATABASE_URL` (Postgres Neon/Supabase), `NEXTAUTH_SECRET`, `NEXTAUTH_URL`.
 
-> **Production** : basculer `provider = "postgresql"` dans `prisma/schema.prisma`
-> (SQLite ne persiste pas sur Netlify), puis `prisma migrate deploy`.
+Initialisation de la base (une fois, depuis votre machine, pointée sur Neon) :
+
+```bash
+DATABASE_URL="postgresql://...neon..." pnpm prisma db push
+DATABASE_URL="postgresql://...neon..." pnpm db:seed
+```
+
+> Le client Prisma est généré avec le *binary target* `rhel-openssl-3.0.x`
+> requis par le runtime serverless de Netlify.
 
 ## Roadmap V2 (hors périmètre V1)
 
