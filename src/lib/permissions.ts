@@ -60,7 +60,3 @@ export async function requireRole(roles: Role[]): Promise<Guard> {
   }
   return roles.includes(user.role) ? { ok: true } : DENY;
 }
-
-export function canEditClient(role: Role | undefined): boolean {
-  return role === 'ADMIN' || role === 'PMO' || role === 'CONTRIBUTEUR';
-}

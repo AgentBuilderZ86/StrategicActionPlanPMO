@@ -49,6 +49,11 @@ export const ROLE_LABEL: Record<Role, string> = {
   LECTEUR: 'Lecteur',
 };
 
+/** Droit d'écriture côté client (le lecteur est en lecture seule). */
+export function canEditClient(role: Role | undefined): boolean {
+  return role === 'ADMIN' || role === 'PMO' || role === 'CONTRIBUTEUR';
+}
+
 // Palette « statut » pour la heatmap (rouge → ambre → vert)
 export const COLORS = {
   canvas: '#F4F5F7',

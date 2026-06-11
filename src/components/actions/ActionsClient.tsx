@@ -1,7 +1,8 @@
 'use client';
 
 import { useCallback, useEffect, useState } from 'react';
-import { STATUTS, PRIORITES, STATUT_LABEL, PRIORITE_LABEL } from '@/lib/constants';
+import { useSession } from 'next-auth/react';
+import { STATUTS, PRIORITES, STATUT_LABEL, PRIORITE_LABEL, canEditClient, type Role } from '@/lib/constants';
 import type { ActionDTO, Pagination, Referentiels } from '@/lib/types';
 import { fmtDate, fmtMoney, cn } from '@/lib/utils';
 import { StatutBadge, PrioriteBadge, RetardBadge } from '@/components/ui/Badges';
@@ -14,6 +15,8 @@ const EMPTY_FILTERS = { q: '', axeId: '', paysId: '', entiteId: '', statut: '', 
 type SortKey = 'titre' | 'statut' | 'avancement' | 'priorite' | 'dateFin' | 'budget' | 'updatedAt';
 
 export function ActionsClient({ planId, referentiels }: { planId: string; referentiels: Referentiels }) {
+  const { data: session } = useSession();
+  const canEdit = canEditClient((session?.user as { role?: Role } | undefined)?.role);
   const [filters, setFilters] = useState(EMPTY_FILTERS);
   const [sort, setSort] = useState<SortKey>('updatedAt');
   const [dir, setDir] = useState<'asc' | 'desc'>('desc');
@@ -111,7 +114,7 @@ export function ActionsClient({ planId, referentiels }: { planId: string; refere
           <input type="checkbox" checked={filters.enRetard} onChange={(e) => setFilter({ enRetard: e.target.checked })} className="accent-[#D64545]" />
           En retard
         </label>
-        <button onClick={openNew} className="btn-primary ml-auto">+ Nouvelle action</button>
+        {canEdit && <button onClick={openNew} className="btn-primary ml-auto">+ Nouvelle action</button>}
       </div>
 
       <div className="flex items-center justify-between text-xs font-medium text-slate-500">
@@ -157,8 +160,14 @@ export function ActionsClient({ planId, referentiels }: { planId: string; refere
                 <td className={cn('td whitespace-nowrap text-xs', a.enRetard ? 'font-semibold text-statut-rouge' : 'text-ink')}>{fmtDate(a.dateFin)}</td>
                 <td className="td whitespace-nowrap text-xs font-semibold tabular-nums text-ink">{fmtMoney(a.budget)}</td>
                 <td className="td whitespace-nowrap text-right">
-                  <button onClick={() => openEdit(a)} className="mr-2 text-xs font-semibold text-accent hover:underline">Éditer</button>
-                  <button onClick={() => handleDelete(a)} className="text-xs font-semibold text-statut-rouge hover:underline">Suppr.</button>
+                  {canEdit ? (
+                    <>
+                      <button onClick={() => openEdit(a)} className="mr-2 text-xs font-semibold text-accent hover:underline">Éditer</button>
+                      <button onClick={() => handleDelete(a)} className="text-xs font-semibold text-statut-rouge hover:underline">Suppr.</button>
+                    </>
+                  ) : (
+                    <span className="text-xs text-slate-300">—</span>
+                  )}
                 </td>
               </tr>
             ))}
