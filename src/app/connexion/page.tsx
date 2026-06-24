@@ -38,7 +38,7 @@ function ConnexionForm() {
     <div className="flex min-h-[70vh] items-center justify-center">
       <div className="card w-full max-w-sm p-6">
         <h1 className="font-title text-xl font-extrabold text-ink">Connexion</h1>
-        <p className="mt-1 text-sm text-slate-500">Accédez au pilotage du plan d’action.</p>
+        <p className="mt-1 text-sm text-slate-500">Accédez au pilotage du plan d&apos;action.</p>
         <form onSubmit={submit} className="mt-5 space-y-4">
           <div>
             <label className="label" htmlFor="email">Email</label>

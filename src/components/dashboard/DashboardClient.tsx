@@ -103,10 +103,10 @@ export function DashboardClient({
         <SectionCard title="Avancement par axe" subtitle="Avancement moyen (%) par axe stratégique">
           <AvancementParAxe data={data.parAxe} />
         </SectionCard>
-        <SectionCard title="Répartition par statut" subtitle="Nombre d’actions par statut">
+        <SectionCard title="Répartition par statut" subtitle="Nombre d'actions par statut">
           <RepartitionStatuts data={data.statuts} />
         </SectionCard>
-        <SectionCard title="Avancement par pays" subtitle="Avancement moyen et volume d’actions par pays">
+        <SectionCard title="Avancement par pays" subtitle="Avancement moyen et volume d'actions par pays">
           <AvancementParPays data={data.parPays} />
         </SectionCard>
         <SectionCard title="Budget par axe" subtitle="Budget alloué vs consommé (k€)">
@@ -114,11 +114,11 @@ export function DashboardClient({
         </SectionCard>
       </div>
 
-      <SectionCard title="Tendance d’avancement global" subtitle="Évolution mensuelle de l’avancement moyen (snapshots)">
+      <SectionCard title="Tendance d'avancement global" subtitle="Évolution mensuelle de l'avancement moyen (snapshots)">
         <TendanceAvancement data={data.trend} />
       </SectionCard>
 
-      <SectionCard title="Points d’attention" subtitle="Actions bloquées ou en retard, triées par priorité">
+      <SectionCard title="Points d'attention" subtitle="Actions bloquées ou en retard, triées par priorité">
         <PointsAttention actions={data.attention} />
       </SectionCard>
     </div>

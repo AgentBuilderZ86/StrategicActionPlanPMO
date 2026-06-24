@@ -1,4 +1,5 @@
-// PMO — Plan d'action stratégique multi-pays / multi-entités
+// PMO NARSA — Plateforme collaborative de pilotage de la Stratégie Nationale
+// de la Sécurité Routière (SNSR 2026-2030) et du plan de développement NARSA.
 //
 // Provider PostgreSQL (Neon/Supabase), compatible Netlify. Les colonnes
 // d'énumération (statut, priorité, rôle) sont des `String` validés côté
@@ -23,6 +24,10 @@ model Plan {
   nom       String
   dateDebut DateTime?
   dateFin   DateTime?
+  // typePmo : ECOSYSTEME (SNSR) | INTERNE (NARSA) | SI (Projets IT)
+  typePmo   String    @default("INTERNE")
+  // Objectif quantifié (ex: réduction mortalité %)
+  objectif  String?
   createdAt DateTime  @default(now())
   updatedAt DateTime  @updatedAt
 
@@ -88,6 +93,14 @@ model Action {
   budget      Float? // k€
   budgetConso Float? // k€
   commentaire String?
+  // Niveau hiérarchique : 1=Pilier, 2=Axe, 3=Projet, 4=Action, 5=Sous-action
+  niveau      Int       @default(4)
+  // Indicateur de performance associé (taux réduction accidents, etc.)
+  indicateur  String?
+  // Valeur cible de l'indicateur
+  cibleIndicateur Float?
+  // Valeur réalisée de l'indicateur
+  valeurIndicateur Float?
   createdAt   DateTime  @default(now())
   updatedAt   DateTime  @updatedAt
 

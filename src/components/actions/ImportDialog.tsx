@@ -57,7 +57,7 @@ export function ImportDialog({ planId, open, onClose }: { planId: string; open: 
         body: JSON.stringify({ planId, rows }),
       });
       const body = await res.json();
-      if (!res.ok) { setError(body?.error?.message ?? 'Échec de l’import'); return; }
+      if (!res.ok) { setError(body?.error?.message ?? "Échec de l'import"); return; }
       setReport(body);
       router.refresh();
     } catch {

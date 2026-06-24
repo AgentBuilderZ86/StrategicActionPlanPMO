@@ -21,6 +21,10 @@ export type ActionDTO = {
   budgetConso: number | null;
   commentaire: string | null;
   enRetard: boolean;
+  niveau: number;
+  indicateur: string | null;
+  cibleIndicateur: number | null;
+  valeurIndicateur: number | null;
   createdAt: string;
   updatedAt: string;
 };

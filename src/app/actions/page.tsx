@@ -10,7 +10,7 @@ export default async function ActionsPage() {
   if (!plan) {
     return (
       <div>
-        <PageHeader title="Plan d’actions" />
+        <PageHeader title="Plan d'actions" />
         <div className="card p-8 text-sm text-slate-500">Aucun plan. Lancez le seed : <code>pnpm db:seed</code>.</div>
       </div>
     );
@@ -20,7 +20,7 @@ export default async function ActionsPage() {
   return (
     <div>
       <PageHeader
-        title="Plan d’actions"
+        title="Plan d'actions"
         subtitle="Suivi, filtrage et édition des actions"
         action={<ImportExportBar planId={plan.id} />}
       />

@@ -29,6 +29,10 @@ export function serializeAction(a: ActionWithRelations) {
     budgetConso: a.budgetConso,
     commentaire: a.commentaire,
     enRetard: enRetard(a.dateFin, a.statut),
+    niveau: a.niveau,
+    indicateur: a.indicateur,
+    cibleIndicateur: a.cibleIndicateur,
+    valeurIndicateur: a.valeurIndicateur,
     createdAt: a.createdAt.toISOString(),
     updatedAt: a.updatedAt.toISOString(),
   };

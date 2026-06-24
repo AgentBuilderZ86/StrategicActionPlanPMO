@@ -59,7 +59,7 @@ export function AnalysesClient({ planId, initial }: { planId: string; initial: A
       {/* Sélecteurs */}
       <div className="card flex flex-wrap items-end gap-3 p-3">
         <div>
-          <label className="label" htmlFor="dim">Dimension d’analyse</label>
+          <label className="label" htmlFor="dim">Dimension d&apos;analyse</label>
           <select id="dim" className="input w-auto" value={dim} onChange={(e) => setDim(e.target.value as DimensionKey)}>
             {DIMENSIONS.map((d) => <option key={d.key} value={d.key}>{d.label}</option>)}
           </select>
@@ -119,7 +119,7 @@ export function AnalysesClient({ planId, initial }: { planId: string; initial: A
       {/* Matrice croisée */}
       <SectionCard
         title={`Matrice croisée — ${dimLabel} × ${dim2Label}`}
-        subtitle="Avancement moyen par croisement (couleur) et nombre d’actions."
+        subtitle="Avancement moyen par croisement (couleur) et nombre d'actions."
       >
         <div className="overflow-x-auto">
           <table className="w-full border-collapse">

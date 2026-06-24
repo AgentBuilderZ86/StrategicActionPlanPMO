@@ -8,9 +8,9 @@ const archivo = Archivo({ subsets: ['latin'], variable: '--font-archivo', displa
 const inter = Inter({ subsets: ['latin'], variable: '--font-inter', display: 'swap' });
 
 export const metadata: Metadata = {
-  title: 'PMO — Plan d’action stratégique',
+  title: 'PMO NARSA — Stratégie Nationale de la Sécurité Routière',
   description:
-    'Pilotage PMO d’un plan d’action stratégique multi-pays et multi-entités : suivi, analyses et vues exécutives.',
+    "Plateforme PMO de la NARSA : pilotage de la Stratégie Nationale de la Sécurité Routière (SNSR 2026-2030) et du plan d'action de développement de l'Agence.",
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
@@ -21,7 +21,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           <Header />
           <main className="mx-auto w-full max-w-[1280px] px-4 py-6 sm:px-6">{children}</main>
           <footer className="no-print mx-auto w-full max-w-[1280px] px-4 pb-8 pt-2 text-center text-xs text-slate-400 sm:px-6">
-            PMO · Pilotage de plan d’action stratégique · Montants en k€
+            NARSA · Agence Nationale de la Sécurité Routière · Pilotage SNSR 2026-2030 · Montants en k MAD
           </footer>
         </Providers>
       </body>

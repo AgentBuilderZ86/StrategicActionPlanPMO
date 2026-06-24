@@ -187,7 +187,7 @@ export function ActionsClient({ planId, referentiels }: { planId: string; refere
         </div>
       )}
 
-      <Drawer open={drawerOpen} onClose={() => setDrawerOpen(false)} title={editing ? 'Modifier l’action' : 'Nouvelle action'}>
+      <Drawer open={drawerOpen} onClose={() => setDrawerOpen(false)} title={editing ? "Modifier l'action" : 'Nouvelle action'}>
         {drawerOpen && (
           <ActionForm
             planId={planId}
