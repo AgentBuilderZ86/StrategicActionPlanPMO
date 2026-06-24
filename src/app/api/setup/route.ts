@@ -47,7 +47,7 @@ export async function GET(req: Request) {
       pays: result.pays,
       entites: result.entites,
       actions: result.actions,
-      message: 'Initialisation terminée. Connectez-vous avec admin@pmo.demo / demo1234.',
+      message: 'Initialisation terminée. Connectez-vous avec admin@narsa.ma / demo1234.',
     });
   } catch (e) {
     return handleError(e);
