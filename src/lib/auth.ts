@@ -4,8 +4,11 @@ import bcrypt from 'bcryptjs';
 import { prisma } from './prisma';
 import type { Role } from './constants';
 
+const SESSION_MAX_AGE = 8 * 60 * 60; // 8 heures
+
 export const authOptions: NextAuthOptions = {
-  session: { strategy: 'jwt' },
+  session: { strategy: 'jwt', maxAge: SESSION_MAX_AGE },
+  jwt: { maxAge: SESSION_MAX_AGE },
   pages: { signIn: '/connexion' },
   providers: [
     CredentialsProvider({

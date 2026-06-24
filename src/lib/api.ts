@@ -19,7 +19,9 @@ export function handleError(e: unknown): NextResponse {
   if (e instanceof Error) {
     // eslint-disable-next-line no-console
     console.error(e);
-    return fail('INTERNAL', e.message || 'Erreur interne', 500);
+    // En production, ne pas divulguer les détails internes au client.
+    const message = process.env.NODE_ENV === 'production' ? 'Erreur interne' : e.message || 'Erreur interne';
+    return fail('INTERNAL', message, 500);
   }
   return fail('INTERNAL', 'Erreur interne', 500);
 }

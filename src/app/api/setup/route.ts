@@ -1,5 +1,5 @@
 import { prisma } from '@/lib/prisma';
-import { ok, handleError } from '@/lib/api';
+import { ok, fail, handleError } from '@/lib/api';
 import { seedDemo } from '@/lib/seed';
 
 export const dynamic = 'force-dynamic';
@@ -17,6 +17,11 @@ export const dynamic = 'force-dynamic';
  */
 export async function GET(req: Request) {
   try {
+    // Endpoint destructif : interdit en production.
+    if (process.env.NODE_ENV === 'production') {
+      return fail('FORBIDDEN', 'Endpoint indisponible en production', 403);
+    }
+
     const url = new URL(req.url);
     const key = url.searchParams.get('key');
     const force = url.searchParams.get('force') === '1';

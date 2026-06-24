@@ -3,11 +3,15 @@ import { prisma } from '@/lib/prisma';
 import { fail, handleError } from '@/lib/api';
 import { ACTION_INCLUDE, serializeAction } from '@/lib/serialize';
 import { toCSV, EXPORT_HEADERS, actionToRow } from '@/lib/csv';
+import { requireEdit } from '@/lib/permissions';
 
 export const dynamic = 'force-dynamic';
 
 export async function GET(req: Request) {
   try {
+    const guard = await requireEdit();
+    if (!guard.ok) return fail(guard.code, guard.message, guard.status);
+
     const url = new URL(req.url);
     const format = url.searchParams.get('format') ?? 'csv';
     const planId = url.searchParams.get('planId') ?? undefined;

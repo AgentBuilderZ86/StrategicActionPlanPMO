@@ -24,7 +24,7 @@ export async function GET(req: Request) {
     if (q.get('priorite')) where.priorite = q.get('priorite')!;
     if (q.get('responsable')) where.responsable = q.get('responsable')!;
 
-    const search = q.get('q');
+    const search = q.get('q')?.slice(0, 100);
     if (search) {
       const mode = 'insensitive' as const;
       where.OR = [
