@@ -19,17 +19,16 @@ export async function Header() {
                 Sécurité Routière · Pilotage stratégique
               </div>
               <h1 className="font-title text-lg font-extrabold leading-tight">
-                {plan?.nom ?? "Stratégie Nationale de la Sécurité Routière'}
+                {plan?.nom ?? "Stratégie Nationale de la Sécurité Routière"}
               </h1>
             </div>
           </div>
           <UserMenu />
         </div>
-        <div className=\"mt-4\">
+        <div className="mt-4">
           <Nav />
         </div>
       </div>
     </header>
   );
 }
-"
