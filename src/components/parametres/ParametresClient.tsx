@@ -125,7 +125,7 @@ export function ParametresClient({ planId, planNom }: { planId: string; planNom:
       </SectionCard>
 
       <RefSimple
-        title="Pays"
+        title="Régions"
         items={pays.map((p) => ({ id: p.id, label: p.nom }))}
         canManage={canManage}
         onAdd={async (nomVal) => { await api('/api/pays', 'POST', { nom: nomVal, planId }); }}
@@ -133,7 +133,7 @@ export function ParametresClient({ planId, planNom }: { planId: string; planNom:
         wrap={wrap}
       />
 
-      <SectionCard title="Entités" subtitle="Rattachées à un pays.">
+      <SectionCard title="Pôles / Partenaires" subtitle="Rattachés à une région.">
         <ul className="mb-3 space-y-1">
           {entites.map((ent) => (
             <li key={ent.id} className="flex items-center gap-2 rounded-lg bg-slate-50 px-3 py-2">
@@ -246,7 +246,7 @@ function EntiteAdder({
   useEffect(() => { if (!paysId && pays[0]) setPaysId(pays[0].id); }, [pays, paysId]);
   return (
     <div className="flex flex-wrap gap-2">
-      <input className="input grow" placeholder="Nouvelle entité…" value={val} onChange={(e) => setVal(e.target.value)} />
+      <input className="input grow" placeholder="Nouveau pôle / partenaire…" value={val} onChange={(e) => setVal(e.target.value)} />
       <select className="input w-auto" value={paysId} onChange={(e) => setPaysId(e.target.value)}>
         {pays.map((p) => <option key={p.id} value={p.id}>{p.nom}</option>)}
       </select>

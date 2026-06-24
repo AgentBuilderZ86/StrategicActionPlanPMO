@@ -99,7 +99,7 @@ export function ActionForm({
 
       <div className="grid grid-cols-2 gap-4">
         <div>
-          <label className="label" htmlFor="axeId">Axe *</label>
+          <label className="label" htmlFor="axeId">Pilier stratégique *</label>
           <select id="axeId" className="input" {...register('axeId')}>
             {referentiels.axes.map((x) => <option key={x.id} value={x.id}>{x.nom}</option>)}
           </select>
@@ -111,13 +111,13 @@ export function ActionForm({
           {errors.responsable && <p className="mt-1 text-xs text-statut-rouge">{errors.responsable.message}</p>}
         </div>
         <div>
-          <label className="label" htmlFor="paysId">Pays *</label>
+          <label className="label" htmlFor="paysId">Région *</label>
           <select id="paysId" className="input" {...register('paysId')}>
             {referentiels.pays.map((x) => <option key={x.id} value={x.id}>{x.nom}</option>)}
           </select>
         </div>
         <div>
-          <label className="label" htmlFor="entiteId">Entité *</label>
+          <label className="label" htmlFor="entiteId">Pôle / Partenaire *</label>
           <select id="entiteId" className="input" {...register('entiteId')}>
             {referentiels.entites.map((x) => <option key={x.id} value={x.id}>{x.nom}</option>)}
           </select>
@@ -143,18 +143,18 @@ export function ActionForm({
           <input id="dateFin" type="date" className="input" {...register('dateFin')} />
         </div>
         <div>
-          <label className="label" htmlFor="budget">Budget (k€)</label>
+          <label className="label" htmlFor="budget">Budget (k MAD)</label>
           <input id="budget" type="number" step="any" className="input" {...register('budget')} />
         </div>
         <div>
-          <label className="label" htmlFor="budgetConso">Budget consommé (k€)</label>
+          <label className="label" htmlFor="budgetConso">Budget consommé (k MAD)</label>
           <input id="budgetConso" type="number" step="any" className="input" {...register('budgetConso')} />
         </div>
       </div>
 
       <div>
         <label className="label" htmlFor="avancement">Avancement : <span className="font-bold text-accent">{avancement}%</span></label>
-        <input id="avancement" type="range" min={0} max={100} step={5} className="w-full accent-[#1E4FD8]" {...register('avancement')} />
+        <input id="avancement" type="range" min={0} max={100} step={5} className="w-full accent-accent" {...register('avancement')} />
       </div>
 
       <div>

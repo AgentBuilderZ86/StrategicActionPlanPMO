@@ -5,11 +5,11 @@ import { usePathname } from 'next/navigation';
 import { cn } from '@/lib/utils';
 
 const TABS = [
-  { href: '/', label: 'Tableau de bord' },
-  { href: '/actions', label: 'Plan d’actions' },
-  { href: '/analyses', label: 'Analyses' },
-  { href: '/copil', label: 'COPIL' },
-  { href: '/parametres', label: 'Paramètres' },
+  { href: ‘/’, label: ‘Tableau de bord’ },
+  { href: ‘/actions’, label: ‘Plan d’actions’ },
+  { href: ‘/analyses’, label: ‘Analyses’ },
+  { href: ‘/copil’, label: ‘Comité de pilotage’ },
+  { href: ‘/parametres’, label: ‘Paramètres’ },
 ];
 
 export function Nav() {

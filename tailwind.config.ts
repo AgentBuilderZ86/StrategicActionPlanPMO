@@ -5,15 +5,15 @@ const config: Config = {
   theme: {
     extend: {
       colors: {
-        // Identité neutre client
-        canvas: '#F4F5F7',
+        // Identité NARSA — Sécurité Routière Maroc
+        canvas: '#F4F6F5',
         ink: {
-          DEFAULT: '#16202E',
-          soft: '#243447',
+          DEFAULT: '#0D2818',
+          soft: '#1A3D28',
         },
         accent: {
-          DEFAULT: '#1E4FD8',
-          soft: '#4F7BEC',
+          DEFAULT: '#006B3F',
+          soft: '#2E9E6B',
         },
         statut: {
           vert: '#1B9E62',

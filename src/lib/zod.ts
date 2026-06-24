@@ -1,9 +1,11 @@
 import { z } from 'zod';
-import { STATUTS, PRIORITES, ROLES } from './constants';
+import { STATUTS, PRIORITES, ROLES, NIVEAUX, PMO_TYPES } from './constants';
 
 export const statutEnum = z.enum(STATUTS);
 export const prioriteEnum = z.enum(PRIORITES);
 export const roleEnum = z.enum(ROLES);
+export const niveauEnum = z.enum(NIVEAUX.map(String) as [string, ...string[]]).transform(Number).pipe(z.number().int().min(1).max(5));
+export const pmoTypeEnum = z.enum(PMO_TYPES);
 
 // Accepte une date ISO (string) ou null/undefined ; renvoie Date | null
 const dateOpt = z
@@ -40,6 +42,10 @@ export const actionCreateSchema = z.object({
   budget: numOpt,
   budgetConso: numOpt,
   commentaire: z.string().max(2000).optional().nullable(),
+  niveau: z.coerce.number().int().min(1).max(5).default(4),
+  indicateur: z.string().max(200).optional().nullable(),
+  cibleIndicateur: numOpt,
+  valeurIndicateur: numOpt,
 });
 
 export const actionUpdateSchema = actionCreateSchema.partial().omit({ planId: true });
@@ -68,6 +74,8 @@ export const planSchema = z.object({
   nom: z.string().min(1).max(160),
   dateDebut: dateOpt,
   dateFin: dateOpt,
+  typePmo: pmoTypeEnum.optional(),
+  objectif: z.string().max(500).optional().nullable(),
 });
 
 export const snapshotSchema = z.object({

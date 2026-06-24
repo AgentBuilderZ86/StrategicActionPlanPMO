@@ -1,5 +1,6 @@
 // Énumérations applicatives (SQLite ne supporte pas les enum Prisma natifs)
 // et tokens de design partagés entre composants.
+// Adapté pour la NARSA — Agence Nationale de la Sécurité Routière (Maroc)
 
 export const STATUTS = ['A_LANCER', 'EN_COURS', 'TERMINE', 'BLOQUE'] as const;
 export type Statut = (typeof STATUTS)[number];
@@ -10,17 +11,21 @@ export type Priorite = (typeof PRIORITES)[number];
 export const ROLES = ['ADMIN', 'PMO', 'CONTRIBUTEUR', 'LECTEUR'] as const;
 export type Role = (typeof ROLES)[number];
 
+// Types de module PMO (3 volets NARSA selon le CPS)
+export const PMO_TYPES = ['ECOSYSTEME', 'INTERNE', 'SI'] as const;
+export type PmoType = (typeof PMO_TYPES)[number];
+
 export const STATUT_LABEL: Record<Statut, string> = {
   A_LANCER: 'À lancer',
   EN_COURS: 'En cours',
-  TERMINE: 'Terminé',
+  TERMINE: 'Réalisé',
   BLOQUE: 'Bloqué',
 };
 
 export const STATUT_COLOR: Record<Statut, string> = {
   A_LANCER: '#64748B', // gris
-  EN_COURS: '#1E4FD8', // accent
-  TERMINE: '#1B9E62', // vert
+  EN_COURS: '#006B3F', // vert NARSA
+  TERMINE: '#1B9E62', // vert clair
   BLOQUE: '#D64545', // rouge
 };
 
@@ -44,9 +49,43 @@ export const PRIORITE_RANG: Record<Priorite, number> = {
 
 export const ROLE_LABEL: Record<Role, string> = {
   ADMIN: 'Administrateur',
-  PMO: 'PMO',
+  PMO: 'Chargé PMO',
   CONTRIBUTEUR: 'Contributeur',
-  LECTEUR: 'Lecteur',
+  LECTEUR: 'Observateur',
+};
+
+export const PMO_TYPE_LABEL: Record<PmoType, string> = {
+  ECOSYSTEME: 'PMO Écosystème (SNSR)',
+  INTERNE: 'PMO Interne (NARSA)',
+  SI: 'PMO SI (Projets IT)',
+};
+
+export const PMO_TYPE_DESCRIPTION: Record<PmoType, string> = {
+  ECOSYSTEME:
+    'Suivi des actions et engagements de la stratégie nationale de la sécurité routière avec les partenaires institutionnels.',
+  INTERNE:
+    "Suivi du plan d'action annuel interne de la NARSA et de ses chantiers thématiques.",
+  SI: 'Pilotage des projets IT en cohérence avec la feuille de route digitale de l'Agence.',
+};
+
+// Niveaux hiérarchiques du plan d'action (5 niveaux NARSA selon le CPS)
+export const NIVEAUX = [1, 2, 3, 4, 5] as const;
+export type Niveau = (typeof NIVEAUX)[number];
+
+export const NIVEAU_LABEL: Record<Niveau, string> = {
+  1: 'Pilier Stratégique (PS)',
+  2: 'Axe Stratégique (CS)',
+  3: 'Projet Structurant (PS)',
+  4: 'Action Principale (AP)',
+  5: 'Sous-Action (SA)',
+};
+
+export const NIVEAU_CODE_PREFIX: Record<Niveau, string> = {
+  1: 'PS',
+  2: 'CS',
+  3: 'PRJ',
+  4: 'AP',
+  5: 'SA',
 };
 
 /** Droit d'écriture côté client (le lecteur est en lecture seule). */
@@ -56,21 +95,31 @@ export function canEditClient(role: Role | undefined): boolean {
 
 // Palette « statut » pour la heatmap (rouge → ambre → vert)
 export const COLORS = {
-  canvas: '#F4F5F7',
-  ink: '#16202E',
-  accent: '#1E4FD8',
+  canvas: '#F4F6F5',
+  ink: '#0D2818',
+  accent: '#006B3F',
   vert: '#1B9E62',
   ambre: '#E8A13D',
   rouge: '#D64545',
   gris: '#64748B',
 };
 
-export const CURRENCY = 'k€';
+// Monnaie — Maroc : MAD (Dirham marocain), exprimé en milliers
+export const CURRENCY = 'k MAD';
+
+// Objectif SNSR 2030 : réduction de 50% de la mortalité
+export const SNSR_OBJECTIF = {
+  mortalite2024: 4024,
+  mortalite_bg2024: 14718,
+  cibleMortalite2030: 2000,
+  cibleBg2030: 7300,
+  reductionCible: 50, // %
+};
 
 export const DIMENSIONS = [
-  { key: 'pays', label: 'Pays' },
-  { key: 'entite', label: 'Entité' },
-  { key: 'axe', label: 'Axe' },
+  { key: 'pays', label: 'Région' },
+  { key: 'entite', label: 'Pôle / Partenaire' },
+  { key: 'axe', label: 'Pilier stratégique' },
   { key: 'responsable', label: 'Responsable' },
   { key: 'priorite', label: 'Priorité' },
 ] as const;
