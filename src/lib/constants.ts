@@ -65,7 +65,7 @@ export const PMO_TYPE_DESCRIPTION: Record<PmoType, string> = {
     'Suivi des actions et engagements de la stratégie nationale de la sécurité routière avec les partenaires institutionnels.',
   INTERNE:
     "Suivi du plan d'action annuel interne de la NARSA et de ses chantiers thématiques.",
-  SI: 'Pilotage des projets IT en cohérence avec la feuille de route digitale de l'Agence.',
+  SI: "Pilotage des projets IT en cohérence avec la feuille de route digitale de l'Agence.",
 };
 
 // Niveaux hiérarchiques du plan d'action (5 niveaux NARSA selon le CPS)

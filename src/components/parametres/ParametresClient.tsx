@@ -94,7 +94,7 @@ export function ParametresClient({ planId, planNom }: { planId: string; planNom:
     <div className="space-y-5">
       {err && <div className="card border-statut-rouge/40 bg-statut-rouge/5 p-3 text-sm text-statut-rouge">{err}</div>}
 
-      <SectionCard title="Plan" subtitle="Identité du plan d’action stratégique.">
+      <SectionCard title="Plan" subtitle="Identité du plan d'action stratégique.">
         <div className="flex flex-wrap gap-2">
           <input className="input grow" value={nom} onChange={(e) => setNom(e.target.value)} disabled={!canManage} aria-label="Nom du plan" />
           {canManage && <button onClick={renamePlan} className="btn-primary">Renommer</button>}

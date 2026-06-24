@@ -78,7 +78,7 @@ export function ActionForm({
     });
     if (!res.ok) {
       const body = await res.json().catch(() => null);
-      setError('root', { message: body?.error?.message ?? 'Échec de l’enregistrement' });
+      setError('root', { message: body?.error?.message ?? "Échec de l'enregistrement" });
       return;
     }
     onSaved();
@@ -167,7 +167,7 @@ export function ActionForm({
       <div className="flex justify-end gap-2 pt-2">
         <button type="button" onClick={onCancel} className="btn-ghost">Annuler</button>
         <button type="submit" disabled={isSubmitting} className="btn-primary">
-          {action ? 'Enregistrer' : 'Créer l’action'}
+          {action ? 'Enregistrer' : "Créer l'action"}
         </button>
       </div>
     </form>

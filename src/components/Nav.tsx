@@ -5,11 +5,11 @@ import { usePathname } from 'next/navigation';
 import { cn } from '@/lib/utils';
 
 const TABS = [
-  { href: ‘/’, label: ‘Tableau de bord’ },
-  { href: ‘/actions’, label: ‘Plan d’actions’ },
-  { href: ‘/analyses’, label: ‘Analyses’ },
-  { href: ‘/copil’, label: ‘Comité de pilotage’ },
-  { href: ‘/parametres’, label: ‘Paramètres’ },
+  { href: "/', label: 'Tableau de bord' },
+  { href: '/actions', label: 'Plan d'actions' },
+  { href: '/analyses', label: 'Analyses' },
+  { href: '/copil', label: 'Comité de pilotage' },
+  { href: '/parametres', label: 'Paramètres' },
 ];
 
 export function Nav() {
@@ -17,7 +17,7 @@ export function Nav() {
   const isActive = (href: string) => (href === '/' ? pathname === '/' : pathname.startsWith(href));
 
   return (
-    <nav className="flex flex-wrap gap-1" aria-label="Navigation principale">
+    <nav className=\"flex flex-wrap gap-1\" aria-label=\"Navigation principale\">
       {TABS.map((t) => (
         <Link
           key={t.href}
@@ -36,3 +36,4 @@ export function Nav() {
     </nav>
   );
 }
+"

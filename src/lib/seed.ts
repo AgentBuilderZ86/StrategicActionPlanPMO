@@ -26,11 +26,11 @@ export async function seedDemo(prisma: PrismaClient) {
   // ─── Plan 1 : PMO Écosystème — SNSR 2026-2030 ──────────────────────────────
   const planSnsr = await prisma.plan.create({
     data: {
-      nom: 'Plan d'Action National de la Sécurité Routière 2026-2030',
+      nom: "Plan d'Action National de la Sécurité Routière 2026-2030",
       dateDebut: date(2026, 1, 1),
       dateFin: date(2030, 12, 31),
       typePmo: 'ECOSYSTEME',
-      objectif: 'Réduire de 50% le nombre de tués et de blessés graves d'ici 2030',
+      objectif: "Réduire de 50% le nombre de tués et de blessés graves d'ici 2030",
     },
   });
 
@@ -40,7 +40,7 @@ export async function seedDemo(prisma: PrismaClient) {
     prisma.axe.create({ data: { nom: 'Protection des usagers vulnérables', ordre: 1, planId: planSnsr.id } }),
     prisma.axe.create({ data: { nom: 'Traitement des points accidentogènes', ordre: 2, planId: planSnsr.id } }),
     prisma.axe.create({ data: { nom: 'Rendre les véhicules plus sûrs', ordre: 3, planId: planSnsr.id } }),
-    prisma.axe.create({ data: { nom: 'Renforcer l'efficacité des réponses post-accidents', ordre: 4, planId: planSnsr.id } }),
+    prisma.axe.create({ data: { nom: "Renforcer l'efficacité des réponses post-accidents", ordre: 4, planId: planSnsr.id } }),
   ]);
 
   // 12 Régions du Maroc (Directions Régionales NARSA)
@@ -65,10 +65,10 @@ export async function seedDemo(prisma: PrismaClient) {
   // Partenaires institutionnels (pour PMO Écosystème)
   const partenairesData = [
     { nom: 'Ministère du Transport et de la Logistique', paysIdx: 0 },
-    { nom: 'Ministère de l'Intérieur (Gendarmerie/Police)', paysIdx: 1 },
+    { nom: "Ministère de l'Intérieur (Gendarmerie/Police)", paysIdx: 1 },
     { nom: 'Ministère de la Santé', paysIdx: 2 },
-    { nom: 'Ministère de l'Éducation Nationale', paysIdx: 3 },
-    { nom: 'Ministère de l'Équipement et de l'Eau', paysIdx: 0 },
+    { nom: "Ministère de l'Éducation Nationale", paysIdx: 3 },
+    { nom: "Ministère de l'Équipement et de l'Eau", paysIdx: 0 },
     { nom: 'Comité National de Prévention des Accidents (CNPAC)', paysIdx: 1 },
   ];
   const partenaires = await Promise.all(
@@ -108,8 +108,8 @@ export async function seedDemo(prisma: PrismaClient) {
     ['Programme national de contrôle automatisé de la vitesse', 0, 0, 0, 'Dir. Contrôle NARSA', 'EN_COURS', 65, 'HAUTE', 365, 12000, 7800, 4, 'Déploiement de 200 radars fixes sur le réseau national.', 'Nb radars déployés', 200, 130],
     ['Révision des limites de vitesse sur réseau secondaire', 0, 2, 4, 'Dir. Technique NARSA', 'EN_COURS', 45, 'HAUTE', 180, 800, 360, 4, null, 'Km de voirie révisée', 2500, 1125],
     ['Campagnes nationales de sensibilisation vitesse', 0, 1, 5, 'Pôle Communication', 'EN_COURS', 70, 'MOYENNE', 120, 2500, 1750, 4, null, 'Personnes sensibilisées', 500000, 350000],
-    ['Formation des forces de l'ordre au contrôle vitesse', 0, 0, 1, 'Pôle Sécurité Conduite', 'TERMINE', 100, 'MOYENNE', -30, 600, 590, 4, null],
-    ['Étude d'impact des zones 30 km/h en milieu urbain', 0, 3, 4, 'Pôle Surveillance SR', 'A_LANCER', 0, 'BASSE', 300, 400, 0, 3],
+    ["Formation des forces de l'ordre au contrôle vitesse", 0, 0, 1, 'Pôle Sécurité Conduite', 'TERMINE', 100, 'MOYENNE', -30, 600, 590, 4, null],
+    ["Étude d'impact des zones 30 km/h en milieu urbain", 0, 3, 4, 'Pôle Surveillance SR', 'A_LANCER', 0, 'BASSE', 300, 400, 0, 3],
 
     // Pilier 2 : Protection des usagers vulnérables
     ['Programme national de port du casque moto', 1, 0, 1, 'Dir. Prévention NARSA', 'EN_COURS', 55, 'HAUTE', 270, 1800, 990, 4, 'Campagne + contrôle + subvention casque.', 'Taux port casque %', 75, 41],
@@ -127,7 +127,7 @@ export async function seedDemo(prisma: PrismaClient) {
 
     // Pilier 4 : Rendre les véhicules plus sûrs
     ['Réforme du contrôle technique obligatoire', 3, 1, 0, 'Pôle Sécurité Conduite', 'EN_COURS', 55, 'HAUTE', 365, 2000, 1100, 3, 'Digitalisation et renforcement des centres agréés.', 'Centres certifiés', 800, 440],
-    ['Lutte contre les véhicules non conformes', 3, 3, 1, 'Gendarmerie/Police', 'EN_COURS', 42, 'HAUTE', 270, 1500, 630, 4, 'Opérations conjointes NARSA/Forces de l'ordre.', 'Véhicules retirés circulation', 5000, 2100],
+    ['Lutte contre les véhicules non conformes', 3, 3, 1, 'Gendarmerie/Police', 'EN_COURS', 42, 'HAUTE', 270, 1500, 630, 4, "Opérations conjointes NARSA/Forces de l'ordre.", 'Véhicules retirés circulation', 5000, 2100],
     ['Homologation des équipements de sécurité véhicules', 3, 0, 0, 'CNEH-NARSA', 'EN_COURS', 70, 'MOYENNE', 180, 800, 560, 4, null],
     ['Campagne anti-surcharge des poids lourds', 3, 2, 1, 'Gendarmerie/Police', 'TERMINE', 100, 'MOYENNE', -45, 500, 498, 4, null, 'PL contrôlés', 20000, 20000],
 
@@ -204,7 +204,7 @@ export async function seedDemo(prisma: PrismaClient) {
   const polesData = [
     { nom: 'Pôle Surveillance et Expertise en Sécurité Routière', paysIdx: 0 },
     { nom: 'Pôle Sécurité de la Conduite et des Véhicules', paysIdx: 0 },
-    { nom: 'Pôle Système d'Information et NTSR', paysIdx: 0 },
+    { nom: "Pôle Système d'Information et NTSR", paysIdx: 0 },
     { nom: 'Pôle Affaires Administratives, Juridiques et Financières', paysIdx: 0 },
     { nom: 'Pôle Communication, Éducation et Prévention Routière', paysIdx: 0 },
     { nom: 'Pôle Qualité, Audit et Contrôle de Gestion', paysIdx: 0 },
@@ -223,21 +223,21 @@ export async function seedDemo(prisma: PrismaClient) {
 
   const actionsNarsa: ActionRow[] = [
     // Axe 1 : Pilotage SNSR
-    ['Mise en place de la plateforme PMO collaborative', 0, 0, 2, 'Pôle SI NARSA', 'EN_COURS', 55, 'HAUTE', 180, 3500, 1925, 4, 'Cahier des charges élaboré, appel d'offres lancé.', 'Modules déployés', 3, 1],
+    ['Mise en place de la plateforme PMO collaborative', 0, 0, 2, 'Pôle SI NARSA', 'EN_COURS', 55, 'HAUTE', 180, 3500, 1925, 4, "Cahier des charges élaboré, appel d'offres lancé.", 'Modules déployés', 3, 1],
     ['Tableau de bord national de suivi de la SNSR', 0, 0, 0, 'Pôle Surveillance SR', 'EN_COURS', 70, 'HAUTE', 120, 800, 560, 4, null, 'Indicateurs renseignés', 45, 32],
     ['Comités régionaux de la sécurité routière — animation', 0, 0, 5, 'Pôle Qualité & Audit', 'EN_COURS', 60, 'MOYENNE', 300, 600, 360, 4, null, 'CPSR réunis', 10, 6],
-    ['Rapports trimestriels d'évaluation SNSR', 0, 0, 0, 'Pôle Surveillance SR', 'EN_COURS', 50, 'MOYENNE', 270, 400, 200, 4, null, 'Rapports publiés', 4, 2],
+    ["Rapports trimestriels d'évaluation SNSR", 0, 0, 0, 'Pôle Surveillance SR', 'EN_COURS', 50, 'MOYENNE', 270, 400, 200, 4, null, 'Rapports publiés', 4, 2],
 
     // Axe 2 : Mobilisation acteurs
-    ['Partenariats institutionnels — protocoles d'accord', 1, 1, 1, 'Dir. Juridique NARSA', 'EN_COURS', 45, 'HAUTE', 240, 300, 135, 4, null, 'Protocoles signés', 12, 5],
+    ["Partenariats institutionnels — protocoles d'accord", 1, 1, 1, 'Dir. Juridique NARSA', 'EN_COURS', 45, 'HAUTE', 240, 300, 135, 4, null, 'Protocoles signés', 12, 5],
     ['Forum national de la sécurité routière 2026', 1, 0, 4, 'Pôle Communication', 'TERMINE', 100, 'HAUTE', -30, 1200, 1185, 4, 'Événement tenu avec 500 participants.', 'Participants', 500, 512],
-    ['Réseau d'experts nationaux SR — mise en place', 1, 3, 0, 'Pôle Surveillance SR', 'EN_COURS', 35, 'MOYENNE', 365, 500, 175, 4],
+    ["Réseau d'experts nationaux SR — mise en place", 1, 3, 0, 'Pôle Surveillance SR', 'EN_COURS', 35, 'MOYENNE', 365, 500, 175, 4],
     ['Coopération internationale — transfert de bonnes pratiques', 1, 0, 0, 'Dir. Générale NARSA', 'EN_COURS', 50, 'BASSE', 420, 800, 400, 4, null],
 
     // Axe 3 : Éducation, Formation, Sensibilisation
     ['Programme national de sensibilisation scolaire', 2, 0, 4, 'Pôle Communication', 'EN_COURS', 65, 'HAUTE', 300, 3000, 1950, 4, null, 'Élèves sensibilisés', 1000000, 650000],
     ['Réforme du programme de formation à la conduite', 2, 0, 1, 'Pôle Sécurité Conduite', 'EN_COURS', 40, 'HAUTE', 365, 1500, 600, 3, null, 'Centres agréés réformés', 450, 180],
-    ['Campagne nationale "Conduire, c'est partager"', 2, 1, 4, 'Pôle Communication', 'EN_COURS', 80, 'HAUTE', 90, 5000, 4000, 4, null, 'Reach médias (millions)', 10, 8],
+    ['Campagne nationale Conduire, cest partager', 2, 1, 4, 'Pôle Communication', 'EN_COURS', 80, 'HAUTE', 90, 5000, 4000, 4, null, 'Reach médias (millions)', 10, 8],
     ['Application mobile SR — sensibilisation grand public', 2, 0, 2, 'Pôle SI NARSA', 'EN_COURS', 30, 'MOYENNE', 540, 2000, 600, 4, 'En cours de développement.', 'Téléchargements', 500000, 150000],
     ['Formation des journalistes aux reportages SR', 2, 0, 4, 'Pôle Communication', 'TERMINE', 100, 'BASSE', -20, 200, 196, 4],
 
@@ -248,9 +248,9 @@ export async function seedDemo(prisma: PrismaClient) {
     ['Formation des agents NARSA au contrôle terrain', 3, 0, 5, 'Pôle Qualité & Audit', 'EN_COURS', 70, 'MOYENNE', 150, 600, 420, 4, null, 'Agents formés', 500, 350],
 
     // Axe 5 : Systèmes gestion interne
-    ['Refonte du système d'information NARSA (ERP)', 4, 0, 2, 'Pôle SI NARSA', 'EN_COURS', 35, 'HAUTE', 540, 12000, 4200, 3, 'Mise en place Odoo/SAP adapté SP marocain.', 'Modules déployés', 10, 4],
+    ["Refonte du système d'information NARSA (ERP)", 4, 0, 2, 'Pôle SI NARSA', 'EN_COURS', 35, 'HAUTE', 540, 12000, 4200, 3, 'Mise en place Odoo/SAP adapté SP marocain.', 'Modules déployés', 10, 4],
     ['Mise en place du contrôle de gestion NARSA', 4, 0, 3, 'Pôle AAJF', 'EN_COURS', 50, 'HAUTE', 300, 800, 400, 4, null],
-    ['Programme de développement RH 2026-2028', 4, 0, 3, 'Pôle AAJF', 'EN_COURS', 45, 'MOYENNE', 540, 1500, 675, 3, null, 'Taux d'encadrement %', 45, 40],
+    ['Programme de développement RH 2026-2028', 4, 0, 3, 'Pôle AAJF', 'EN_COURS', 45, 'MOYENNE', 540, 1500, 675, 3, null, "Taux d'encadrement %", 45, 40],
     ['Certification ISO 9001 des processus NARSA', 4, 0, 5, 'Pôle Qualité & Audit', 'A_LANCER', 0, 'MOYENNE', 720, 700, 0, 4, null],
     ['Digitalisation de la gestion documentaire (GED)', 4, 0, 2, 'Pôle SI NARSA', 'EN_COURS', 40, 'BASSE', 420, 1200, 480, 4, null, 'Documents numérisés', 50000, 20000],
   ];
@@ -329,7 +329,7 @@ export async function seedDemo(prisma: PrismaClient) {
   const actionsSi: ActionRow[] = [
     ['Migration infrastructure vers cloud souverain', 0, 0, 2, 'DSI NARSA', 'EN_COURS', 40, 'HAUTE', 420, 8000, 3200, 3, 'Cloud privé hébergé au Maroc.', 'Services migrés %', 100, 40],
     ['Modernisation réseau NARSA — 10 directions régionales', 0, 0, 2, 'DSI NARSA', 'EN_COURS', 55, 'HAUTE', 300, 5000, 2750, 4, null, 'Sites connectés fibre', 10, 6],
-    ['Plateforme PMO collaborative (Mission 1 CPS)', 1, 0, 2, 'DSI NARSA', 'EN_COURS', 55, 'HAUTE', 200, 3500, 1925, 4, 'Appel d'offres N°15/NARSA/2026 en cours.'],
+    ['Plateforme PMO collaborative (Mission 1 CPS)', 1, 0, 2, 'DSI NARSA', 'EN_COURS', 55, 'HAUTE', 200, 3500, 1925, 4, "Appel d'offres N°15/NARSA/2026 en cours."],
     ['Refonte portail permis de conduire en ligne', 1, 0, 1, 'Pôle SC&V', 'EN_COURS', 70, 'HAUTE', 180, 4000, 2800, 4, null, 'Transactions en ligne/mois', 50000, 35000],
     ['Application de suivi des infractions (mobile/web)', 1, 1, 2, 'DSI NARSA', 'EN_COURS', 45, 'HAUTE', 360, 3000, 1350, 4, null],
     ['Hub data SR — interconnexion bases accidents/infractions/santé', 2, 0, 0, 'Pôle SR & Expertise', 'EN_COURS', 30, 'HAUTE', 540, 6000, 1800, 3, null, 'Sources connectées', 8, 2],

@@ -5,7 +5,7 @@ import { SectionCard } from '@/components/ui/Cards';
 export function Heatmap({ heatmap, axes }: { heatmap: HeatRow[]; axes: { id: string; nom: string }[] }) {
   return (
     <SectionCard
-      title="Matrice d’avancement — Pays × Axes"
+      title="Matrice d'avancement — Pays × Axes"
       subtitle="Avancement moyen par cellule (rouge → ambre → vert). Survol pour le détail."
     >
       <div className="overflow-x-auto">

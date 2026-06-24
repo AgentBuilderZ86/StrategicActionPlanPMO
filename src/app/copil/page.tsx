@@ -59,7 +59,7 @@ export default async function CopilPage() {
         <Heatmap heatmap={data.heatmap} axes={axes.map((a) => ({ id: a.id, nom: a.nom }))} />
 
         {/* Top 5 points d'attention */}
-        <SectionCard title="Top 5 points d’attention" subtitle="Actions bloquées ou en retard les plus prioritaires">
+        <SectionCard title="Top 5 points d'attention" subtitle="Actions bloquées ou en retard les plus prioritaires">
           <PointsAttention actions={top5} />
         </SectionCard>
       </div>

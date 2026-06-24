@@ -39,7 +39,7 @@ describe('computeKpis', () => {
     expect(k.bloquees).toBe(1);
     expect(k.enCours).toBe(1);
   });
-  it('calcule l’avancement moyen', () => {
+  it("calcule l'avancement moyen", () => {
     expect(k.avancementMoyen).toBe(Math.round((100 + 50 + 20) / 3));
   });
   it('compte les actions en retard (B uniquement)', () => {
@@ -92,7 +92,7 @@ describe('pointsAttention', () => {
 });
 
 describe('computeTrend', () => {
-  it('moyenne l’avancement par mois cumulé', () => {
+  it("moyenne l'avancement par mois cumulé", () => {
     const trend = computeTrend([
       { actionId: '1', date: '2026-01-15', valeur: 20 },
       { actionId: '1', date: '2026-02-15', valeur: 60 },

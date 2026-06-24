@@ -8,9 +8,9 @@ const archivo = Archivo({ subsets: ['latin'], variable: '--font-archivo', displa
 const inter = Inter({ subsets: ['latin'], variable: '--font-inter', display: 'swap' });
 
 export const metadata: Metadata = {
-  title: ‘PMO NARSA — Stratégie Nationale de la Sécurité Routière’,
+  title: "PMO NARSA — Stratégie Nationale de la Sécurité Routière",
   description:
-    ‘Plateforme PMO de la NARSA : pilotage de la Stratégie Nationale de la Sécurité Routière (SNSR 2026-2030) et du plan d’action de développement de l’Agence.’,
+    "Plateforme PMO de la NARSA : pilotage de la Stratégie Nationale de la Sécurité Routière (SNSR 2026-2030) et du plan d"action de développement de l'Agence.',
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
