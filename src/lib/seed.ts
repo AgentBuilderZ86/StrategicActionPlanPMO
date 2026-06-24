@@ -97,10 +97,10 @@ export async function seedDemo(prisma: PrismaClient) {
     number,   // budget k MAD
     number,   // budgetConso k MAD
     number,   // niveau
-    string?,  // commentaire
-    string?,  // indicateur
-    number?,  // cibleIndicateur
-    number?,  // valeurIndicateur
+    (string | null)?,  // commentaire
+    (string | null)?,  // indicateur
+    (number | null)?,  // cibleIndicateur
+    (number | null)?,  // valeurIndicateur
   ];
 
   const actionsSnsr: ActionRow[] = [
