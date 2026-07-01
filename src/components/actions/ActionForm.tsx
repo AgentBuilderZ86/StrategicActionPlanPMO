@@ -7,6 +7,7 @@ import { STATUTS, PRIORITES, STATUT_LABEL, PRIORITE_LABEL, NIVEAU_MAX, niveauLab
 import type { ActionDTO, Referentiels } from '@/lib/types';
 import { toDateInput } from '@/lib/utils';
 import { IndicateursPanel } from './IndicateursPanel';
+import { CommentairesPanel } from './CommentairesPanel';
 
 const formSchema = z.object({
   titre: z.string().min(1, 'Le titre est requis'),
@@ -201,6 +202,7 @@ export function ActionForm({
       </div>
 
       {action && <IndicateursPanel actionId={action.id} canEdit />}
+      {action && <CommentairesPanel actionId={action.id} />}
 
       {errors.root && <p className="text-sm text-statut-rouge">{errors.root.message}</p>}
 

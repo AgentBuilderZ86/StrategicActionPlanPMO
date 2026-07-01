@@ -127,6 +127,10 @@ export const indicateurCreateSchema = z.object({
 
 export const indicateurUpdateSchema = indicateurCreateSchema.partial();
 
+export const commentaireSchema = z.object({
+  contenu: z.string().min(1, 'Le commentaire ne peut pas être vide').max(2000),
+});
+
 export const snapshotSchema = z.object({
   planId: z.string().min(1),
   periode: z.string().min(1),

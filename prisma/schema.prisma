@@ -118,9 +118,10 @@ model Action {
   entite     Entite?      @relation(fields: [entiteId], references: [id], onDelete: SetNull)
   parent      Action?      @relation("Arbre", fields: [parentId], references: [id], onDelete: Cascade)
   enfants     Action[]     @relation("Arbre")
-  jalons      Jalon[]
-  historique  Avancement[]
-  indicateurs Indicateur[]
+  jalons       Jalon[]
+  historique   Avancement[]
+  indicateurs  Indicateur[]
+  commentaires Commentaire[]
 
   @@unique([planId, code])
   @@index([planId])
@@ -146,6 +147,19 @@ model Indicateur {
   agregeable Boolean @default(true)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+
+  @@index([actionId])
+}
+
+// Fil de commentaires collaboratif par nœud (T1.3, exig. 32).
+model Commentaire {
+  id        String   @id @default(cuid())
+  actionId  String
+  action    Action   @relation(fields: [actionId], references: [id], onDelete: Cascade)
+  auteurId  String?
+  auteurNom String?
+  contenu   String
+  createdAt DateTime @default(now())
 
   @@index([actionId])
 }

@@ -18,7 +18,7 @@ Statuts : ✅ conforme · 🟡 en cours · ⬜ à faire.
 
 | Exig. | Intitulé | Statut | Tâche |
 |------:|----------|:------:|-------|
-| 7 | Pièces jointes / documents | ⬜ | T1.3 |
+| 7 | Pièces jointes / documents | ⬜ | T1.3 · en attente d'une décision de stockage objet (S3/Supabase) |
 | 8 | Notifications, alertes, rappels | ⬜ | T1.4 |
 | 9 | Attributs personnalisables par type de plan | ⬜ | T1.1 |
 | 10 | Attributs par niveau | ⬜ | T1.1 |
@@ -30,7 +30,7 @@ Statuts : ✅ conforme · 🟡 en cours · ⬜ à faire.
 | 25 | Validation hiérarchique | ⬜ | T1.5 |
 | 30 | Habilitations fines (lecture/saisie/validation/reporting) | ⬜ | T1.6 |
 | 31 | Profils partenaires externes | ⬜ | T1.6 |
-| 32 | Fil de commentaires / collaboration | ⬜ | T1.3 |
+| 32 | Fil de commentaires / collaboration | ✅ | T1.3 · modèle `Commentaire`, `/api/actions/[id]/commentaires`, panneau fil dans la fiche action |
 
 ## WAVE 2 — Visualisation, SI/Agile, interopérabilité
 
