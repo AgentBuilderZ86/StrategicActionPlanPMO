@@ -3,8 +3,9 @@ import { ok, fail, handleError } from '@/lib/api';
 import { actionUpdateSchema } from '@/lib/zod';
 import { ACTION_INCLUDE, serializeAction } from '@/lib/serialize';
 import { requireEdit } from '@/lib/permissions';
-import { construireArbre, aplatirArbre, niveauEnfantAttendu } from '@/lib/tree';
+import { construireArbre, aplatirArbre, idsDescendants, niveauEnfantAttendu } from '@/lib/tree';
 import { reindexerCodesPlan } from '@/lib/codes';
+import { consoliderIndicateurs } from '@/lib/indicateurs';
 import { logAction } from '@/lib/audit';
 
 export const dynamic = 'force-dynamic';
@@ -13,10 +14,27 @@ export async function GET(_req: Request, { params }: { params: { id: string } })
   try {
     const action = await prisma.action.findUnique({
       where: { id: params.id },
-      include: { ...ACTION_INCLUDE, jalons: true, historique: { orderBy: { date: 'asc' } } },
+      include: ACTION_INCLUDE,
     });
     if (!action) return fail('NOT_FOUND', 'Action introuvable', 404);
-    return ok(serializeAction(action));
+
+    // Indicateurs propres au nœud + consolidation ascendante de son sous-arbre (T1.2).
+    const [indicateurs, planActions] = await Promise.all([
+      prisma.indicateur.findMany({ where: { actionId: params.id }, orderBy: { createdAt: 'asc' } }),
+      prisma.action.findMany({
+        where: { planId: action.planId },
+        select: { id: true, parentId: true, niveau: true, ordre: true },
+      }),
+    ]);
+    const noeud = aplatirArbre(construireArbre(planActions)).find((n) => n.id === params.id);
+    const sousArbreIds = noeud ? idsDescendants(noeud) : [params.id];
+    const indicsSousArbre = await prisma.indicateur.findMany({ where: { actionId: { in: sousArbreIds } } });
+
+    return ok({
+      ...serializeAction(action),
+      indicateurs,
+      indicateursConsolides: consoliderIndicateurs(indicsSousArbre),
+    });
   } catch (e) {
     return handleError(e);
   }

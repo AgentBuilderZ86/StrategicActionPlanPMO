@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { STATUTS, PRIORITES, ROLES, NIVEAUX, NIVEAU_MAX, PMO_TYPES } from './constants';
+import { STATUTS, PRIORITES, ROLES, NIVEAUX, NIVEAU_MAX, PMO_TYPES, SENS_INDICATEUR } from './constants';
 
 export const statutEnum = z.enum(STATUTS);
 export const prioriteEnum = z.enum(PRIORITES);
@@ -115,6 +115,17 @@ export const userUpdateSchema = z.object({
   // Déverrouillage manuel par un admin.
   unlock: z.boolean().optional(),
 });
+
+export const indicateurCreateSchema = z.object({
+  libelle: z.string().min(1, 'Le libellé est requis').max(160),
+  unite: z.string().max(40).optional().nullable(),
+  cible: numOpt,
+  realise: numOpt,
+  sens: z.enum(SENS_INDICATEUR).default('HAUSSE'),
+  agregeable: z.coerce.boolean().default(true),
+});
+
+export const indicateurUpdateSchema = indicateurCreateSchema.partial();
 
 export const snapshotSchema = z.object({
   planId: z.string().min(1),

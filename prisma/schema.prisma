@@ -116,10 +116,11 @@ model Action {
   axe        Axe?         @relation(fields: [axeId], references: [id], onDelete: SetNull)
   pays       Pays?        @relation(fields: [paysId], references: [id], onDelete: SetNull)
   entite     Entite?      @relation(fields: [entiteId], references: [id], onDelete: SetNull)
-  parent     Action?      @relation("Arbre", fields: [parentId], references: [id], onDelete: Cascade)
-  enfants    Action[]     @relation("Arbre")
-  jalons     Jalon[]
-  historique Avancement[]
+  parent      Action?      @relation("Arbre", fields: [parentId], references: [id], onDelete: Cascade)
+  enfants     Action[]     @relation("Arbre")
+  jalons      Jalon[]
+  historique  Avancement[]
+  indicateurs Indicateur[]
 
   @@unique([planId, code])
   @@index([planId])
@@ -127,6 +128,26 @@ model Action {
   @@index([paysId])
   @@index([entiteId])
   @@index([parentId])
+}
+
+// Indicateurs de performance multi-lignes par nœud (T1.2, exig. 11, 13, 14).
+// Généralise le triplet indicateur/cible/valeur historique porté par Action.
+model Indicateur {
+  id       String  @id @default(cuid())
+  actionId String
+  action   Action  @relation(fields: [actionId], references: [id], onDelete: Cascade)
+  libelle  String
+  unite    String?
+  cible    Float?
+  realise  Float?
+  // Sens d'amélioration : HAUSSE (plus = mieux) | BAISSE (moins = mieux, ex. mortalité)
+  sens     String  @default("HAUSSE")
+  // Agrège-t-on cet indicateur vers les niveaux parents ? (somme sur l'arbre)
+  agregeable Boolean @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([actionId])
 }
 
 model Jalon {

@@ -6,6 +6,7 @@ import { z } from 'zod';
 import { STATUTS, PRIORITES, STATUT_LABEL, PRIORITE_LABEL, NIVEAU_MAX, niveauLabel } from '@/lib/constants';
 import type { ActionDTO, Referentiels } from '@/lib/types';
 import { toDateInput } from '@/lib/utils';
+import { IndicateursPanel } from './IndicateursPanel';
 
 const formSchema = z.object({
   titre: z.string().min(1, 'Le titre est requis'),
@@ -198,6 +199,8 @@ export function ActionForm({
         <label className="label" htmlFor="commentaire">Commentaire</label>
         <textarea id="commentaire" rows={2} className="input" {...register('commentaire')} />
       </div>
+
+      {action && <IndicateursPanel actionId={action.id} canEdit />}
 
       {errors.root && <p className="text-sm text-statut-rouge">{errors.root.message}</p>}
 

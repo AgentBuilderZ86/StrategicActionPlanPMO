@@ -130,6 +130,15 @@ export const SNSR_OBJECTIF = {
   reductionCible: 50, // %
 };
 
+// Sens d'amélioration d'un indicateur (T1.2)
+export const SENS_INDICATEUR = ['HAUSSE', 'BAISSE'] as const;
+export type SensIndicateur = (typeof SENS_INDICATEUR)[number];
+
+export const SENS_LABEL: Record<SensIndicateur, string> = {
+  HAUSSE: 'À la hausse (plus = mieux)',
+  BAISSE: 'À la baisse (moins = mieux)',
+};
+
 export const DIMENSIONS = [
   { key: 'pays', label: 'Région' },
   { key: 'entite', label: 'Pôle / Partenaire' },

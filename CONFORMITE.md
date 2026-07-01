@@ -22,9 +22,9 @@ Statuts : ✅ conforme · 🟡 en cours · ⬜ à faire.
 | 8 | Notifications, alertes, rappels | ⬜ | T1.4 |
 | 9 | Attributs personnalisables par type de plan | ⬜ | T1.1 |
 | 10 | Attributs par niveau | ⬜ | T1.1 |
-| 11 | KPI personnalisés | ⬜ | T1.2 |
-| 13 | Remontée automatique multi-niveaux | ⬜ | T1.2 |
-| 14 | Indicateurs d'impact sécurité routière | ⬜ | T1.2 |
+| 11 | KPI personnalisés | ✅ | T1.2 · modèle `Indicateur` multi-lignes/nœud (unité, cible, réalisé, sens), CRUD `/api/actions/[id]/indicateurs` + `/api/indicateurs/[id]` |
+| 13 | Remontée automatique multi-niveaux | ✅ | T1.2 · `consoliderIndicateurs()` (remontée ascendante sur le sous-arbre) exposée dans `GET /api/actions/[id]`, `indicateurs.test.ts` |
+| 14 | Indicateurs d'impact sécurité routière | 🟡 | T1.2 · structure en place (sens BAISSE pour mortalité) ; indicateurs d'impact à saisir/seed |
 | 18 | Rappels d'échéance | ⬜ | T1.4 |
 | 24 | Workflows de validation configurables | ⬜ | T1.5 |
 | 25 | Validation hiérarchique | ⬜ | T1.5 |
