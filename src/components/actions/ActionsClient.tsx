@@ -8,7 +8,8 @@ import { fmtDate, fmtMoney, cn } from '@/lib/utils';
 import { StatutBadge, PrioriteBadge, RetardBadge } from '@/components/ui/Badges';
 import { ProgressBar } from '@/components/ui/ProgressBar';
 import { Drawer } from '@/components/ui/Drawer';
-import { ActionForm } from './ActionForm';
+import { ActionForm, type ParentOption } from './ActionForm';
+import { ActionsTree } from './ActionsTree';
 
 const EMPTY_FILTERS = { q: '', axeId: '', paysId: '', entiteId: '', statut: '', priorite: '', enRetard: false };
 
@@ -26,6 +27,9 @@ export function ActionsClient({ planId, referentiels }: { planId: string; refere
   const [loading, setLoading] = useState(true);
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [editing, setEditing] = useState<ActionDTO | null>(null);
+  const [view, setView] = useState<'table' | 'arbre'>('table');
+  const [treeRows, setTreeRows] = useState<ActionDTO[]>([]);
+  const [parentDefaut, setParentDefaut] = useState<ParentOption | null>(null);
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -44,10 +48,30 @@ export function ActionsClient({ planId, referentiels }: { planId: string; refere
     setLoading(false);
   }, [planId, sort, dir, page, filters]);
 
+  // Vue arbre : on charge tout le plan (sans pagination) pour reconstruire l'arbre.
+  const loadTree = useCallback(async () => {
+    setLoading(true);
+    const res = await fetch(
+      `/api/actions?planId=${planId}&sort=updatedAt&dir=desc&page=1&pageSize=1000`,
+      { cache: 'no-store' },
+    );
+    const body = await res.json();
+    setTreeRows(body.data ?? []);
+    setLoading(false);
+  }, [planId]);
+
   useEffect(() => {
+    if (view === 'arbre') {
+      loadTree();
+      return;
+    }
     const t = setTimeout(load, filters.q ? 250 : 0); // debounce de la recherche texte
     return () => clearTimeout(t);
-  }, [load, filters.q]);
+  }, [view, load, loadTree, filters.q]);
+
+  const parentOptions: ParentOption[] = treeRows.map((a) => ({ id: a.id, titre: a.titre, niveau: a.niveau }));
+
+  const reload = () => (view === 'arbre' ? loadTree() : load());
 
   const setFilter = (patch: Partial<typeof EMPTY_FILTERS>) => {
     setPage(1);
@@ -59,15 +83,20 @@ export function ActionsClient({ planId, referentiels }: { planId: string; refere
     else { setSort(key); setDir('asc'); }
   };
 
-  const openNew = () => { setEditing(null); setDrawerOpen(true); };
-  const openEdit = (a: ActionDTO) => { setEditing(a); setDrawerOpen(true); };
+  const openNew = () => { setEditing(null); setParentDefaut(null); setDrawerOpen(true); };
+  const openEdit = (a: ActionDTO) => { setEditing(a); setParentDefaut(null); setDrawerOpen(true); };
+  const openChild = (parent: ActionDTO) => {
+    setEditing(null);
+    setParentDefaut({ id: parent.id, titre: parent.titre, niveau: parent.niveau });
+    setDrawerOpen(true);
+  };
 
-  const handleSaved = () => { setDrawerOpen(false); setEditing(null); load(); };
+  const handleSaved = () => { setDrawerOpen(false); setEditing(null); setParentDefaut(null); reload(); };
 
   const handleDelete = async (a: ActionDTO) => {
-    if (!window.confirm(`Supprimer l’action « ${a.titre} » ?`)) return;
+    if (!window.confirm(`Supprimer l’action « ${a.titre} » et sa descendance ?`)) return;
     await fetch(`/api/actions/${a.id}`, { method: 'DELETE' });
-    load();
+    reload();
   };
 
   const SortHeader = ({ k, label }: { k: SortKey; label: string }) => (
@@ -114,14 +143,41 @@ export function ActionsClient({ planId, referentiels }: { planId: string; refere
           <input type="checkbox" checked={filters.enRetard} onChange={(e) => setFilter({ enRetard: e.target.checked })} className="accent-[#D64545]" />
           En retard
         </label>
-        {canEdit && <button onClick={openNew} className="btn-primary ml-auto">+ Nouvelle action</button>}
+        <div className="ml-auto flex items-center gap-2">
+          <div className="flex overflow-hidden rounded-lg border border-slate-200 text-xs font-semibold">
+            <button
+              onClick={() => setView('table')}
+              className={cn('px-3 py-1.5', view === 'table' ? 'bg-accent text-white' : 'bg-white text-slate-500')}
+            >
+              Table
+            </button>
+            <button
+              onClick={() => setView('arbre')}
+              className={cn('px-3 py-1.5', view === 'arbre' ? 'bg-accent text-white' : 'bg-white text-slate-500')}
+            >
+              Arborescence
+            </button>
+          </div>
+          {canEdit && <button onClick={openNew} className="btn-primary">+ Nouvelle action</button>}
+        </div>
       </div>
 
       <div className="flex items-center justify-between text-xs font-medium text-slate-500">
-        <span>{pagination?.total ?? 0} action(s){loading ? ' · chargement…' : ''}</span>
+        <span>{(view === 'arbre' ? treeRows.length : pagination?.total ?? 0)} action(s){loading ? ' · chargement…' : ''}</span>
       </div>
 
+      {view === 'arbre' && (
+        <ActionsTree
+          rows={treeRows}
+          canEdit={canEdit}
+          onEdit={openEdit}
+          onAddChild={openChild}
+          onDelete={handleDelete}
+        />
+      )}
+
       {/* Table */}
+      {view === 'table' && (
       <div className="card overflow-x-auto">
         <table className="w-full">
           <thead>
@@ -177,9 +233,10 @@ export function ActionsClient({ planId, referentiels }: { planId: string; refere
           </tbody>
         </table>
       </div>
+      )}
 
       {/* Pagination */}
-      {pagination && pagination.totalPages > 1 && (
+      {view === 'table' && pagination && pagination.totalPages > 1 && (
         <div className="flex items-center justify-center gap-3 text-sm">
           <button disabled={page <= 1} onClick={() => setPage((p) => p - 1)} className="btn-ghost px-3 py-1.5 disabled:opacity-40">Précédent</button>
           <span className="text-slate-500">Page {pagination.page} / {pagination.totalPages}</span>
@@ -193,6 +250,8 @@ export function ActionsClient({ planId, referentiels }: { planId: string; refere
             planId={planId}
             action={editing}
             referentiels={referentiels}
+            parents={parentOptions}
+            parentDefaut={parentDefaut}
             onSaved={handleSaved}
             onCancel={() => setDrawerOpen(false)}
           />

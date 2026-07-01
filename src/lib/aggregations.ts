@@ -5,12 +5,12 @@ import { enRetard, moyenne } from './utils';
 export type AggAction = {
   id: string;
   titre?: string;
-  axeId: string;
-  paysId: string;
-  entiteId: string;
-  axe?: string;
-  pays?: string;
-  entite?: string;
+  axeId: string | null;
+  paysId: string | null;
+  entiteId: string | null;
+  axe?: string | null;
+  pays?: string | null;
+  entite?: string | null;
   responsable?: string;
   statut: string;
   priorite: string;

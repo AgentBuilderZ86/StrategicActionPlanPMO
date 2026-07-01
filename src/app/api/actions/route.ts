@@ -4,6 +4,7 @@ import { ok, fail, handleError } from '@/lib/api';
 import { actionCreateSchema } from '@/lib/zod';
 import { ACTION_INCLUDE, serializeAction } from '@/lib/serialize';
 import { requireEdit } from '@/lib/permissions';
+import { niveauEnfantAttendu } from '@/lib/tree';
 
 export const dynamic = 'force-dynamic';
 
@@ -76,8 +77,20 @@ export async function POST(req: Request) {
     const body = await req.json();
     const parsed = actionCreateSchema.parse(body);
 
+    // Cohérence de l'arbre : un nœud rattaché à un parent hérite de son plan et
+    // se voit imposer `niveau = niveau(parent) + 1` (règle T0.1).
+    const data = { ...parsed };
+    if (parsed.parentId) {
+      const parent = await prisma.action.findUnique({ where: { id: parsed.parentId } });
+      if (!parent) return fail('VALIDATION', 'Nœud parent introuvable', 422);
+      if (parent.planId !== parsed.planId) {
+        return fail('VALIDATION', 'Le parent appartient à un autre plan', 422);
+      }
+      data.niveau = niveauEnfantAttendu(parent.niveau);
+    }
+
     const created = await prisma.action.create({
-      data: parsed,
+      data,
       include: ACTION_INCLUDE,
     });
 

@@ -88,6 +88,20 @@ export const NIVEAU_CODE_PREFIX: Record<Niveau, string> = {
   5: 'SA',
 };
 
+// Profondeur maximale de l'arbre. Le CPS exige de pouvoir descendre au-delà
+// de 5 niveaux : borne configurable plutôt que plafond dur à 5.
+export const NIVEAU_MAX = 8;
+
+/** Libellé d'un niveau, avec repli générique au-delà des 5 niveaux nommés. */
+export function niveauLabel(n: number): string {
+  return NIVEAU_LABEL[n as Niveau] ?? `Niveau ${n}`;
+}
+
+/** Préfixe de codification d'un niveau, avec repli `N<n>` au-delà de 5. */
+export function niveauPrefix(n: number): string {
+  return NIVEAU_CODE_PREFIX[n as Niveau] ?? `N${n}`;
+}
+
 /** Droit d'écriture côté client (le lecteur est en lecture seule). */
 export function canEditClient(role: Role | undefined): boolean {
   return role === 'ADMIN' || role === 'PMO' || role === 'CONTRIBUTEUR';

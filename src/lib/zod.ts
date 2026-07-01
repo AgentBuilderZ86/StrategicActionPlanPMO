@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { STATUTS, PRIORITES, ROLES, NIVEAUX, PMO_TYPES } from './constants';
+import { STATUTS, PRIORITES, ROLES, NIVEAUX, NIVEAU_MAX, PMO_TYPES } from './constants';
 
 export const statutEnum = z.enum(STATUTS);
 export const prioriteEnum = z.enum(PRIORITES);
@@ -30,9 +30,14 @@ export const actionCreateSchema = z.object({
   titre: z.string().min(1, 'Le titre est requis').max(200),
   description: z.string().max(2000).optional().nullable(),
   planId: z.string().min(1),
-  axeId: z.string().min(1, "L'axe est requis"),
-  paysId: z.string().min(1, 'Le pays est requis'),
-  entiteId: z.string().min(1, "L'entité est requise"),
+  // Dimensions optionnelles : un nœud de niveau haut n'a pas forcément
+  // d'axe/région/entité. La chaîne vide est normalisée en null.
+  axeId: z.string().optional().nullable().transform((v) => v || null),
+  paysId: z.string().optional().nullable().transform((v) => v || null),
+  entiteId: z.string().optional().nullable().transform((v) => v || null),
+  // Arborescence
+  parentId: z.string().optional().nullable().transform((v) => v || null),
+  ordre: z.coerce.number().int().min(0).default(0),
   responsable: z.string().min(1, 'Le responsable est requis').max(120),
   statut: statutEnum.default('A_LANCER'),
   avancement: z.coerce.number().int().min(0).max(100).default(0),
@@ -42,7 +47,7 @@ export const actionCreateSchema = z.object({
   budget: numOpt,
   budgetConso: numOpt,
   commentaire: z.string().max(2000).optional().nullable(),
-  niveau: z.coerce.number().int().min(1).max(5).default(4),
+  niveau: z.coerce.number().int().min(1).max(NIVEAU_MAX).default(4),
   indicateur: z.string().max(200).optional().nullable(),
   cibleIndicateur: numOpt,
   valeurIndicateur: numOpt,

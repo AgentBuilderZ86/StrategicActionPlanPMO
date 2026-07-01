@@ -7,11 +7,11 @@ type Accessor = { keyOf: (a: AggAction) => string; labelOf: (a: AggAction) => st
 export function accessorFor(dim: DimensionKey): Accessor {
   switch (dim) {
     case 'pays':
-      return { keyOf: (a) => a.paysId, labelOf: (a) => a.pays ?? '—' };
+      return { keyOf: (a) => a.paysId ?? '—', labelOf: (a) => a.pays ?? '—' };
     case 'entite':
-      return { keyOf: (a) => a.entiteId, labelOf: (a) => a.entite ?? '—' };
+      return { keyOf: (a) => a.entiteId ?? '—', labelOf: (a) => a.entite ?? '—' };
     case 'axe':
-      return { keyOf: (a) => a.axeId, labelOf: (a) => a.axe ?? '—' };
+      return { keyOf: (a) => a.axeId ?? '—', labelOf: (a) => a.axe ?? '—' };
     case 'responsable':
       return { keyOf: (a) => a.responsable ?? '—', labelOf: (a) => a.responsable ?? '—' };
     case 'priorite':

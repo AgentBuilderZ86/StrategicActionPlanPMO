@@ -3,16 +3,19 @@
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
-import { STATUTS, PRIORITES, STATUT_LABEL, PRIORITE_LABEL } from '@/lib/constants';
+import { STATUTS, PRIORITES, STATUT_LABEL, PRIORITE_LABEL, NIVEAU_MAX, niveauLabel } from '@/lib/constants';
 import type { ActionDTO, Referentiels } from '@/lib/types';
 import { toDateInput } from '@/lib/utils';
 
 const formSchema = z.object({
   titre: z.string().min(1, 'Le titre est requis'),
   description: z.string().optional(),
-  axeId: z.string().min(1, "L'axe est requis"),
-  paysId: z.string().min(1, 'Le pays est requis'),
-  entiteId: z.string().min(1, "L'entité est requise"),
+  // Dimensions optionnelles (un nœud de niveau haut n'en a pas forcément).
+  axeId: z.string().optional(),
+  paysId: z.string().optional(),
+  entiteId: z.string().optional(),
+  parentId: z.string().optional(),
+  niveau: z.coerce.number().int().min(1).max(NIVEAU_MAX),
   responsable: z.string().min(1, 'Le responsable est requis'),
   statut: z.enum(STATUTS),
   avancement: z.coerce.number().int().min(0).max(100),
@@ -26,16 +29,23 @@ const formSchema = z.object({
 
 type FormValues = z.infer<typeof formSchema>;
 
+/** Parent proposé dans le sélecteur d'arborescence. */
+export type ParentOption = { id: string; titre: string; niveau: number };
+
 export function ActionForm({
   planId,
   action,
   referentiels,
+  parents = [],
+  parentDefaut = null,
   onSaved,
   onCancel,
 }: {
   planId: string;
   action: ActionDTO | null;
   referentiels: Referentiels;
+  parents?: ParentOption[];
+  parentDefaut?: ParentOption | null;
   onSaved: () => void;
   onCancel: () => void;
 }) {
@@ -50,9 +60,11 @@ export function ActionForm({
     defaultValues: {
       titre: action?.titre ?? '',
       description: action?.description ?? '',
-      axeId: action?.axeId ?? referentiels.axes[0]?.id ?? '',
-      paysId: action?.paysId ?? referentiels.pays[0]?.id ?? '',
-      entiteId: action?.entiteId ?? referentiels.entites[0]?.id ?? '',
+      axeId: action?.axeId ?? '',
+      paysId: action?.paysId ?? '',
+      entiteId: action?.entiteId ?? '',
+      parentId: action?.parentId ?? parentDefaut?.id ?? '',
+      niveau: action?.niveau ?? (parentDefaut ? parentDefaut.niveau + 1 : 4),
       responsable: action?.responsable ?? '',
       statut: (action?.statut as FormValues['statut']) ?? 'A_LANCER',
       avancement: action?.avancement ?? 0,
@@ -97,13 +109,36 @@ export function ActionForm({
         <textarea id="description" rows={2} className="input" {...register('description')} />
       </div>
 
+      <div className="grid grid-cols-2 gap-4 rounded-lg bg-slate-50 p-3">
+        <div>
+          <label className="label" htmlFor="parentId">Rattaché à (parent)</label>
+          <select id="parentId" className="input" {...register('parentId')}>
+            <option value="">— Racine (aucun parent) —</option>
+            {parents.map((p) => (
+              <option key={p.id} value={p.id}>
+                {'· '.repeat(Math.max(0, p.niveau - 1))}{p.titre}
+              </option>
+            ))}
+          </select>
+        </div>
+        <div>
+          <label className="label" htmlFor="niveau">Niveau hiérarchique</label>
+          <select id="niveau" className="input" {...register('niveau')}>
+            {Array.from({ length: NIVEAU_MAX }, (_, i) => i + 1).map((n) => (
+              <option key={n} value={n}>{n} — {niveauLabel(n)}</option>
+            ))}
+          </select>
+          <p className="mt-1 text-xs text-slate-400">Ajusté automatiquement si un parent est choisi.</p>
+        </div>
+      </div>
+
       <div className="grid grid-cols-2 gap-4">
         <div>
-          <label className="label" htmlFor="axeId">Pilier stratégique *</label>
+          <label className="label" htmlFor="axeId">Pilier stratégique</label>
           <select id="axeId" className="input" {...register('axeId')}>
+            <option value="">— Aucun —</option>
             {referentiels.axes.map((x) => <option key={x.id} value={x.id}>{x.nom}</option>)}
           </select>
-          {errors.axeId && <p className="mt-1 text-xs text-statut-rouge">{errors.axeId.message}</p>}
         </div>
         <div>
           <label className="label" htmlFor="responsable">Responsable *</label>
@@ -111,14 +146,16 @@ export function ActionForm({
           {errors.responsable && <p className="mt-1 text-xs text-statut-rouge">{errors.responsable.message}</p>}
         </div>
         <div>
-          <label className="label" htmlFor="paysId">Région *</label>
+          <label className="label" htmlFor="paysId">Région</label>
           <select id="paysId" className="input" {...register('paysId')}>
+            <option value="">— Aucune —</option>
             {referentiels.pays.map((x) => <option key={x.id} value={x.id}>{x.nom}</option>)}
           </select>
         </div>
         <div>
-          <label className="label" htmlFor="entiteId">Pôle / Partenaire *</label>
+          <label className="label" htmlFor="entiteId">Pôle / Partenaire</label>
           <select id="entiteId" className="input" {...register('entiteId')}>
+            <option value="">— Aucun —</option>
             {referentiels.entites.map((x) => <option key={x.id} value={x.id}>{x.nom}</option>)}
           </select>
         </div>

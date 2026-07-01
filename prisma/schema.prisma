@@ -79,9 +79,15 @@ model Action {
   titre       String
   description String?
   planId      String
-  axeId       String
-  paysId      String
-  entiteId    String
+  // Dimensions optionnelles : un nœud de niveau haut (Pilier) n'a pas
+  // forcément d'axe/région/entité rattaché.
+  axeId       String?
+  paysId      String?
+  entiteId    String?
+  // Arborescence parent-enfant (auto-relation "Arbre").
+  parentId    String?
+  // Position dans la fratrie (sert au tri et à la codification, cf. T0.2).
+  ordre       Int       @default(0)
   responsable String
   // Statut : A_LANCER | EN_COURS | TERMINE | BLOQUE
   statut      String    @default("A_LANCER")
@@ -105,9 +111,11 @@ model Action {
   updatedAt   DateTime  @updatedAt
 
   plan       Plan         @relation(fields: [planId], references: [id], onDelete: Cascade)
-  axe        Axe          @relation(fields: [axeId], references: [id], onDelete: Cascade)
-  pays       Pays         @relation(fields: [paysId], references: [id], onDelete: Cascade)
-  entite     Entite       @relation(fields: [entiteId], references: [id], onDelete: Cascade)
+  axe        Axe?         @relation(fields: [axeId], references: [id], onDelete: SetNull)
+  pays       Pays?        @relation(fields: [paysId], references: [id], onDelete: SetNull)
+  entite     Entite?      @relation(fields: [entiteId], references: [id], onDelete: SetNull)
+  parent     Action?      @relation("Arbre", fields: [parentId], references: [id], onDelete: Cascade)
+  enfants    Action[]     @relation("Arbre")
   jalons     Jalon[]
   historique Avancement[]
 
@@ -115,6 +123,7 @@ model Action {
   @@index([axeId])
   @@index([paysId])
   @@index([entiteId])
+  @@index([parentId])
 }
 
 model Jalon {
