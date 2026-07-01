@@ -5,12 +5,14 @@ export type ActionDTO = {
   titre: string;
   description: string | null;
   planId: string;
-  axeId: string;
-  paysId: string;
-  entiteId: string;
-  axe: string;
-  pays: string;
-  entite: string;
+  axeId: string | null;
+  paysId: string | null;
+  entiteId: string | null;
+  parentId: string | null;
+  ordre: number;
+  axe: string | null;
+  pays: string | null;
+  entite: string | null;
   responsable: string;
   statut: string;
   avancement: number;
@@ -22,6 +24,7 @@ export type ActionDTO = {
   commentaire: string | null;
   enRetard: boolean;
   niveau: number;
+  code: string | null;
   indicateur: string | null;
   cibleIndicateur: number | null;
   valeurIndicateur: number | null;

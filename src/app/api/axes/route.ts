@@ -2,6 +2,7 @@ import { prisma } from '@/lib/prisma';
 import { ok, fail, handleError } from '@/lib/api';
 import { axeSchema } from '@/lib/zod';
 import { requireRole } from '@/lib/permissions';
+import { logAction } from '@/lib/audit';
 
 export const dynamic = 'force-dynamic';
 
@@ -24,6 +25,7 @@ export async function POST(req: Request) {
     if (!guard.ok) return fail(guard.code, guard.message, guard.status);
     const parsed = axeSchema.parse(await req.json());
     const axe = await prisma.axe.create({ data: parsed });
+    await logAction({ action: 'CREATE', entite: 'Axe', entiteId: axe.id, apres: axe }, req);
     return ok(axe, 201);
   } catch (e) {
     return handleError(e);

@@ -1,6 +1,7 @@
 import { ok, fail, handleError } from '@/lib/api';
 import { getActivePlan, getAnalysesData } from '@/lib/data';
 import { DIMENSIONS, type DimensionKey } from '@/lib/constants';
+import { requireRole } from '@/lib/permissions';
 
 export const dynamic = 'force-dynamic';
 
@@ -8,6 +9,9 @@ const VALID = new Set(DIMENSIONS.map((d) => d.key));
 
 export async function GET(req: Request) {
   try {
+    const guard = await requireRole(['ADMIN', 'PMO', 'CONTRIBUTEUR', 'LECTEUR']);
+    if (!guard.ok) return fail(guard.code, guard.message, guard.status);
+
     const q = new URL(req.url).searchParams;
     const planId = q.get('planId') ?? (await getActivePlan())?.id;
     if (!planId) return fail('NOT_FOUND', 'Aucun plan disponible', 404);

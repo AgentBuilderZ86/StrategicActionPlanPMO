@@ -21,9 +21,9 @@ export const EXPORT_HEADERS = [
 export function actionToRow(a: ActionDTO): (string | number)[] {
   return [
     a.titre,
-    a.axe,
-    a.pays,
-    a.entite,
+    a.axe ?? '',
+    a.pays ?? '',
+    a.entite ?? '',
     a.responsable,
     STATUT_LABEL[a.statut as Statut] ?? a.statut,
     a.avancement,

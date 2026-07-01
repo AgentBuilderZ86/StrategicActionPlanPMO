@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { STATUTS, PRIORITES, ROLES, NIVEAUX, PMO_TYPES } from './constants';
+import { STATUTS, PRIORITES, ROLES, NIVEAUX, NIVEAU_MAX, PMO_TYPES, SENS_INDICATEUR, ATTRIBUT_TYPES } from './constants';
 
 export const statutEnum = z.enum(STATUTS);
 export const prioriteEnum = z.enum(PRIORITES);
@@ -30,9 +30,14 @@ export const actionCreateSchema = z.object({
   titre: z.string().min(1, 'Le titre est requis').max(200),
   description: z.string().max(2000).optional().nullable(),
   planId: z.string().min(1),
-  axeId: z.string().min(1, "L'axe est requis"),
-  paysId: z.string().min(1, 'Le pays est requis'),
-  entiteId: z.string().min(1, "L'entité est requise"),
+  // Dimensions optionnelles : un nœud de niveau haut n'a pas forcément
+  // d'axe/région/entité. La chaîne vide est normalisée en null.
+  axeId: z.string().optional().nullable().transform((v) => v || null),
+  paysId: z.string().optional().nullable().transform((v) => v || null),
+  entiteId: z.string().optional().nullable().transform((v) => v || null),
+  // Arborescence
+  parentId: z.string().optional().nullable().transform((v) => v || null),
+  ordre: z.coerce.number().int().min(0).default(0),
   responsable: z.string().min(1, 'Le responsable est requis').max(120),
   statut: statutEnum.default('A_LANCER'),
   avancement: z.coerce.number().int().min(0).max(100).default(0),
@@ -42,7 +47,7 @@ export const actionCreateSchema = z.object({
   budget: numOpt,
   budgetConso: numOpt,
   commentaire: z.string().max(2000).optional().nullable(),
-  niveau: z.coerce.number().int().min(1).max(5).default(4),
+  niveau: z.coerce.number().int().min(1).max(NIVEAU_MAX).default(4),
   indicateur: z.string().max(200).optional().nullable(),
   cibleIndicateur: numOpt,
   valeurIndicateur: numOpt,
@@ -76,6 +81,73 @@ export const planSchema = z.object({
   dateFin: dateOpt,
   typePmo: pmoTypeEnum.optional(),
   objectif: z.string().max(500).optional().nullable(),
+});
+
+// Politique de mot de passe (T0.3, exig. 37) : 8+ caractères, au moins une
+// majuscule, un chiffre et un caractère spécial ; rejet des mots de passe usuels.
+const MOTS_DE_PASSE_INTERDITS = new Set([
+  'password', 'motdepasse', 'azerty', 'qwerty', '12345678', 'admin123',
+  'demo1234', 'narsa2026', 'password1', 'iloveyou',
+]);
+
+export const passwordSchema = z
+  .string()
+  .min(8, 'Le mot de passe doit contenir au moins 8 caractères')
+  .max(128)
+  .refine((v) => /[A-Z]/.test(v), 'Au moins une majuscule requise')
+  .refine((v) => /[a-z]/.test(v), 'Au moins une minuscule requise')
+  .refine((v) => /[0-9]/.test(v), 'Au moins un chiffre requis')
+  .refine((v) => /[^A-Za-z0-9]/.test(v), 'Au moins un caractère spécial requis')
+  .refine((v) => !MOTS_DE_PASSE_INTERDITS.has(v.toLowerCase()), 'Mot de passe trop courant');
+
+export const userCreateSchema = z.object({
+  name: z.string().min(1).max(120),
+  email: z.string().email().max(160),
+  password: passwordSchema,
+  role: roleEnum.default('LECTEUR'),
+  perimetrePays: z.string().nullable().optional(),
+});
+
+export const userUpdateSchema = z.object({
+  role: roleEnum.optional(),
+  perimetrePays: z.string().nullable().optional(),
+  password: passwordSchema.optional(),
+  // Déverrouillage manuel par un admin.
+  unlock: z.boolean().optional(),
+});
+
+export const indicateurCreateSchema = z.object({
+  libelle: z.string().min(1, 'Le libellé est requis').max(160),
+  unite: z.string().max(40).optional().nullable(),
+  cible: numOpt,
+  realise: numOpt,
+  sens: z.enum(SENS_INDICATEUR).default('HAUSSE'),
+  agregeable: z.coerce.boolean().default(true),
+});
+
+export const indicateurUpdateSchema = indicateurCreateSchema.partial();
+
+export const attributDefCreateSchema = z.object({
+  planId: z.string().optional().nullable().transform((v) => v || null),
+  typePmo: pmoTypeEnum.optional().nullable(),
+  niveau: z.coerce.number().int().min(1).max(NIVEAU_MAX).optional().nullable(),
+  cle: z.string().min(1).max(60).regex(/^[a-zA-Z0-9_]+$/, 'Clé alphanumérique (a-z, 0-9, _)'),
+  libelle: z.string().min(1).max(120),
+  type: z.enum(ATTRIBUT_TYPES).default('TEXTE'),
+  options: z.string().max(1000).optional().nullable(),
+  obligatoire: z.coerce.boolean().default(false),
+  ordre: z.coerce.number().int().default(0),
+});
+
+export const attributDefUpdateSchema = attributDefCreateSchema.partial();
+
+// Valeurs d'attributs pour une action : map { attributDefId: valeur | null }.
+export const attributValeursSchema = z.object({
+  valeurs: z.record(z.string(), z.string().nullable()),
+});
+
+export const commentaireSchema = z.object({
+  contenu: z.string().min(1, 'Le commentaire ne peut pas être vide').max(2000),
 });
 
 export const snapshotSchema = z.object({

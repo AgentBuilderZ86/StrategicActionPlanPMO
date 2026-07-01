@@ -1,4 +1,4 @@
-import { CURRENCY, type Statut } from './constants';
+import { CURRENCY, niveauPrefix, type Statut } from './constants';
 
 export function cn(...classes: Array<string | false | null | undefined>): string {
   return classes.filter(Boolean).join(' ');
@@ -64,3 +64,18 @@ export function heatColor(pct: number, count: number): { bg: string; fg: string 
 
 export const STATUT_FROM_AVANCEMENT = (av: number): Statut =>
   av >= 100 ? 'TERMINE' : av > 0 ? 'EN_COURS' : 'A_LANCER';
+
+/** Segment de code d'un nœud : préfixe de niveau + position (1-based) dans la fratrie. */
+export function segmentCode(niveau: number, position: number): string {
+  return `${niveauPrefix(niveau)}${position}`;
+}
+
+/**
+ * Code complet d'un nœud, cohérent avec l'arbre (ex. `PS1.CS2.PRJ1`).
+ * @param segmentsAncetres codes-segments des ancêtres, du plus haut au parent direct
+ * @param niveau niveau du nœud
+ * @param position position 1-based du nœud dans sa fratrie
+ */
+export function genererCode(segmentsAncetres: string[], niveau: number, position: number): string {
+  return [...segmentsAncetres, segmentCode(niveau, position)].join('.');
+}

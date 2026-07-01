@@ -88,6 +88,20 @@ export const NIVEAU_CODE_PREFIX: Record<Niveau, string> = {
   5: 'SA',
 };
 
+// Profondeur maximale de l'arbre. Le CPS exige de pouvoir descendre au-delà
+// de 5 niveaux : borne configurable plutôt que plafond dur à 5.
+export const NIVEAU_MAX = 8;
+
+/** Libellé d'un niveau, avec repli générique au-delà des 5 niveaux nommés. */
+export function niveauLabel(n: number): string {
+  return NIVEAU_LABEL[n as Niveau] ?? `Niveau ${n}`;
+}
+
+/** Préfixe de codification d'un niveau, avec repli `N<n>` au-delà de 5. */
+export function niveauPrefix(n: number): string {
+  return NIVEAU_CODE_PREFIX[n as Niveau] ?? `N${n}`;
+}
+
 /** Droit d'écriture côté client (le lecteur est en lecture seule). */
 export function canEditClient(role: Role | undefined): boolean {
   return role === 'ADMIN' || role === 'PMO' || role === 'CONTRIBUTEUR';
@@ -114,6 +128,27 @@ export const SNSR_OBJECTIF = {
   cibleMortalite2030: 2000,
   cibleBg2030: 7300,
   reductionCible: 50, // %
+};
+
+// Types d'attributs personnalisables (T1.1)
+export const ATTRIBUT_TYPES = ['TEXTE', 'NOMBRE', 'DATE', 'BOOLEEN', 'LISTE'] as const;
+export type AttributType = (typeof ATTRIBUT_TYPES)[number];
+
+export const ATTRIBUT_TYPE_LABEL: Record<AttributType, string> = {
+  TEXTE: 'Texte',
+  NOMBRE: 'Nombre',
+  DATE: 'Date',
+  BOOLEEN: 'Oui / Non',
+  LISTE: 'Liste de choix',
+};
+
+// Sens d'amélioration d'un indicateur (T1.2)
+export const SENS_INDICATEUR = ['HAUSSE', 'BAISSE'] as const;
+export type SensIndicateur = (typeof SENS_INDICATEUR)[number];
+
+export const SENS_LABEL: Record<SensIndicateur, string> = {
+  HAUSSE: 'À la hausse (plus = mieux)',
+  BAISSE: 'À la baisse (moins = mieux)',
 };
 
 export const DIMENSIONS = [

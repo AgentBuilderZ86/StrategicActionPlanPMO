@@ -3,6 +3,7 @@ import { ok, fail, handleError } from '@/lib/api';
 import { snapshotSchema } from '@/lib/zod';
 import { requireRole } from '@/lib/permissions';
 import { getDashboardData } from '@/lib/data';
+import { logAction } from '@/lib/audit';
 
 export const dynamic = 'force-dynamic';
 
@@ -41,6 +42,10 @@ export async function POST(req: Request) {
         indicateurs,
       },
     });
+    await logAction(
+      { action: 'CREATE', entite: 'Snapshot', entiteId: snapshot.id, apres: { planId: snapshot.planId, periode: snapshot.periode } },
+      req,
+    );
     return ok(snapshot, 201);
   } catch (e) {
     return handleError(e);

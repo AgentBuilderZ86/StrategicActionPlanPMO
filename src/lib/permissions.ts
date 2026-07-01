@@ -34,16 +34,18 @@ type Guard = { ok: true } | { ok: false; code: string; message: string; status: 
 
 const DENY: Guard = { ok: false, code: 'FORBIDDEN', message: 'Action non autorisée', status: 403 };
 
-/** Le lecteur n'a pas le droit d'écrire ; les autres rôles oui. En l'absence
- *  d'utilisateur authentifié, l'écriture est permise en développement
- *  uniquement (les pages de connexion arrivent en phase 5). */
-export async function requireEdit(scopePaysId?: string): Promise<Guard> {
+const UNAUTHENTICATED: Guard = {
+  ok: false,
+  code: 'UNAUTHENTICATED',
+  message: 'Authentification requise',
+  status: 401,
+};
+
+/** Le lecteur n'a pas le droit d'écrire ; les autres rôles oui. Une session
+ *  valide est toujours exigée, en développement comme en production. */
+export async function requireEdit(scopePaysId?: string | null): Promise<Guard> {
   const user = await getCurrentUser();
-  if (!user) {
-    return process.env.NODE_ENV === 'production'
-      ? { ok: false, code: 'UNAUTHENTICATED', message: 'Authentification requise', status: 401 }
-      : { ok: true };
-  }
+  if (!user) return UNAUTHENTICATED;
   if (user.role === 'LECTEUR') return DENY;
   if (user.role === 'CONTRIBUTEUR' && user.perimetrePays && scopePaysId) {
     return user.perimetrePays.includes(scopePaysId) ? { ok: true } : DENY;
@@ -53,10 +55,6 @@ export async function requireEdit(scopePaysId?: string): Promise<Guard> {
 
 export async function requireRole(roles: Role[]): Promise<Guard> {
   const user = await getCurrentUser();
-  if (!user) {
-    return process.env.NODE_ENV === 'production'
-      ? { ok: false, code: 'UNAUTHENTICATED', message: 'Authentification requise', status: 401 }
-      : { ok: true };
-  }
+  if (!user) return UNAUTHENTICATED;
   return roles.includes(user.role) ? { ok: true } : DENY;
 }

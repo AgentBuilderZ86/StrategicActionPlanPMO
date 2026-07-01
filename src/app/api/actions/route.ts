@@ -4,6 +4,9 @@ import { ok, fail, handleError } from '@/lib/api';
 import { actionCreateSchema } from '@/lib/zod';
 import { ACTION_INCLUDE, serializeAction } from '@/lib/serialize';
 import { requireEdit } from '@/lib/permissions';
+import { niveauEnfantAttendu } from '@/lib/tree';
+import { reindexerCodesPlan } from '@/lib/codes';
+import { logAction } from '@/lib/audit';
 
 export const dynamic = 'force-dynamic';
 
@@ -24,7 +27,7 @@ export async function GET(req: Request) {
     if (q.get('priorite')) where.priorite = q.get('priorite')!;
     if (q.get('responsable')) where.responsable = q.get('responsable')!;
 
-    const search = q.get('q');
+    const search = q.get('q')?.slice(0, 100);
     if (search) {
       const mode = 'insensitive' as const;
       where.OR = [
@@ -76,15 +79,31 @@ export async function POST(req: Request) {
     const body = await req.json();
     const parsed = actionCreateSchema.parse(body);
 
-    const created = await prisma.action.create({
-      data: parsed,
-      include: ACTION_INCLUDE,
+    // Cohérence de l'arbre : un nœud rattaché à un parent hérite de son plan et
+    // se voit imposer `niveau = niveau(parent) + 1` (règle T0.1).
+    const data = { ...parsed };
+    if (parsed.parentId) {
+      const parent = await prisma.action.findUnique({ where: { id: parsed.parentId } });
+      if (!parent) return fail('VALIDATION', 'Nœud parent introuvable', 422);
+      if (parent.planId !== parsed.planId) {
+        return fail('VALIDATION', 'Le parent appartient à un autre plan', 422);
+      }
+      data.niveau = niveauEnfantAttendu(parent.niveau);
+    }
+
+    const created = await prisma.$transaction(async (tx) => {
+      const c = await tx.action.create({ data });
+      // Codification automatique cohérente avec l'arbre (T0.2).
+      await reindexerCodesPlan(tx, c.planId);
+      return tx.action.findUniqueOrThrow({ where: { id: c.id }, include: ACTION_INCLUDE });
     });
 
     // Snapshot initial d'avancement pour la courbe de tendance
     await prisma.avancement.create({
       data: { actionId: created.id, valeur: created.avancement, statut: created.statut },
     });
+
+    await logAction({ action: 'CREATE', entite: 'Action', entiteId: created.id, apres: created }, req);
 
     return ok(serializeAction(created), 201);
   } catch (e) {

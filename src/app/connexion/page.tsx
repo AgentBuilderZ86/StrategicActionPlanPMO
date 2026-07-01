@@ -11,12 +11,14 @@ const DEMO = [
   { label: 'Lecteur', email: 'lecteur@pmo.demo' },
 ];
 
+const SHOW_DEMO = process.env.NEXT_PUBLIC_SHOW_DEMO_CREDENTIALS === 'true';
+
 function ConnexionForm() {
   const router = useRouter();
   const params = useSearchParams();
   const callbackUrl = params.get('callbackUrl') ?? '/';
-  const [email, setEmail] = useState('admin@pmo.demo');
-  const [password, setPassword] = useState('demo1234');
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
   const [error, setError] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
 
@@ -53,22 +55,24 @@ function ConnexionForm() {
             {busy ? 'Connexion…' : 'Se connecter'}
           </button>
         </form>
-        <div className="mt-5 rounded-lg bg-slate-50 p-3 text-xs text-slate-500">
-          <p className="mb-1 font-semibold text-ink">Comptes de démonstration (mot de passe : demo1234)</p>
-          <ul className="space-y-0.5">
-            {DEMO.map((d) => (
-              <li key={d.email}>
-                <button
-                  type="button"
-                  className="text-accent hover:underline"
-                  onClick={() => { setEmail(d.email); setPassword('demo1234'); }}
-                >
-                  {d.label} — {d.email}
-                </button>
-              </li>
-            ))}
-          </ul>
-        </div>
+        {SHOW_DEMO && (
+          <div className="mt-5 rounded-lg bg-slate-50 p-3 text-xs text-slate-500">
+            <p className="mb-1 font-semibold text-ink">Comptes de démonstration (mot de passe : demo1234)</p>
+            <ul className="space-y-0.5">
+              {DEMO.map((d) => (
+                <li key={d.email}>
+                  <button
+                    type="button"
+                    className="text-accent hover:underline"
+                    onClick={() => { setEmail(d.email); setPassword('demo1234'); }}
+                  >
+                    {d.label} — {d.email}
+                  </button>
+                </li>
+              ))}
+            </ul>
+          </div>
+        )}
       </div>
     </div>
   );

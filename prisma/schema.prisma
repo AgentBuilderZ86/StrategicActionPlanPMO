@@ -79,9 +79,15 @@ model Action {
   titre       String
   description String?
   planId      String
-  axeId       String
-  paysId      String
-  entiteId    String
+  // Dimensions optionnelles : un nœud de niveau haut (Pilier) n'a pas
+  // forcément d'axe/région/entité rattaché.
+  axeId       String?
+  paysId      String?
+  entiteId    String?
+  // Arborescence parent-enfant (auto-relation "Arbre").
+  parentId    String?
+  // Position dans la fratrie (sert au tri et à la codification, cf. T0.2).
+  ordre       Int       @default(0)
   responsable String
   // Statut : A_LANCER | EN_COURS | TERMINE | BLOQUE
   statut      String    @default("A_LANCER")
@@ -95,6 +101,8 @@ model Action {
   commentaire String?
   // Niveau hiérarchique : 1=Pilier, 2=Axe, 3=Projet, 4=Action, 5=Sous-action
   niveau      Int       @default(4)
+  // Codification automatique cohérente avec l'arbre (ex. PS1.CS2.PRJ1), cf. T0.2
+  code        String?
   // Indicateur de performance associé (taux réduction accidents, etc.)
   indicateur  String?
   // Valeur cible de l'indicateur
@@ -105,16 +113,91 @@ model Action {
   updatedAt   DateTime  @updatedAt
 
   plan       Plan         @relation(fields: [planId], references: [id], onDelete: Cascade)
-  axe        Axe          @relation(fields: [axeId], references: [id], onDelete: Cascade)
-  pays       Pays         @relation(fields: [paysId], references: [id], onDelete: Cascade)
-  entite     Entite       @relation(fields: [entiteId], references: [id], onDelete: Cascade)
-  jalons     Jalon[]
-  historique Avancement[]
+  axe        Axe?         @relation(fields: [axeId], references: [id], onDelete: SetNull)
+  pays       Pays?        @relation(fields: [paysId], references: [id], onDelete: SetNull)
+  entite     Entite?      @relation(fields: [entiteId], references: [id], onDelete: SetNull)
+  parent      Action?      @relation("Arbre", fields: [parentId], references: [id], onDelete: Cascade)
+  enfants     Action[]     @relation("Arbre")
+  jalons          Jalon[]
+  historique      Avancement[]
+  indicateurs     Indicateur[]
+  commentaires    Commentaire[]
+  attributValeurs AttributValeur[]
 
+  @@unique([planId, code])
   @@index([planId])
   @@index([axeId])
   @@index([paysId])
   @@index([entiteId])
+  @@index([parentId])
+}
+
+// Indicateurs de performance multi-lignes par nœud (T1.2, exig. 11, 13, 14).
+// Généralise le triplet indicateur/cible/valeur historique porté par Action.
+model Indicateur {
+  id       String  @id @default(cuid())
+  actionId String
+  action   Action  @relation(fields: [actionId], references: [id], onDelete: Cascade)
+  libelle  String
+  unite    String?
+  cible    Float?
+  realise  Float?
+  // Sens d'amélioration : HAUSSE (plus = mieux) | BAISSE (moins = mieux, ex. mortalité)
+  sens     String  @default("HAUSSE")
+  // Agrège-t-on cet indicateur vers les niveaux parents ? (somme sur l'arbre)
+  agregeable Boolean @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([actionId])
+}
+
+// Attributs métier personnalisables par type de plan / niveau (T1.1, exig. 9,10).
+model AttributDef {
+  id         String   @id @default(cuid())
+  // Portée : plan précis (planId) et/ou type de PMO et/ou niveau ; null = global.
+  planId     String?
+  typePmo    String?
+  niveau     Int?
+  cle        String
+  libelle    String
+  // Type : TEXTE | NOMBRE | DATE | BOOLEEN | LISTE
+  type       String   @default("TEXTE")
+  // Options d'une liste (valeurs séparées par des « ; »)
+  options    String?
+  obligatoire Boolean @default(false)
+  ordre      Int      @default(0)
+  createdAt  DateTime @default(now())
+
+  valeurs    AttributValeur[]
+
+  @@index([planId])
+}
+
+model AttributValeur {
+  id            String      @id @default(cuid())
+  actionId      String
+  action        Action      @relation(fields: [actionId], references: [id], onDelete: Cascade)
+  attributDefId String
+  def           AttributDef @relation(fields: [attributDefId], references: [id], onDelete: Cascade)
+  valeur        String?
+
+  @@unique([actionId, attributDefId])
+  @@index([actionId])
+  @@index([attributDefId])
+}
+
+// Fil de commentaires collaboratif par nœud (T1.3, exig. 32).
+model Commentaire {
+  id        String   @id @default(cuid())
+  actionId  String
+  action    Action   @relation(fields: [actionId], references: [id], onDelete: Cascade)
+  auteurId  String?
+  auteurNom String?
+  contenu   String
+  createdAt DateTime @default(now())
+
+  @@index([actionId])
 }
 
 model Jalon {
@@ -167,6 +250,9 @@ model User {
   role          String    @default("LECTEUR")
   // Périmètre du contributeur (ids pays/entités, JSON), null = tout le périmètre
   perimetrePays String?
+  // Durcissement authentification (T0.3, exig. 37) : verrouillage de compte.
+  failedAttempts Int      @default(0)
+  lockedUntil    DateTime?
   accounts      Account[]
   sessions      Session[]
 }
@@ -203,4 +289,29 @@ model VerificationToken {
   expires    DateTime
 
   @@unique([identifier, token])
+}
+
+// ----------------------------------------------------------------------------
+// Piste d'audit (T0.4, exig. 33 & 35) : traçabilité des connexions et des
+// écritures, avec état avant/après.
+// ----------------------------------------------------------------------------
+
+model AuditLog {
+  id        String   @id @default(cuid())
+  userId    String?
+  userEmail String?
+  // Type d'événement : CREATE | UPDATE | DELETE | IMPORT | LOGIN_SUCCESS | LOGIN_FAILURE
+  action    String
+  // Entité concernée : Action | Axe | Pays | Entite | Plan | User | Snapshot | Auth
+  entite    String
+  entiteId  String?
+  avant     Json?
+  apres     Json?
+  ip        String?
+  userAgent String?
+  createdAt DateTime @default(now())
+
+  @@index([entite, entiteId])
+  @@index([userId])
+  @@index([createdAt])
 }

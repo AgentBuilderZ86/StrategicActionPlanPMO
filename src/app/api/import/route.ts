@@ -3,6 +3,8 @@ import { ok, fail, handleError } from '@/lib/api';
 import { importRowSchema } from '@/lib/zod';
 import { requireEdit } from '@/lib/permissions';
 import { STATUTS, PRIORITES } from '@/lib/constants';
+import { reindexerCodesPlan } from '@/lib/codes';
+import { logAction } from '@/lib/audit';
 
 export const dynamic = 'force-dynamic';
 
@@ -89,6 +91,15 @@ export async function POST(req: Request) {
       created++;
       reports.push({ ligne, ok: true, titre: r.titre });
     }
+
+    // Codification des actions importées + trace d'audit (T0.2 & T0.4).
+    if (created > 0) {
+      await prisma.$transaction((tx) => reindexerCodesPlan(tx, planId));
+    }
+    await logAction(
+      { action: 'IMPORT', entite: 'Action', entiteId: planId, apres: { planId, created, total: rows.length } },
+      req,
+    );
 
     return ok({ created, total: rows.length, errors: reports.filter((r) => !r.ok), reports });
   } catch (e) {

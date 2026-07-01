@@ -1,5 +1,6 @@
 import type { PrismaClient } from '@prisma/client';
 import bcrypt from 'bcryptjs';
+import { calculerCodesArbre } from './tree';
 
 function daysFromNow(n: number): Date {
   const d = new Date();
@@ -10,6 +11,150 @@ function daysFromNow(n: number): Date {
 
 function date(y: number, m: number, d: number): Date {
   return new Date(y, m - 1, d);
+}
+
+// Historique d'avancement (4 points de mesure) pour une action feuille.
+async function seedHistorique(prisma: PrismaClient, actionId: string, avancement: number) {
+  for (let s = 1; s <= 4; s++) {
+    const valeur = Math.round((avancement * s) / 4);
+    await prisma.avancement.create({
+      data: {
+        actionId,
+        date: daysFromNow(-30 * (4 - s)),
+        valeur,
+        statut: valeur >= 100 ? 'TERMINE' : valeur > 0 ? 'EN_COURS' : 'A_LANCER',
+      },
+    });
+  }
+}
+
+type ActionRow = [
+  string,   // titre
+  number,   // axeIdx
+  number,   // regionIdx
+  number,   // entiteIdx
+  string,   // responsable
+  string,   // statut
+  number,   // avancement
+  string,   // priorite
+  number,   // finDays (relatif à aujourd'hui)
+  number,   // budget k MAD
+  number,   // budgetConso k MAD
+  number,   // niveau (ignoré : la profondeur est désormais dérivée de l'arbre)
+  (string | null)?,  // commentaire
+  (string | null)?,  // indicateur
+  (number | null)?,  // cibleIndicateur
+  (number | null)?,  // valeurIndicateur
+];
+
+/**
+ * Crée l'arborescence d'un plan : un Pilier (niveau 1) par axe, les actions
+ * rattachées (niveau 2), et quelques sous-actions (niveau 3) pour illustrer la
+ * profondeur. Les codes sont ensuite recalculés de façon cohérente avec l'arbre.
+ */
+async function seedActionsHierarchiques(
+  prisma: PrismaClient,
+  planId: string,
+  axes: { id: string; nom: string }[],
+  regionId: (i: number) => string,
+  entiteId: (i: number) => string,
+  rows: ActionRow[],
+) {
+  // Niveau 1 : un Pilier par axe (avancement = moyenne de ses actions).
+  const piliers = new Map<number, string>();
+  for (let i = 0; i < axes.length; i++) {
+    const rowsAxe = rows.filter((r) => r[1] === i);
+    const av = rowsAxe.length
+      ? Math.round(rowsAxe.reduce((s, r) => s + r[6], 0) / rowsAxe.length)
+      : 0;
+    const pilier = await prisma.action.create({
+      data: {
+        titre: axes[i]!.nom,
+        planId,
+        axeId: axes[i]!.id,
+        responsable: 'Direction NARSA',
+        statut: av >= 100 ? 'TERMINE' : av > 0 ? 'EN_COURS' : 'A_LANCER',
+        avancement: av,
+        priorite: 'HAUTE',
+        niveau: 1,
+        ordre: i,
+      },
+    });
+    piliers.set(i, pilier.id);
+  }
+
+  // Niveau 2 : les actions, rattachées à leur pilier ; niveau 3 : sous-actions
+  // sur la première action de chaque plan.
+  const ordreParAxe = new Map<number, number>();
+  let premier = true;
+  for (const row of rows) {
+    const [titre, axe, reg, ent, responsable, statut, avancement, priorite, finDays, budget, conso, , commentaire, indicateur, cible, valeur] = row;
+    const ordre = ordreParAxe.get(axe) ?? 0;
+    ordreParAxe.set(axe, ordre + 1);
+
+    const action = await prisma.action.create({
+      data: {
+        titre,
+        planId,
+        axeId: axes[axe]!.id,
+        paysId: regionId(reg),
+        entiteId: entiteId(ent),
+        parentId: piliers.get(axe)!,
+        responsable,
+        statut,
+        avancement,
+        priorite,
+        dateDebut: daysFromNow(finDays - 360),
+        dateFin: daysFromNow(finDays),
+        budget,
+        budgetConso: conso,
+        niveau: 2,
+        ordre,
+        commentaire: commentaire ?? null,
+        indicateur: indicateur ?? null,
+        cibleIndicateur: cible ?? null,
+        valeurIndicateur: valeur ?? null,
+      },
+    });
+    await seedHistorique(prisma, action.id, avancement);
+
+    if (premier) {
+      premier = false;
+      const sousActions: [string, number][] = [
+        ['Étude de cadrage et diagnostic', Math.min(100, avancement + 20)],
+        ['Déploiement opérationnel et suivi', Math.max(0, avancement - 15)],
+      ];
+      for (let k = 0; k < sousActions.length; k++) {
+        const sa = await prisma.action.create({
+          data: {
+            titre: sousActions[k]![0],
+            planId,
+            axeId: axes[axe]!.id,
+            paysId: regionId(reg),
+            entiteId: entiteId(ent),
+            parentId: action.id,
+            responsable,
+            statut: 'EN_COURS',
+            avancement: sousActions[k]![1],
+            priorite: 'MOYENNE',
+            dateFin: daysFromNow(finDays - 60),
+            niveau: 3,
+            ordre: k,
+          },
+        });
+        await seedHistorique(prisma, sa.id, sousActions[k]![1]);
+      }
+    }
+  }
+
+  // Codification automatique cohérente avec l'arbre (T0.2).
+  const actions = await prisma.action.findMany({
+    where: { planId },
+    select: { id: true, parentId: true, niveau: true, ordre: true },
+  });
+  for (const [id, code] of calculerCodesArbre(actions)) {
+    await prisma.action.update({ where: { id }, data: { code } });
+  }
 }
 
 /** (Ré)initialise le jeu de données de démonstration NARSA. Idempotent. */
@@ -79,30 +224,10 @@ export async function seedDemo(prisma: PrismaClient) {
     ),
   );
 
-  const as = (i: number) => axesSnsr[i]!.id;
   const rs = (i: number) => regions[i]!.id;
   const pa = (i: number) => partenaires[i]!.id;
 
   // Actions SNSR — Plan d'action national
-  type ActionRow = [
-    string,   // titre
-    number,   // axeIdx
-    number,   // regionIdx
-    number,   // partenaireIdx
-    string,   // responsable
-    string,   // statut
-    number,   // avancement
-    string,   // priorite
-    number,   // finDays (relatif à aujourd'hui)
-    number,   // budget k MAD
-    number,   // budgetConso k MAD
-    number,   // niveau
-    (string | null)?,  // commentaire
-    (string | null)?,  // indicateur
-    (number | null)?,  // cibleIndicateur
-    (number | null)?,  // valeurIndicateur
-  ];
-
   const actionsSnsr: ActionRow[] = [
     // Pilier 1 : Gestion de la vitesse
     ['Programme national de contrôle automatisé de la vitesse', 0, 0, 0, 'Dir. Contrôle NARSA', 'EN_COURS', 65, 'HAUTE', 365, 12000, 7800, 4, 'Déploiement de 200 radars fixes sur le réseau national.', 'Nb radars déployés', 200, 130],
@@ -138,42 +263,14 @@ export async function seedDemo(prisma: PrismaClient) {
     ['Indemnisation rapide victimes accidents corporels', 4, 1, 0, 'Dir. Juridique NARSA', 'A_LANCER', 0, 'MOYENNE', 365, 500, 0, 4, 'Réforme législative en cours.'],
   ];
 
-  for (const [titre, axe, reg, part, responsable, statut, avancement, priorite, finDays, budget, conso, niveau, commentaire, indicateur, cibleIndicateur, valeurIndicateur] of actionsSnsr) {
-    const action = await prisma.action.create({
-      data: {
-        titre,
-        planId: planSnsr.id,
-        axeId: as(axe),
-        paysId: rs(reg),
-        entiteId: pa(part),
-        responsable,
-        statut,
-        avancement,
-        priorite,
-        dateDebut: daysFromNow(finDays - 360),
-        dateFin: daysFromNow(finDays),
-        budget,
-        budgetConso: conso,
-        niveau,
-        commentaire: commentaire ?? null,
-        indicateur: indicateur ?? null,
-        cibleIndicateur: cibleIndicateur ?? null,
-        valeurIndicateur: valeurIndicateur ?? null,
-      },
-    });
-    // Historique d'avancement (4 points de mesure)
-    for (let s = 1; s <= 4; s++) {
-      const valeur = Math.round((avancement * s) / 4);
-      await prisma.avancement.create({
-        data: {
-          actionId: action.id,
-          date: daysFromNow(-30 * (4 - s)),
-          valeur,
-          statut: valeur >= 100 ? 'TERMINE' : valeur > 0 ? 'EN_COURS' : 'A_LANCER',
-        },
-      });
-    }
-  }
+  await seedActionsHierarchiques(
+    prisma,
+    planSnsr.id,
+    axesSnsr.map((a) => ({ id: a.id, nom: a.nom })),
+    rs,
+    pa,
+    actionsSnsr,
+  );
 
   // ─── Plan 2 : PMO Interne — Plan de développement NARSA 2026-2030 ──────────
   const planNarsa = await prisma.plan.create({
@@ -217,7 +314,6 @@ export async function seedDemo(prisma: PrismaClient) {
     ),
   );
 
-  const an = (i: number) => axesNarsa[i]!.id;
   const rn = (i: number) => regionsNarsa[i]!.id;
   const po = (i: number) => poles[i]!.id;
 
@@ -255,41 +351,14 @@ export async function seedDemo(prisma: PrismaClient) {
     ['Digitalisation de la gestion documentaire (GED)', 4, 0, 2, 'Pôle SI NARSA', 'EN_COURS', 40, 'BASSE', 420, 1200, 480, 4, null, 'Documents numérisés', 50000, 20000],
   ];
 
-  for (const [titre, axe, reg, pole, responsable, statut, avancement, priorite, finDays, budget, conso, niveau, commentaire, indicateur, cibleIndicateur, valeurIndicateur] of actionsNarsa) {
-    const action = await prisma.action.create({
-      data: {
-        titre,
-        planId: planNarsa.id,
-        axeId: an(axe),
-        paysId: rn(reg),
-        entiteId: po(pole),
-        responsable,
-        statut,
-        avancement,
-        priorite,
-        dateDebut: daysFromNow(finDays - 360),
-        dateFin: daysFromNow(finDays),
-        budget,
-        budgetConso: conso,
-        niveau,
-        commentaire: commentaire ?? null,
-        indicateur: indicateur ?? null,
-        cibleIndicateur: cibleIndicateur ?? null,
-        valeurIndicateur: valeurIndicateur ?? null,
-      },
-    });
-    for (let s = 1; s <= 4; s++) {
-      const valeur = Math.round((avancement * s) / 4);
-      await prisma.avancement.create({
-        data: {
-          actionId: action.id,
-          date: daysFromNow(-30 * (4 - s)),
-          valeur,
-          statut: valeur >= 100 ? 'TERMINE' : valeur > 0 ? 'EN_COURS' : 'A_LANCER',
-        },
-      });
-    }
-  }
+  await seedActionsHierarchiques(
+    prisma,
+    planNarsa.id,
+    axesNarsa.map((a) => ({ id: a.id, nom: a.nom })),
+    rn,
+    po,
+    actionsNarsa,
+  );
 
   // ─── Plan 3 : PMO SI — Feuille de route digitale NARSA ──────────────────────
   const planSi = await prisma.plan.create({
@@ -322,7 +391,6 @@ export async function seedDemo(prisma: PrismaClient) {
     ),
   );
 
-  const asi = (i: number) => axesSi[i]!.id;
   const rsi = (i: number) => regionsSi[i]!.id;
   const psi = (i: number) => polesSi[i]!.id;
 
@@ -340,41 +408,14 @@ export async function seedDemo(prisma: PrismaClient) {
     ['Espace numérique usager — Mon espace NARSA', 4, 0, 1, 'Pôle SC&V', 'A_LANCER', 0, 'HAUTE', 420, 3000, 0, 4, null],
   ];
 
-  for (const [titre, axe, reg, pole, responsable, statut, avancement, priorite, finDays, budget, conso, niveau, commentaire, indicateur, cibleIndicateur, valeurIndicateur] of actionsSi) {
-    const action = await prisma.action.create({
-      data: {
-        titre,
-        planId: planSi.id,
-        axeId: asi(axe),
-        paysId: rsi(reg),
-        entiteId: psi(pole),
-        responsable,
-        statut,
-        avancement,
-        priorite,
-        dateDebut: daysFromNow(finDays - 360),
-        dateFin: daysFromNow(finDays),
-        budget,
-        budgetConso: conso,
-        niveau,
-        commentaire: commentaire ?? null,
-        indicateur: indicateur ?? null,
-        cibleIndicateur: cibleIndicateur ?? null,
-        valeurIndicateur: valeurIndicateur ?? null,
-      },
-    });
-    for (let s = 1; s <= 4; s++) {
-      const valeur = Math.round((avancement * s) / 4);
-      await prisma.avancement.create({
-        data: {
-          actionId: action.id,
-          date: daysFromNow(-30 * (4 - s)),
-          valeur,
-          statut: valeur >= 100 ? 'TERMINE' : valeur > 0 ? 'EN_COURS' : 'A_LANCER',
-        },
-      });
-    }
-  }
+  await seedActionsHierarchiques(
+    prisma,
+    planSi.id,
+    axesSi.map((a) => ({ id: a.id, nom: a.nom })),
+    rsi,
+    psi,
+    actionsSi,
+  );
 
   // ─── Utilisateurs NARSA ──────────────────────────────────────────────────────
   const usersData = [
@@ -397,6 +438,7 @@ export async function seedDemo(prisma: PrismaClient) {
     axes: axesSnsr.length + axesNarsa.length + axesSi.length,
     pays: regions.length + regionsNarsa.length + regionsSi.length,
     entites: partenaires.length + poles.length + polesSi.length,
-    actions: actionsSnsr.length + actionsNarsa.length + actionsSi.length,
+    // Inclut les Piliers (niveau 1) et sous-actions (niveau 3) créés en plus.
+    actions: await prisma.action.count(),
   };
 }
