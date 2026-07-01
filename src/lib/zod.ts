@@ -83,6 +83,39 @@ export const planSchema = z.object({
   objectif: z.string().max(500).optional().nullable(),
 });
 
+// Politique de mot de passe (T0.3, exig. 37) : 8+ caractères, au moins une
+// majuscule, un chiffre et un caractère spécial ; rejet des mots de passe usuels.
+const MOTS_DE_PASSE_INTERDITS = new Set([
+  'password', 'motdepasse', 'azerty', 'qwerty', '12345678', 'admin123',
+  'demo1234', 'narsa2026', 'password1', 'iloveyou',
+]);
+
+export const passwordSchema = z
+  .string()
+  .min(8, 'Le mot de passe doit contenir au moins 8 caractères')
+  .max(128)
+  .refine((v) => /[A-Z]/.test(v), 'Au moins une majuscule requise')
+  .refine((v) => /[a-z]/.test(v), 'Au moins une minuscule requise')
+  .refine((v) => /[0-9]/.test(v), 'Au moins un chiffre requis')
+  .refine((v) => /[^A-Za-z0-9]/.test(v), 'Au moins un caractère spécial requis')
+  .refine((v) => !MOTS_DE_PASSE_INTERDITS.has(v.toLowerCase()), 'Mot de passe trop courant');
+
+export const userCreateSchema = z.object({
+  name: z.string().min(1).max(120),
+  email: z.string().email().max(160),
+  password: passwordSchema,
+  role: roleEnum.default('LECTEUR'),
+  perimetrePays: z.string().nullable().optional(),
+});
+
+export const userUpdateSchema = z.object({
+  role: roleEnum.optional(),
+  perimetrePays: z.string().nullable().optional(),
+  password: passwordSchema.optional(),
+  // Déverrouillage manuel par un admin.
+  unlock: z.boolean().optional(),
+});
+
 export const snapshotSchema = z.object({
   planId: z.string().min(1),
   periode: z.string().min(1),

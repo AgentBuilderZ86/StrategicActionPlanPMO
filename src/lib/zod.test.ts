@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { actionCreateSchema, importRowSchema } from './zod';
+import { actionCreateSchema, importRowSchema, passwordSchema } from './zod';
 
 describe('actionCreateSchema', () => {
   const base = {
@@ -39,6 +39,20 @@ describe('actionCreateSchema', () => {
 
   it('rejette un statut inconnu', () => {
     expect(() => actionCreateSchema.parse({ ...base, statut: 'XXX' })).toThrow();
+  });
+});
+
+describe('passwordSchema', () => {
+  it('accepte un mot de passe robuste', () => {
+    expect(passwordSchema.safeParse('Narsa#2026x').success).toBe(true);
+  });
+
+  it('rejette les mots de passe faibles', () => {
+    expect(passwordSchema.safeParse('court1!').success).toBe(false); // < 8
+    expect(passwordSchema.safeParse('sansmajuscule1!').success).toBe(false);
+    expect(passwordSchema.safeParse('SansChiffre!!').success).toBe(false);
+    expect(passwordSchema.safeParse('SansSpecial123').success).toBe(false);
+    expect(passwordSchema.safeParse('Demo1234').success).toBe(false); // dictionnaire
   });
 });
 

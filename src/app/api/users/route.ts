@@ -1,6 +1,8 @@
+import bcrypt from 'bcryptjs';
 import { prisma } from '@/lib/prisma';
 import { ok, fail, handleError } from '@/lib/api';
 import { requireRole } from '@/lib/permissions';
+import { userCreateSchema } from '@/lib/zod';
 
 export const dynamic = 'force-dynamic';
 
@@ -9,10 +11,31 @@ export async function GET() {
     const guard = await requireRole(['ADMIN']);
     if (!guard.ok) return fail(guard.code, guard.message, guard.status);
     const users = await prisma.user.findMany({
-      select: { id: true, name: true, email: true, role: true },
+      select: { id: true, name: true, email: true, role: true, lockedUntil: true },
       orderBy: { email: 'asc' },
     });
     return ok(users);
+  } catch (e) {
+    return handleError(e);
+  }
+}
+
+export async function POST(req: Request) {
+  try {
+    const guard = await requireRole(['ADMIN']);
+    if (!guard.ok) return fail(guard.code, guard.message, guard.status);
+
+    const { name, email, password, role, perimetrePays } = userCreateSchema.parse(await req.json());
+
+    const existing = await prisma.user.findUnique({ where: { email } });
+    if (existing) return fail('CONFLICT', 'Un utilisateur avec cet e-mail existe déjà', 409);
+
+    const passwordHash = await bcrypt.hash(password, 12);
+    const user = await prisma.user.create({
+      data: { name, email, passwordHash, role, perimetrePays: perimetrePays ?? null },
+      select: { id: true, name: true, email: true, role: true },
+    });
+    return ok(user, 201);
   } catch (e) {
     return handleError(e);
   }
