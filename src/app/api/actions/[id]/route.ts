@@ -7,6 +7,7 @@ import { construireArbre, aplatirArbre, idsDescendants, niveauEnfantAttendu } fr
 import { reindexerCodesPlan } from '@/lib/codes';
 import { consoliderIndicateurs } from '@/lib/indicateurs';
 import { logAction } from '@/lib/audit';
+import { notifierRoles } from '@/lib/notifications';
 
 export const dynamic = 'force-dynamic';
 
@@ -120,6 +121,16 @@ export async function PATCH(req: Request, { params }: { params: { id: string } }
       { action: 'UPDATE', entite: 'Action', entiteId: updated.id, avant: existing, apres: updated },
       req,
     );
+
+    // Notification de gouvernance : une action qui passe BLOQUE alerte ADMIN/PMO (T1.4).
+    if (existing.statut !== 'BLOQUE' && updated.statut === 'BLOQUE') {
+      await notifierRoles(['ADMIN', 'PMO'], {
+        type: 'BLOCAGE',
+        titre: `Action bloquée : ${updated.titre}`,
+        message: updated.commentaire ?? null,
+        lien: `/actions?focus=${updated.id}`,
+      });
+    }
 
     return ok(serializeAction(updated));
   } catch (e) {

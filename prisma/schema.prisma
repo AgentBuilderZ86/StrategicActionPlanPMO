@@ -152,6 +152,22 @@ model Indicateur {
   @@index([actionId])
 }
 
+// Notifications in-app (T1.4, exig. 8, 18).
+model Notification {
+  id        String   @id @default(cuid())
+  userId    String
+  // Type : BLOCAGE | ECHEANCE | STATUT | VALIDATION | INFO
+  type      String
+  titre     String
+  message   String?
+  lien      String?
+  lu        Boolean  @default(false)
+  createdAt DateTime @default(now())
+
+  @@index([userId, lu])
+  @@index([createdAt])
+}
+
 // Attributs métier personnalisables par type de plan / niveau (T1.1, exig. 9,10).
 model AttributDef {
   id         String   @id @default(cuid())
