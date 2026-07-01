@@ -213,6 +213,23 @@ model ItemBacklog {
   @@index([sprintId])
 }
 
+// Jetons d'API pour l'interopérabilité SI externe (T2.4, exig. 36).
+model ApiToken {
+  id           String    @id @default(cuid())
+  nom          String
+  // Empreinte SHA-256 du jeton (le secret en clair n'est jamais stocké).
+  tokenHash    String    @unique
+  // Préfixe lisible pour identifier le jeton dans l'UI (ex. narsa_ab12…).
+  prefix       String
+  scopes       String    @default("read")
+  createdById  String?
+  dernierAcces DateTime?
+  revoque      Boolean   @default(false)
+  createdAt    DateTime  @default(now())
+
+  @@index([tokenHash])
+}
+
 // Préférences de tableau de bord par utilisateur (T2.2, exig. 23).
 model DashboardPref {
   id        String   @id @default(cuid())

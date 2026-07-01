@@ -42,8 +42,8 @@ Statuts : ✅ conforme · 🟡 en cours · ⬜ à faire.
 | 20 | Tableaux de bord agiles (burndown, velocity, CFD) | ✅ | T2.3 · `agile.ts` (+ tests) : velocity, CFD, burndown (idéal + restant, approximé sans historique quotidien) |
 | 21 | Suivi des tests / déploiements techniques | 🟡 | T2.3 · items backlog génériques (tests/déploiements) ; module de suivi dédié à prévoir |
 | 23 | Tableaux de bord personnalisables par profil | ✅ | T2.2 · `DashboardPref` par utilisateur, widgets visibilité + ordre, `GET/PUT /api/dashboard/config`, mode « Personnaliser » |
-| 34 | SSO / LDAP | ⬜ | T2.5 |
-| 36 | Interfaçage SI externe (API, webhooks) | ⬜ | T2.4 |
+| 34 | SSO / LDAP | ⬜ | T2.5 · nécessite une décision d'infra (issuer OIDC/SAML ou annuaire LDAP) |
+| 36 | Interfaçage SI externe (API, webhooks) | ✅ | T2.4 · API `/v1` versionnée + jetons Bearer (SHA-256, scopes read/read_write), OpenAPI `/api/v1/openapi.json`, gestion des jetons ADMIN |
 
 ## WAVE 3 — Sécurité avancée & livrables
 
