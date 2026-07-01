@@ -36,8 +36,8 @@ Statuts : ✅ conforme · 🟡 en cours · ⬜ à faire.
 
 | Exig. | Intitulé | Statut | Tâche |
 |------:|----------|:------:|-------|
-| 16 | Planification visuelle (Gantt) | ⬜ | T2.1 |
-| 17 | Vue calendrier | ⬜ | T2.1 |
+| 16 | Planification visuelle (Gantt) | ✅ | T2.1 · Gantt SVG/HTML maison (`calculerGantt` + tests), page `/planning`, ligne « aujourd'hui », avancement dans la barre |
+| 17 | Vue calendrier | ✅ | T2.1 · grille mensuelle des échéances + jalons, navigation mois, dans `/planning` |
 | 19 | Volet PMO SI / Agile (Backlog, Kanban) | ⬜ | T2.3 |
 | 20 | Tableaux de bord agiles (burndown, velocity, CFD) | ⬜ | T2.3 |
 | 21 | Suivi des tests / déploiements techniques | ⬜ | T2.3 |

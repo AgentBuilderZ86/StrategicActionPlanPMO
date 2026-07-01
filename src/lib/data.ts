@@ -101,3 +101,32 @@ export async function getAnalysesData(
 }
 
 export type AnalysesData = Awaited<ReturnType<typeof getAnalysesData>>;
+
+/** Données de planification : actions datées + jalons (T2.1). */
+export async function getPlanningData(planId: string) {
+  const [actions, jalons] = await Promise.all([
+    prisma.action.findMany({
+      where: { planId },
+      select: {
+        id: true, titre: true, code: true, dateDebut: true, dateFin: true,
+        statut: true, avancement: true, niveau: true,
+      },
+      orderBy: [{ dateDebut: 'asc' }, { niveau: 'asc' }],
+    }),
+    prisma.jalon.findMany({
+      where: { action: { planId } },
+      select: { id: true, actionId: true, titre: true, date: true, atteint: true },
+      orderBy: { date: 'asc' },
+    }),
+  ]);
+  return {
+    actions: actions.map((a) => ({
+      ...a,
+      dateDebut: a.dateDebut ? a.dateDebut.toISOString() : null,
+      dateFin: a.dateFin ? a.dateFin.toISOString() : null,
+    })),
+    jalons: jalons.map((j) => ({ ...j, date: j.date.toISOString() })),
+  };
+}
+
+export type PlanningData = Awaited<ReturnType<typeof getPlanningData>>;
