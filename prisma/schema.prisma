@@ -174,6 +174,45 @@ model DemandeValidation {
   @@index([statut])
 }
 
+// Volet PMO SI / Agile (T2.3, exig. 19, 20, 21) — activé pour les plans typePmo=SI.
+model Sprint {
+  id        String    @id @default(cuid())
+  planId    String
+  nom       String
+  objectif  String?
+  dateDebut DateTime?
+  dateFin   DateTime?
+  // Statut : PLANIFIE | EN_COURS | CLOS
+  statut    String    @default("PLANIFIE")
+  ordre     Int       @default(0)
+  createdAt DateTime  @default(now())
+
+  items     ItemBacklog[]
+
+  @@index([planId])
+}
+
+model ItemBacklog {
+  id          String   @id @default(cuid())
+  planId      String
+  sprintId    String?
+  sprint      Sprint?  @relation(fields: [sprintId], references: [id], onDelete: SetNull)
+  // Lien optionnel vers une action du plan.
+  actionId    String?
+  titre       String
+  description String?
+  // Colonne Kanban : BACKLOG | A_FAIRE | EN_COURS | EN_REVUE | TERMINE
+  statut      String   @default("BACKLOG")
+  points      Int?
+  assigne     String?
+  ordre       Int      @default(0)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([planId])
+  @@index([sprintId])
+}
+
 // Préférences de tableau de bord par utilisateur (T2.2, exig. 23).
 model DashboardPref {
   id        String   @id @default(cuid())

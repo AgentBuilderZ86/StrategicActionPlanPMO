@@ -38,9 +38,9 @@ Statuts : ✅ conforme · 🟡 en cours · ⬜ à faire.
 |------:|----------|:------:|-------|
 | 16 | Planification visuelle (Gantt) | ✅ | T2.1 · Gantt SVG/HTML maison (`calculerGantt` + tests), page `/planning`, ligne « aujourd'hui », avancement dans la barre |
 | 17 | Vue calendrier | ✅ | T2.1 · grille mensuelle des échéances + jalons, navigation mois, dans `/planning` |
-| 19 | Volet PMO SI / Agile (Backlog, Kanban) | ⬜ | T2.3 |
-| 20 | Tableaux de bord agiles (burndown, velocity, CFD) | ⬜ | T2.3 |
-| 21 | Suivi des tests / déploiements techniques | ⬜ | T2.3 |
+| 19 | Volet PMO SI / Agile (Backlog, Kanban) | ✅ | T2.3 · `Sprint`/`ItemBacklog`, page `/agile`, Kanban 5 colonnes, backlog, sprints, CRUD audité |
+| 20 | Tableaux de bord agiles (burndown, velocity, CFD) | ✅ | T2.3 · `agile.ts` (+ tests) : velocity, CFD, burndown (idéal + restant, approximé sans historique quotidien) |
+| 21 | Suivi des tests / déploiements techniques | 🟡 | T2.3 · items backlog génériques (tests/déploiements) ; module de suivi dédié à prévoir |
 | 23 | Tableaux de bord personnalisables par profil | ✅ | T2.2 · `DashboardPref` par utilisateur, widgets visibilité + ordre, `GET/PUT /api/dashboard/config`, mode « Personnaliser » |
 | 34 | SSO / LDAP | ⬜ | T2.5 |
 | 36 | Interfaçage SI externe (API, webhooks) | ⬜ | T2.4 |

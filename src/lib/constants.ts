@@ -168,6 +168,25 @@ export const SNSR_OBJECTIF = {
   reductionCible: 50, // %
 };
 
+// Volet Agile (T2.3, exig. 19, 20, 21)
+export const SPRINT_STATUTS = ['PLANIFIE', 'EN_COURS', 'CLOS'] as const;
+export type SprintStatut = (typeof SPRINT_STATUTS)[number];
+export const SPRINT_STATUT_LABEL: Record<SprintStatut, string> = {
+  PLANIFIE: 'Planifié',
+  EN_COURS: 'En cours',
+  CLOS: 'Clôturé',
+};
+
+export const KANBAN_COLONNES = ['BACKLOG', 'A_FAIRE', 'EN_COURS', 'EN_REVUE', 'TERMINE'] as const;
+export type KanbanColonne = (typeof KANBAN_COLONNES)[number];
+export const KANBAN_LABEL: Record<KanbanColonne, string> = {
+  BACKLOG: 'Backlog',
+  A_FAIRE: 'À faire',
+  EN_COURS: 'En cours',
+  EN_REVUE: 'En revue',
+  TERMINE: 'Terminé',
+};
+
 // Widgets du tableau de bord personnalisable (T2.2, exig. 23)
 export const DASHBOARD_WIDGETS = [
   { key: 'heatmap', label: 'Carte de chaleur (région × axe)' },

@@ -4,5 +4,5 @@ export { default } from 'next-auth/middleware';
 // redirigés vers /connexion. Les routes /api/auth et la page de connexion
 // restent publiques (non couvertes par le matcher).
 export const config = {
-  matcher: ['/', '/actions/:path*', '/planning/:path*', '/analyses/:path*', '/copil/:path*', '/parametres/:path*'],
+  matcher: ['/', '/actions/:path*', '/planning/:path*', '/agile/:path*', '/analyses/:path*', '/copil/:path*', '/parametres/:path*'],
 };

@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { STATUTS, PRIORITES, ROLES, NIVEAUX, NIVEAU_MAX, PMO_TYPES, SENS_INDICATEUR, ATTRIBUT_TYPES, TYPES_UTILISATEUR } from './constants';
+import { STATUTS, PRIORITES, ROLES, NIVEAUX, NIVEAU_MAX, PMO_TYPES, SENS_INDICATEUR, ATTRIBUT_TYPES, TYPES_UTILISATEUR, SPRINT_STATUTS, KANBAN_COLONNES } from './constants';
 
 export const statutEnum = z.enum(STATUTS);
 export const prioriteEnum = z.enum(PRIORITES);
@@ -158,6 +158,30 @@ export const attributDefUpdateSchema = attributDefCreateSchema.partial();
 export const attributValeursSchema = z.object({
   valeurs: z.record(z.string(), z.string().nullable()),
 });
+
+export const sprintCreateSchema = z.object({
+  planId: z.string().min(1),
+  nom: z.string().min(1).max(120),
+  objectif: z.string().max(1000).optional().nullable(),
+  dateDebut: dateOpt,
+  dateFin: dateOpt,
+  statut: z.enum(SPRINT_STATUTS).default('PLANIFIE'),
+  ordre: z.coerce.number().int().default(0),
+});
+export const sprintUpdateSchema = sprintCreateSchema.partial().omit({ planId: true });
+
+export const itemCreateSchema = z.object({
+  planId: z.string().min(1),
+  titre: z.string().min(1).max(200),
+  description: z.string().max(2000).optional().nullable(),
+  statut: z.enum(KANBAN_COLONNES).default('BACKLOG'),
+  points: z.coerce.number().int().min(0).max(999).optional().nullable(),
+  assigne: z.string().max(120).optional().nullable(),
+  sprintId: z.string().optional().nullable().transform((v) => v || null),
+  actionId: z.string().optional().nullable().transform((v) => v || null),
+  ordre: z.coerce.number().int().default(0),
+});
+export const itemUpdateSchema = itemCreateSchema.partial().omit({ planId: true });
 
 export const soumettreValidationSchema = z.object({
   commentaire: z.string().max(2000).optional().nullable(),
