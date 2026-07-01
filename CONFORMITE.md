@@ -41,7 +41,7 @@ Statuts : ✅ conforme · 🟡 en cours · ⬜ à faire.
 | 19 | Volet PMO SI / Agile (Backlog, Kanban) | ⬜ | T2.3 |
 | 20 | Tableaux de bord agiles (burndown, velocity, CFD) | ⬜ | T2.3 |
 | 21 | Suivi des tests / déploiements techniques | ⬜ | T2.3 |
-| 23 | Tableaux de bord personnalisables par profil | ⬜ | T2.2 |
+| 23 | Tableaux de bord personnalisables par profil | ✅ | T2.2 · `DashboardPref` par utilisateur, widgets visibilité + ordre, `GET/PUT /api/dashboard/config`, mode « Personnaliser » |
 | 34 | SSO / LDAP | ⬜ | T2.5 |
 | 36 | Interfaçage SI externe (API, webhooks) | ⬜ | T2.4 |
 

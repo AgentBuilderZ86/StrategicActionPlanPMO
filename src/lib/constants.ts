@@ -168,6 +168,26 @@ export const SNSR_OBJECTIF = {
   reductionCible: 50, // %
 };
 
+// Widgets du tableau de bord personnalisable (T2.2, exig. 23)
+export const DASHBOARD_WIDGETS = [
+  { key: 'heatmap', label: 'Carte de chaleur (région × axe)' },
+  { key: 'parAxe', label: 'Avancement par axe' },
+  { key: 'statuts', label: 'Répartition par statut' },
+  { key: 'parPays', label: 'Avancement par région' },
+  { key: 'budget', label: 'Budget par axe' },
+  { key: 'tendance', label: 'Tendance d’avancement' },
+  { key: 'attention', label: 'Points d’attention' },
+] as const;
+
+export type WidgetKey = (typeof DASHBOARD_WIDGETS)[number]['key'];
+
+export type WidgetConfig = { key: WidgetKey; visible: boolean };
+
+/** Configuration par défaut : tous les widgets visibles, dans l'ordre canonique. */
+export function dashboardConfigParDefaut(): WidgetConfig[] {
+  return DASHBOARD_WIDGETS.map((w) => ({ key: w.key, visible: true }));
+}
+
 // Validation hiérarchique (T1.5)
 export const VALIDATION_STATUTS = ['EN_ATTENTE', 'APPROUVE', 'REJETE'] as const;
 export type ValidationStatut = (typeof VALIDATION_STATUTS)[number];
