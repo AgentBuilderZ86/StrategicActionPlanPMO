@@ -118,10 +118,11 @@ model Action {
   entite     Entite?      @relation(fields: [entiteId], references: [id], onDelete: SetNull)
   parent      Action?      @relation("Arbre", fields: [parentId], references: [id], onDelete: Cascade)
   enfants     Action[]     @relation("Arbre")
-  jalons       Jalon[]
-  historique   Avancement[]
-  indicateurs  Indicateur[]
-  commentaires Commentaire[]
+  jalons          Jalon[]
+  historique      Avancement[]
+  indicateurs     Indicateur[]
+  commentaires    Commentaire[]
+  attributValeurs AttributValeur[]
 
   @@unique([planId, code])
   @@index([planId])
@@ -149,6 +150,41 @@ model Indicateur {
   updatedAt DateTime @updatedAt
 
   @@index([actionId])
+}
+
+// Attributs métier personnalisables par type de plan / niveau (T1.1, exig. 9,10).
+model AttributDef {
+  id         String   @id @default(cuid())
+  // Portée : plan précis (planId) et/ou type de PMO et/ou niveau ; null = global.
+  planId     String?
+  typePmo    String?
+  niveau     Int?
+  cle        String
+  libelle    String
+  // Type : TEXTE | NOMBRE | DATE | BOOLEEN | LISTE
+  type       String   @default("TEXTE")
+  // Options d'une liste (valeurs séparées par des « ; »)
+  options    String?
+  obligatoire Boolean @default(false)
+  ordre      Int      @default(0)
+  createdAt  DateTime @default(now())
+
+  valeurs    AttributValeur[]
+
+  @@index([planId])
+}
+
+model AttributValeur {
+  id            String      @id @default(cuid())
+  actionId      String
+  action        Action      @relation(fields: [actionId], references: [id], onDelete: Cascade)
+  attributDefId String
+  def           AttributDef @relation(fields: [attributDefId], references: [id], onDelete: Cascade)
+  valeur        String?
+
+  @@unique([actionId, attributDefId])
+  @@index([actionId])
+  @@index([attributDefId])
 }
 
 // Fil de commentaires collaboratif par nœud (T1.3, exig. 32).

@@ -20,8 +20,8 @@ Statuts : ✅ conforme · 🟡 en cours · ⬜ à faire.
 |------:|----------|:------:|-------|
 | 7 | Pièces jointes / documents | ⬜ | T1.3 · en attente d'une décision de stockage objet (S3/Supabase) |
 | 8 | Notifications, alertes, rappels | ⬜ | T1.4 |
-| 9 | Attributs personnalisables par type de plan | ⬜ | T1.1 |
-| 10 | Attributs par niveau | ⬜ | T1.1 |
+| 9 | Attributs personnalisables par type de plan | ✅ | T1.1 · `AttributDef`/`AttributValeur`, `/api/attributs`, admin dans `/parametres` |
+| 10 | Attributs par niveau | ✅ | T1.1 · portée `niveau` sur `AttributDef`, rendu dynamique filtré dans la fiche action (`AttributsPanel`) |
 | 11 | KPI personnalisés | ✅ | T1.2 · modèle `Indicateur` multi-lignes/nœud (unité, cible, réalisé, sens), CRUD `/api/actions/[id]/indicateurs` + `/api/indicateurs/[id]` |
 | 13 | Remontée automatique multi-niveaux | ✅ | T1.2 · `consoliderIndicateurs()` (remontée ascendante sur le sous-arbre) exposée dans `GET /api/actions/[id]`, `indicateurs.test.ts` |
 | 14 | Indicateurs d'impact sécurité routière | 🟡 | T1.2 · structure en place (sens BAISSE pour mortalité) ; indicateurs d'impact à saisir/seed |

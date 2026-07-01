@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { STATUTS, PRIORITES, ROLES, NIVEAUX, NIVEAU_MAX, PMO_TYPES, SENS_INDICATEUR } from './constants';
+import { STATUTS, PRIORITES, ROLES, NIVEAUX, NIVEAU_MAX, PMO_TYPES, SENS_INDICATEUR, ATTRIBUT_TYPES } from './constants';
 
 export const statutEnum = z.enum(STATUTS);
 export const prioriteEnum = z.enum(PRIORITES);
@@ -126,6 +126,25 @@ export const indicateurCreateSchema = z.object({
 });
 
 export const indicateurUpdateSchema = indicateurCreateSchema.partial();
+
+export const attributDefCreateSchema = z.object({
+  planId: z.string().optional().nullable().transform((v) => v || null),
+  typePmo: pmoTypeEnum.optional().nullable(),
+  niveau: z.coerce.number().int().min(1).max(NIVEAU_MAX).optional().nullable(),
+  cle: z.string().min(1).max(60).regex(/^[a-zA-Z0-9_]+$/, 'Clé alphanumérique (a-z, 0-9, _)'),
+  libelle: z.string().min(1).max(120),
+  type: z.enum(ATTRIBUT_TYPES).default('TEXTE'),
+  options: z.string().max(1000).optional().nullable(),
+  obligatoire: z.coerce.boolean().default(false),
+  ordre: z.coerce.number().int().default(0),
+});
+
+export const attributDefUpdateSchema = attributDefCreateSchema.partial();
+
+// Valeurs d'attributs pour une action : map { attributDefId: valeur | null }.
+export const attributValeursSchema = z.object({
+  valeurs: z.record(z.string(), z.string().nullable()),
+});
 
 export const commentaireSchema = z.object({
   contenu: z.string().min(1, 'Le commentaire ne peut pas être vide').max(2000),

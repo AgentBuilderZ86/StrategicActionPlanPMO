@@ -8,6 +8,7 @@ import type { ActionDTO, Referentiels } from '@/lib/types';
 import { toDateInput } from '@/lib/utils';
 import { IndicateursPanel } from './IndicateursPanel';
 import { CommentairesPanel } from './CommentairesPanel';
+import { AttributsPanel } from './AttributsPanel';
 
 const formSchema = z.object({
   titre: z.string().min(1, 'Le titre est requis'),
@@ -201,6 +202,7 @@ export function ActionForm({
         <textarea id="commentaire" rows={2} className="input" {...register('commentaire')} />
       </div>
 
+      {action && <AttributsPanel actionId={action.id} planId={planId} niveau={action.niveau} canEdit />}
       {action && <IndicateursPanel actionId={action.id} canEdit />}
       {action && <CommentairesPanel actionId={action.id} />}
 

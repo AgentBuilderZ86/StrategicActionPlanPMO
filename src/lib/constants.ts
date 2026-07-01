@@ -130,6 +130,18 @@ export const SNSR_OBJECTIF = {
   reductionCible: 50, // %
 };
 
+// Types d'attributs personnalisables (T1.1)
+export const ATTRIBUT_TYPES = ['TEXTE', 'NOMBRE', 'DATE', 'BOOLEEN', 'LISTE'] as const;
+export type AttributType = (typeof ATTRIBUT_TYPES)[number];
+
+export const ATTRIBUT_TYPE_LABEL: Record<AttributType, string> = {
+  TEXTE: 'Texte',
+  NOMBRE: 'Nombre',
+  DATE: 'Date',
+  BOOLEEN: 'Oui / Non',
+  LISTE: 'Liste de choix',
+};
+
 // Sens d'amélioration d'un indicateur (T1.2)
 export const SENS_INDICATEUR = ['HAUSSE', 'BAISSE'] as const;
 export type SensIndicateur = (typeof SENS_INDICATEUR)[number];
