@@ -13,7 +13,8 @@ export async function PATCH(req: Request, { params }: { params: { id: string } }
     const guard = await requireRole(['ADMIN']);
     if (!guard.ok) return fail(guard.code, guard.message, guard.status);
 
-    const { role, perimetrePays, password, unlock } = userUpdateSchema.parse(await req.json());
+    const { role, perimetrePays, password, unlock, typeUtilisateur, droits } =
+      userUpdateSchema.parse(await req.json());
 
     const data: Prisma.UserUpdateInput = {};
     if (role !== undefined) data.role = role;
@@ -25,6 +26,9 @@ export async function PATCH(req: Request, { params }: { params: { id: string } }
       data.failedAttempts = 0;
       data.lockedUntil = null;
     }
+    // Habilitations fines (T1.6).
+    if (typeUtilisateur !== undefined) data.typeUtilisateur = typeUtilisateur;
+    if (droits !== undefined) data.droits = droits === null ? null : JSON.stringify(droits);
 
     const user = await prisma.user.update({
       where: { id: params.id },

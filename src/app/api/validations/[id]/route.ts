@@ -15,6 +15,8 @@ export async function PATCH(req: Request, { params }: { params: { id: string } }
     if (user.role !== 'ADMIN' && user.role !== 'PMO') {
       return fail('FORBIDDEN', 'Action non autorisée', 403);
     }
+    // Habilitation fine : le droit « validation » est requis (T1.6).
+    if (!user.droits.validation) return fail('FORBIDDEN', 'Droit de validation requis', 403);
 
     const demande = await prisma.demandeValidation.findUnique({
       where: { id: params.id },

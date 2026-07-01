@@ -12,7 +12,10 @@ export async function GET() {
     const guard = await requireRole(['ADMIN']);
     if (!guard.ok) return fail(guard.code, guard.message, guard.status);
     const users = await prisma.user.findMany({
-      select: { id: true, name: true, email: true, role: true, lockedUntil: true },
+      select: {
+        id: true, name: true, email: true, role: true, lockedUntil: true,
+        typeUtilisateur: true, droits: true,
+      },
       orderBy: { email: 'asc' },
     });
     return ok(users);

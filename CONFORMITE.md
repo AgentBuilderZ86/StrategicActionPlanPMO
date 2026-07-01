@@ -28,8 +28,8 @@ Statuts : ✅ conforme · 🟡 en cours · ⬜ à faire.
 | 18 | Rappels d'échéance | ✅ | T1.4 · `genererRappelsEcheance()` (retard + échéance ≤ 7 j), `POST /api/notifications/rappels` (cron-ready), génération opportuniste in-app |
 | 24 | Workflows de validation configurables | 🟡 | T1.5 · flux soumission→décision, `DemandeValidation`, file d'attente ADMIN/PMO, historique & audit (paramétrage par niveau ; moteur multi-étapes configurable à venir) |
 | 25 | Validation hiérarchique | ✅ | T1.5 · `roleValidateurPourNiveau()` (Pilier/Axe→ADMIN, sinon PMO), décision réservée au bon rôle, notifications demandeur/validateur |
-| 30 | Habilitations fines (lecture/saisie/validation/reporting) | ⬜ | T1.6 |
-| 31 | Profils partenaires externes | ⬜ | T1.6 |
+| 30 | Habilitations fines (lecture/saisie/validation/reporting) | ✅ | T1.6 · droits fins par utilisateur (overlay sur le rôle, rétrocompatibles), `requireDroit()`, `requireEdit` respecte `saisie`, décision de validation exige `validation`, éditeur dans `/parametres` |
+| 31 | Profils partenaires externes | 🟡 | T1.6 · `typeUtilisateur` INTERNE/PARTENAIRE_EXTERNE + périmètre en écriture ; filtrage des lectures par périmètre à compléter |
 | 32 | Fil de commentaires / collaboration | ✅ | T1.3 · modèle `Commentaire`, `/api/actions/[id]/commentaires`, panneau fil dans la fiche action |
 
 ## WAVE 2 — Visualisation, SI/Agile, interopérabilité

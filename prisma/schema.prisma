@@ -288,6 +288,11 @@ model User {
   role          String    @default("LECTEUR")
   // Périmètre du contributeur (ids pays/entités, JSON), null = tout le périmètre
   perimetrePays String?
+  // Habilitations fines (T1.6, exig. 30, 31)
+  // Type : INTERNE | PARTENAIRE_EXTERNE
+  typeUtilisateur String @default("INTERNE")
+  // Droits fins (JSON { lecture, saisie, validation, reporting }) ; null = dérivés du rôle
+  droits          String?
   // Durcissement authentification (T0.3, exig. 37) : verrouillage de compte.
   failedAttempts Int      @default(0)
   lockedUntil    DateTime?

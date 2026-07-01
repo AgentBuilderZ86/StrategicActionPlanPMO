@@ -107,6 +107,44 @@ export function canEditClient(role: Role | undefined): boolean {
   return role === 'ADMIN' || role === 'PMO' || role === 'CONTRIBUTEUR';
 }
 
+// ── Habilitations fines (T1.6, exig. 30, 31) ────────────────────────────────
+export const DROITS = ['lecture', 'saisie', 'validation', 'reporting'] as const;
+export type Droit = (typeof DROITS)[number];
+export type Droits = Record<Droit, boolean>;
+
+export const DROIT_LABEL: Record<Droit, string> = {
+  lecture: 'Lecture',
+  saisie: 'Saisie',
+  validation: 'Validation',
+  reporting: 'Reporting',
+};
+
+export const TYPES_UTILISATEUR = ['INTERNE', 'PARTENAIRE_EXTERNE'] as const;
+export type TypeUtilisateur = (typeof TYPES_UTILISATEUR)[number];
+
+export const TYPE_UTILISATEUR_LABEL: Record<TypeUtilisateur, string> = {
+  INTERNE: 'Interne NARSA',
+  PARTENAIRE_EXTERNE: 'Partenaire externe',
+};
+
+/** Droits par défaut dérivés du rôle (utilisés quand aucun droit fin n'est défini). */
+export function droitsParDefaut(role: Role): Droits {
+  switch (role) {
+    case 'ADMIN':
+    case 'PMO':
+      return { lecture: true, saisie: true, validation: true, reporting: true };
+    case 'CONTRIBUTEUR':
+      return { lecture: true, saisie: true, validation: false, reporting: false };
+    default:
+      return { lecture: true, saisie: false, validation: false, reporting: false };
+  }
+}
+
+/** Résout les droits effectifs : droits fins s'ils existent, sinon dérivés du rôle. */
+export function droitsEffectifs(role: Role, droits: Droits | null | undefined): Droits {
+  return droits ?? droitsParDefaut(role);
+}
+
 // Palette « statut » pour la heatmap (rouge → ambre → vert)
 export const COLORS = {
   canvas: '#F4F6F5',
