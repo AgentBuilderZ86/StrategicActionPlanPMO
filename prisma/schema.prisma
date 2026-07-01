@@ -219,3 +219,28 @@ model VerificationToken {
 
   @@unique([identifier, token])
 }
+
+// ----------------------------------------------------------------------------
+// Piste d'audit (T0.4, exig. 33 & 35) : traçabilité des connexions et des
+// écritures, avec état avant/après.
+// ----------------------------------------------------------------------------
+
+model AuditLog {
+  id        String   @id @default(cuid())
+  userId    String?
+  userEmail String?
+  // Type d'événement : CREATE | UPDATE | DELETE | IMPORT | LOGIN_SUCCESS | LOGIN_FAILURE
+  action    String
+  // Entité concernée : Action | Axe | Pays | Entite | Plan | User | Snapshot | Auth
+  entite    String
+  entiteId  String?
+  avant     Json?
+  apres     Json?
+  ip        String?
+  userAgent String?
+  createdAt DateTime @default(now())
+
+  @@index([entite, entiteId])
+  @@index([userId])
+  @@index([createdAt])
+}

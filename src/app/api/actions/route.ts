@@ -6,6 +6,7 @@ import { ACTION_INCLUDE, serializeAction } from '@/lib/serialize';
 import { requireEdit } from '@/lib/permissions';
 import { niveauEnfantAttendu } from '@/lib/tree';
 import { reindexerCodesPlan } from '@/lib/codes';
+import { logAction } from '@/lib/audit';
 
 export const dynamic = 'force-dynamic';
 
@@ -101,6 +102,8 @@ export async function POST(req: Request) {
     await prisma.avancement.create({
       data: { actionId: created.id, valeur: created.avancement, statut: created.statut },
     });
+
+    await logAction({ action: 'CREATE', entite: 'Action', entiteId: created.id, apres: created }, req);
 
     return ok(serializeAction(created), 201);
   } catch (e) {

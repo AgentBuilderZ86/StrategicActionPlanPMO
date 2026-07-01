@@ -3,6 +3,7 @@ import { prisma } from '@/lib/prisma';
 import { ok, fail, handleError } from '@/lib/api';
 import { requireRole } from '@/lib/permissions';
 import { userCreateSchema } from '@/lib/zod';
+import { logAction } from '@/lib/audit';
 
 export const dynamic = 'force-dynamic';
 
@@ -35,6 +36,8 @@ export async function POST(req: Request) {
       data: { name, email, passwordHash, role, perimetrePays: perimetrePays ?? null },
       select: { id: true, name: true, email: true, role: true },
     });
+    // apres ne contient jamais le mot de passe (select restreint).
+    await logAction({ action: 'CREATE', entite: 'User', entiteId: user.id, apres: user }, req);
     return ok(user, 201);
   } catch (e) {
     return handleError(e);

@@ -4,6 +4,7 @@ import { prisma } from '@/lib/prisma';
 import { ok, fail, handleError } from '@/lib/api';
 import { requireRole } from '@/lib/permissions';
 import { userUpdateSchema } from '@/lib/zod';
+import { logAction } from '@/lib/audit';
 
 export const dynamic = 'force-dynamic';
 
@@ -30,6 +31,16 @@ export async function PATCH(req: Request, { params }: { params: { id: string } }
       data,
       select: { id: true, name: true, email: true, role: true },
     });
+    // On journalise le type de modification sans exposer le mot de passe.
+    await logAction(
+      {
+        action: 'UPDATE',
+        entite: 'User',
+        entiteId: user.id,
+        apres: { ...user, motDePasseModifie: password !== undefined, deverrouille: unlock === true },
+      },
+      req,
+    );
     return ok(user);
   } catch (e) {
     return handleError(e);

@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import { useSession } from 'next-auth/react';
 import { ROLES, ROLE_LABEL, type Role } from '@/lib/constants';
 import { SectionCard } from '@/components/ui/Cards';
+import { AuditJournal } from './AuditJournal';
 
 type Axe = { id: string; nom: string; ordre: number };
 type Pays = { id: string; nom: string; code: string | null };
@@ -177,6 +178,8 @@ export function ParametresClient({ planId, planNom }: { planId: string; planNom:
           </div>
         </SectionCard>
       )}
+
+      {isAdmin && <AuditJournal />}
 
       {canManage && (
         <SectionCard title="Données de démonstration" subtitle="Réinitialiser le jeu de données (désactivé en production).">

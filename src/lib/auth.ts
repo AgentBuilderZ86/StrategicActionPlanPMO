@@ -10,6 +10,22 @@ const SESSION_MAX_AGE = 8 * 60 * 60; // 8 heures
 const MAX_FAILED_ATTEMPTS = 5;
 const LOCK_DURATION_MS = 15 * 60 * 1000; // 15 minutes
 
+// Journalisation des connexions (T0.4, exig. 33). Écriture directe via prisma
+// pour éviter un cycle d'import avec src/lib/audit.ts → permissions → auth.
+async function journaliserConnexion(
+  action: 'LOGIN_SUCCESS' | 'LOGIN_FAILURE',
+  email: string,
+  userId: string | null,
+) {
+  try {
+    await prisma.auditLog.create({
+      data: { action, entite: 'Auth', userEmail: email, userId },
+    });
+  } catch {
+    // l'audit ne doit jamais bloquer l'authentification
+  }
+}
+
 export const authOptions: NextAuthOptions = {
   session: { strategy: 'jwt', maxAge: SESSION_MAX_AGE },
   jwt: { maxAge: SESSION_MAX_AGE },
@@ -27,7 +43,10 @@ export const authOptions: NextAuthOptions = {
         if (!user?.passwordHash) return null;
 
         // Compte verrouillé après trop d'échecs (T0.3, exig. 37).
-        if (user.lockedUntil && user.lockedUntil.getTime() > Date.now()) return null;
+        if (user.lockedUntil && user.lockedUntil.getTime() > Date.now()) {
+          await journaliserConnexion('LOGIN_FAILURE', credentials.email, user.id);
+          return null;
+        }
 
         const valid = await bcrypt.compare(credentials.password, user.passwordHash);
         if (!valid) {
@@ -42,6 +61,7 @@ export const authOptions: NextAuthOptions = {
                   : null,
             },
           });
+          await journaliserConnexion('LOGIN_FAILURE', credentials.email, user.id);
           return null;
         }
 
@@ -52,6 +72,7 @@ export const authOptions: NextAuthOptions = {
             data: { failedAttempts: 0, lockedUntil: null },
           });
         }
+        await journaliserConnexion('LOGIN_SUCCESS', credentials.email, user.id);
 
         return {
           id: user.id,

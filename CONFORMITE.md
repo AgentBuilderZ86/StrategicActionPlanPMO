@@ -10,8 +10,8 @@ Statuts : ✅ conforme · 🟡 en cours · ⬜ à faire.
 | 2 | Arborescence hiérarchique du plan (parent-enfant) | ✅ | T0.1 | `Action.parentId` + relation « Arbre », `src/lib/tree.ts`, vue `/actions` arborescente |
 | 3 | Imbrication / déplacement / suppression en cascade des nœuds | ✅ | T0.1 | `onDelete: Cascade` (parent), déplacement `PATCH /api/actions/[id]`, `tree.test.ts` |
 | 4 | Codification automatique des nœuds | ✅ | T0.2 | `Action.code` unique par plan, `genererCode`/`calculerCodesArbre`, reindex sur toute modif structurelle, `utils.test.ts` |
-| 33 | Traçabilité des connexions | ⬜ | T0.4 | — |
-| 35 | Piste d'audit des modifications (avant/après) | ⬜ | T0.4 | — |
+| 33 | Traçabilité des connexions | ✅ | T0.4 | `AuditLog` LOGIN_SUCCESS/LOGIN_FAILURE dans `authorize()` |
+| 35 | Piste d'audit des modifications (avant/après) | ✅ | T0.4 | `logAction()` branché sur toutes les mutations (actions, axes, pays, entités, plans, users, snapshots, import), journal `/parametres` ADMIN, `GET /api/audit` |
 | 37 | Durcissement authentification (politique MDP, verrouillage) | 🟡 | T0.3 | `passwordSchema`, verrouillage 5 échecs/15 min, `POST /api/users`, reset/unlock admin, `zod.test.ts`, `SECURITE.md` (reste OWASP/crypto → T3.1) |
 
 ## WAVE 1 — Cœur fonctionnel

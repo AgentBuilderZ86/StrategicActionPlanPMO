@@ -5,6 +5,7 @@ import { ACTION_INCLUDE, serializeAction } from '@/lib/serialize';
 import { requireEdit } from '@/lib/permissions';
 import { construireArbre, aplatirArbre, niveauEnfantAttendu } from '@/lib/tree';
 import { reindexerCodesPlan } from '@/lib/codes';
+import { logAction } from '@/lib/audit';
 
 export const dynamic = 'force-dynamic';
 
@@ -97,13 +98,18 @@ export async function PATCH(req: Request, { params }: { params: { id: string } }
       });
     }
 
+    await logAction(
+      { action: 'UPDATE', entite: 'Action', entiteId: updated.id, avant: existing, apres: updated },
+      req,
+    );
+
     return ok(serializeAction(updated));
   } catch (e) {
     return handleError(e);
   }
 }
 
-export async function DELETE(_req: Request, { params }: { params: { id: string } }) {
+export async function DELETE(req: Request, { params }: { params: { id: string } }) {
   try {
     const existing = await prisma.action.findUnique({ where: { id: params.id } });
     if (!existing) return fail('NOT_FOUND', 'Action introuvable', 404);
@@ -112,6 +118,7 @@ export async function DELETE(_req: Request, { params }: { params: { id: string }
     if (!guard.ok) return fail(guard.code, guard.message, guard.status);
 
     await prisma.action.delete({ where: { id: params.id } });
+    await logAction({ action: 'DELETE', entite: 'Action', entiteId: params.id, avant: existing }, req);
     return ok({ id: params.id, deleted: true });
   } catch (e) {
     return handleError(e);
