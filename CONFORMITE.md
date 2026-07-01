@@ -19,17 +19,17 @@ Statuts : ✅ conforme · 🟡 en cours · ⬜ à faire.
 | Exig. | Intitulé | Statut | Tâche |
 |------:|----------|:------:|-------|
 | 7 | Pièces jointes / documents | ⬜ | T1.3 · en attente d'une décision de stockage objet (S3/Supabase) |
-| 8 | Notifications, alertes, rappels | ⬜ | T1.4 |
+| 8 | Notifications, alertes, rappels | ✅ | T1.4 · modèle `Notification`, cloche in-app (`NotificationBell`), alerte ADMIN/PMO au passage BLOQUE (e-mail SMTP différé) |
 | 9 | Attributs personnalisables par type de plan | ✅ | T1.1 · `AttributDef`/`AttributValeur`, `/api/attributs`, admin dans `/parametres` |
 | 10 | Attributs par niveau | ✅ | T1.1 · portée `niveau` sur `AttributDef`, rendu dynamique filtré dans la fiche action (`AttributsPanel`) |
 | 11 | KPI personnalisés | ✅ | T1.2 · modèle `Indicateur` multi-lignes/nœud (unité, cible, réalisé, sens), CRUD `/api/actions/[id]/indicateurs` + `/api/indicateurs/[id]` |
 | 13 | Remontée automatique multi-niveaux | ✅ | T1.2 · `consoliderIndicateurs()` (remontée ascendante sur le sous-arbre) exposée dans `GET /api/actions/[id]`, `indicateurs.test.ts` |
 | 14 | Indicateurs d'impact sécurité routière | 🟡 | T1.2 · structure en place (sens BAISSE pour mortalité) ; indicateurs d'impact à saisir/seed |
-| 18 | Rappels d'échéance | ⬜ | T1.4 |
-| 24 | Workflows de validation configurables | ⬜ | T1.5 |
-| 25 | Validation hiérarchique | ⬜ | T1.5 |
-| 30 | Habilitations fines (lecture/saisie/validation/reporting) | ⬜ | T1.6 |
-| 31 | Profils partenaires externes | ⬜ | T1.6 |
+| 18 | Rappels d'échéance | ✅ | T1.4 · `genererRappelsEcheance()` (retard + échéance ≤ 7 j), `POST /api/notifications/rappels` (cron-ready), génération opportuniste in-app |
+| 24 | Workflows de validation configurables | 🟡 | T1.5 · flux soumission→décision, `DemandeValidation`, file d'attente ADMIN/PMO, historique & audit (paramétrage par niveau ; moteur multi-étapes configurable à venir) |
+| 25 | Validation hiérarchique | ✅ | T1.5 · `roleValidateurPourNiveau()` (Pilier/Axe→ADMIN, sinon PMO), décision réservée au bon rôle, notifications demandeur/validateur |
+| 30 | Habilitations fines (lecture/saisie/validation/reporting) | ✅ | T1.6 · droits fins par utilisateur (overlay sur le rôle, rétrocompatibles), `requireDroit()`, `requireEdit` respecte `saisie`, décision de validation exige `validation`, éditeur dans `/parametres` |
+| 31 | Profils partenaires externes | 🟡 | T1.6 · `typeUtilisateur` INTERNE/PARTENAIRE_EXTERNE + périmètre en écriture ; filtrage des lectures par périmètre à compléter |
 | 32 | Fil de commentaires / collaboration | ✅ | T1.3 · modèle `Commentaire`, `/api/actions/[id]/commentaires`, panneau fil dans la fiche action |
 
 ## WAVE 2 — Visualisation, SI/Agile, interopérabilité

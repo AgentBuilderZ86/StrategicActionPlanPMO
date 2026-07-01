@@ -80,6 +80,8 @@ export const authOptions: NextAuthOptions = {
           email: user.email,
           role: user.role as Role,
           perimetrePays: user.perimetrePays,
+          typeUtilisateur: user.typeUtilisateur,
+          droits: user.droits,
         };
       },
     }),
@@ -89,6 +91,8 @@ export const authOptions: NextAuthOptions = {
       if (user) {
         token.role = (user as { role?: Role }).role ?? 'LECTEUR';
         token.perimetrePays = (user as { perimetrePays?: string | null }).perimetrePays ?? null;
+        token.typeUtilisateur = (user as { typeUtilisateur?: string }).typeUtilisateur ?? 'INTERNE';
+        token.droits = (user as { droits?: string | null }).droits ?? null;
       }
       return token;
     },
@@ -98,6 +102,9 @@ export const authOptions: NextAuthOptions = {
         (session.user as { role?: Role }).role = (token.role as Role) ?? 'LECTEUR';
         (session.user as { perimetrePays?: string | null }).perimetrePays =
           (token.perimetrePays as string | null) ?? null;
+        (session.user as { typeUtilisateur?: string }).typeUtilisateur =
+          (token.typeUtilisateur as string) ?? 'INTERNE';
+        (session.user as { droits?: string | null }).droits = (token.droits as string | null) ?? null;
       }
       return session;
     },

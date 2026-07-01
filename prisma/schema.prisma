@@ -120,9 +120,10 @@ model Action {
   enfants     Action[]     @relation("Arbre")
   jalons          Jalon[]
   historique      Avancement[]
-  indicateurs     Indicateur[]
-  commentaires    Commentaire[]
-  attributValeurs AttributValeur[]
+  indicateurs      Indicateur[]
+  commentaires     Commentaire[]
+  attributValeurs  AttributValeur[]
+  demandesValidation DemandeValidation[]
 
   @@unique([planId, code])
   @@index([planId])
@@ -150,6 +151,43 @@ model Indicateur {
   updatedAt DateTime @updatedAt
 
   @@index([actionId])
+}
+
+// Demandes de validation hiérarchique par nœud (T1.5, exig. 24, 25).
+model DemandeValidation {
+  id           String    @id @default(cuid())
+  actionId     String
+  action       Action    @relation(fields: [actionId], references: [id], onDelete: Cascade)
+  demandeurId  String?
+  demandeurNom String?
+  // Statut : EN_ATTENTE | APPROUVE | REJETE
+  statut       String    @default("EN_ATTENTE")
+  // Rôle attendu du validateur (validation hiérarchique selon le niveau).
+  roleValidateur String  @default("PMO")
+  validateurId String?
+  validateurNom String?
+  commentaire  String?
+  decideeAt    DateTime?
+  createdAt    DateTime  @default(now())
+
+  @@index([actionId])
+  @@index([statut])
+}
+
+// Notifications in-app (T1.4, exig. 8, 18).
+model Notification {
+  id        String   @id @default(cuid())
+  userId    String
+  // Type : BLOCAGE | ECHEANCE | STATUT | VALIDATION | INFO
+  type      String
+  titre     String
+  message   String?
+  lien      String?
+  lu        Boolean  @default(false)
+  createdAt DateTime @default(now())
+
+  @@index([userId, lu])
+  @@index([createdAt])
 }
 
 // Attributs métier personnalisables par type de plan / niveau (T1.1, exig. 9,10).
@@ -250,6 +288,11 @@ model User {
   role          String    @default("LECTEUR")
   // Périmètre du contributeur (ids pays/entités, JSON), null = tout le périmètre
   perimetrePays String?
+  // Habilitations fines (T1.6, exig. 30, 31)
+  // Type : INTERNE | PARTENAIRE_EXTERNE
+  typeUtilisateur String @default("INTERNE")
+  // Droits fins (JSON { lecture, saisie, validation, reporting }) ; null = dérivés du rôle
+  droits          String?
   // Durcissement authentification (T0.3, exig. 37) : verrouillage de compte.
   failedAttempts Int      @default(0)
   lockedUntil    DateTime?

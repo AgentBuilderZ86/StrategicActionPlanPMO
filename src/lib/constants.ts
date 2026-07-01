@@ -107,6 +107,44 @@ export function canEditClient(role: Role | undefined): boolean {
   return role === 'ADMIN' || role === 'PMO' || role === 'CONTRIBUTEUR';
 }
 
+// ── Habilitations fines (T1.6, exig. 30, 31) ────────────────────────────────
+export const DROITS = ['lecture', 'saisie', 'validation', 'reporting'] as const;
+export type Droit = (typeof DROITS)[number];
+export type Droits = Record<Droit, boolean>;
+
+export const DROIT_LABEL: Record<Droit, string> = {
+  lecture: 'Lecture',
+  saisie: 'Saisie',
+  validation: 'Validation',
+  reporting: 'Reporting',
+};
+
+export const TYPES_UTILISATEUR = ['INTERNE', 'PARTENAIRE_EXTERNE'] as const;
+export type TypeUtilisateur = (typeof TYPES_UTILISATEUR)[number];
+
+export const TYPE_UTILISATEUR_LABEL: Record<TypeUtilisateur, string> = {
+  INTERNE: 'Interne NARSA',
+  PARTENAIRE_EXTERNE: 'Partenaire externe',
+};
+
+/** Droits par défaut dérivés du rôle (utilisés quand aucun droit fin n'est défini). */
+export function droitsParDefaut(role: Role): Droits {
+  switch (role) {
+    case 'ADMIN':
+    case 'PMO':
+      return { lecture: true, saisie: true, validation: true, reporting: true };
+    case 'CONTRIBUTEUR':
+      return { lecture: true, saisie: true, validation: false, reporting: false };
+    default:
+      return { lecture: true, saisie: false, validation: false, reporting: false };
+  }
+}
+
+/** Résout les droits effectifs : droits fins s'ils existent, sinon dérivés du rôle. */
+export function droitsEffectifs(role: Role, droits: Droits | null | undefined): Droits {
+  return droits ?? droitsParDefaut(role);
+}
+
 // Palette « statut » pour la heatmap (rouge → ambre → vert)
 export const COLORS = {
   canvas: '#F4F6F5',
@@ -129,6 +167,22 @@ export const SNSR_OBJECTIF = {
   cibleBg2030: 7300,
   reductionCible: 50, // %
 };
+
+// Validation hiérarchique (T1.5)
+export const VALIDATION_STATUTS = ['EN_ATTENTE', 'APPROUVE', 'REJETE'] as const;
+export type ValidationStatut = (typeof VALIDATION_STATUTS)[number];
+
+export const VALIDATION_LABEL: Record<ValidationStatut, string> = {
+  EN_ATTENTE: 'En attente',
+  APPROUVE: 'Approuvé',
+  REJETE: 'Rejeté',
+};
+
+/** Rôle validateur attendu selon le niveau (validation hiérarchique, exig. 25).
+ *  Les nœuds hauts (Pilier/Axe) sont validés par un ADMIN, les autres par le PMO. */
+export function roleValidateurPourNiveau(niveau: number): Role {
+  return niveau <= 2 ? 'ADMIN' : 'PMO';
+}
 
 // Types d'attributs personnalisables (T1.1)
 export const ATTRIBUT_TYPES = ['TEXTE', 'NOMBRE', 'DATE', 'BOOLEEN', 'LISTE'] as const;

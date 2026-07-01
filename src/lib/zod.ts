@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { STATUTS, PRIORITES, ROLES, NIVEAUX, NIVEAU_MAX, PMO_TYPES, SENS_INDICATEUR, ATTRIBUT_TYPES } from './constants';
+import { STATUTS, PRIORITES, ROLES, NIVEAUX, NIVEAU_MAX, PMO_TYPES, SENS_INDICATEUR, ATTRIBUT_TYPES, TYPES_UTILISATEUR } from './constants';
 
 export const statutEnum = z.enum(STATUTS);
 export const prioriteEnum = z.enum(PRIORITES);
@@ -108,12 +108,25 @@ export const userCreateSchema = z.object({
   perimetrePays: z.string().nullable().optional(),
 });
 
+// Droits fins : map { lecture, saisie, validation, reporting } → booléens.
+const droitsSchema = z
+  .object({
+    lecture: z.boolean(),
+    saisie: z.boolean(),
+    validation: z.boolean(),
+    reporting: z.boolean(),
+  })
+  .nullable();
+
 export const userUpdateSchema = z.object({
   role: roleEnum.optional(),
   perimetrePays: z.string().nullable().optional(),
   password: passwordSchema.optional(),
   // Déverrouillage manuel par un admin.
   unlock: z.boolean().optional(),
+  // Habilitations fines (T1.6)
+  typeUtilisateur: z.enum(TYPES_UTILISATEUR).optional(),
+  droits: droitsSchema.optional(),
 });
 
 export const indicateurCreateSchema = z.object({
@@ -144,6 +157,15 @@ export const attributDefUpdateSchema = attributDefCreateSchema.partial();
 // Valeurs d'attributs pour une action : map { attributDefId: valeur | null }.
 export const attributValeursSchema = z.object({
   valeurs: z.record(z.string(), z.string().nullable()),
+});
+
+export const soumettreValidationSchema = z.object({
+  commentaire: z.string().max(2000).optional().nullable(),
+});
+
+export const deciderValidationSchema = z.object({
+  decision: z.enum(['APPROUVE', 'REJETE']),
+  commentaire: z.string().max(2000).optional().nullable(),
 });
 
 export const commentaireSchema = z.object({

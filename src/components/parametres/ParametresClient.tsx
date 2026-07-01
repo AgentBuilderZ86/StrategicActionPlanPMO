@@ -3,15 +3,26 @@
 import { useCallback, useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useSession } from 'next-auth/react';
-import { ROLES, ROLE_LABEL, type Role } from '@/lib/constants';
+import {
+  ROLES, ROLE_LABEL, DROITS, DROIT_LABEL, TYPES_UTILISATEUR, TYPE_UTILISATEUR_LABEL,
+  droitsEffectifs, type Role, type Droits, type Droit,
+} from '@/lib/constants';
 import { SectionCard } from '@/components/ui/Cards';
 import { AuditJournal } from './AuditJournal';
 import { AttributsAdmin } from './AttributsAdmin';
+import { ValidationQueue } from './ValidationQueue';
 
 type Axe = { id: string; nom: string; ordre: number };
 type Pays = { id: string; nom: string; code: string | null };
 type Entite = { id: string; nom: string; paysId: string | null };
-type UserRow = { id: string; name: string | null; email: string | null; role: string };
+type UserRow = {
+  id: string;
+  name: string | null;
+  email: string | null;
+  role: string;
+  typeUtilisateur?: string;
+  droits?: string | null;
+};
 
 async function api(url: string, method: string, body?: unknown) {
   const res = await fetch(url, {
@@ -151,34 +162,16 @@ export function ParametresClient({ planId, planNom }: { planId: string; planNom:
       </SectionCard>
 
       {isAdmin && (
-        <SectionCard title="Utilisateurs & rôles" subtitle="Réservé aux administrateurs.">
-          <div className="overflow-x-auto">
-            <table className="w-full">
-              <thead><tr className="bg-slate-50"><th className="th">Utilisateur</th><th className="th">Email</th><th className="th">Rôle</th></tr></thead>
-              <tbody>
-                {users.map((u) => (
-                  <tr key={u.id} className="border-t border-slate-100">
-                    <td className="td font-medium text-ink">{u.name ?? '—'}</td>
-                    <td className="td text-slate-500">{u.email}</td>
-                    <td className="td">
-                      <select
-                        className="input w-auto"
-                        value={u.role}
-                        onChange={(e) => {
-                          const role2 = e.target.value;
-                          wrap(async () => { await api(`/api/users/${u.id}`, 'PATCH', { role: role2 }); })();
-                        }}
-                      >
-                        {ROLES.map((r) => <option key={r} value={r}>{ROLE_LABEL[r]}</option>)}
-                      </select>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+        <SectionCard title="Utilisateurs, rôles & habilitations" subtitle="Réservé aux administrateurs.">
+          <ul className="space-y-2">
+            {users.map((u) => (
+              <UserRowEditor key={u.id} user={u} onPatch={(body) => wrap(async () => { await api(`/api/users/${u.id}`, 'PATCH', body); })()} />
+            ))}
+          </ul>
         </SectionCard>
       )}
+
+      {canManage && <ValidationQueue />}
 
       <AttributsAdmin planId={planId} canManage={canManage} />
 
@@ -199,6 +192,63 @@ export function ParametresClient({ planId, planNom }: { planId: string; planNom:
         </SectionCard>
       )}
     </div>
+  );
+}
+
+function UserRowEditor({
+  user,
+  onPatch,
+}: {
+  user: UserRow;
+  onPatch: (body: Record<string, unknown>) => void;
+}) {
+  const initialDroits: Droits = (() => {
+    if (user.droits) {
+      try { return JSON.parse(user.droits) as Droits; } catch { /* ignore */ }
+    }
+    return droitsEffectifs(user.role as Role, null);
+  })();
+  const [droits, setDroits] = useState<Droits>(initialDroits);
+
+  const toggle = (d: Droit) => {
+    const next = { ...droits, [d]: !droits[d] };
+    setDroits(next);
+    onPatch({ droits: next });
+  };
+
+  return (
+    <li className="rounded-lg bg-slate-50 p-3">
+      <div className="flex flex-wrap items-center gap-3">
+        <div className="min-w-0 grow">
+          <div className="truncate text-sm font-semibold text-ink">{user.name ?? '—'}</div>
+          <div className="truncate text-xs text-slate-500">{user.email}</div>
+        </div>
+        <select
+          className="input w-auto"
+          value={user.role}
+          onChange={(e) => onPatch({ role: e.target.value })}
+          aria-label="Rôle"
+        >
+          {ROLES.map((r) => <option key={r} value={r}>{ROLE_LABEL[r]}</option>)}
+        </select>
+        <select
+          className="input w-auto"
+          value={user.typeUtilisateur ?? 'INTERNE'}
+          onChange={(e) => onPatch({ typeUtilisateur: e.target.value })}
+          aria-label="Type d'utilisateur"
+        >
+          {TYPES_UTILISATEUR.map((t) => <option key={t} value={t}>{TYPE_UTILISATEUR_LABEL[t]}</option>)}
+        </select>
+      </div>
+      <div className="mt-2 flex flex-wrap gap-3">
+        {DROITS.map((d) => (
+          <label key={d} className="flex items-center gap-1.5 text-xs font-medium text-ink">
+            <input type="checkbox" checked={droits[d]} onChange={() => toggle(d)} />
+            {DROIT_LABEL[d]}
+          </label>
+        ))}
+      </div>
+    </li>
   );
 }
 

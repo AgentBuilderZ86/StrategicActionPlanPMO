@@ -1,5 +1,6 @@
 import { Nav } from './Nav';
 import { UserMenu } from './UserMenu';
+import { NotificationBell } from './NotificationBell';
 import { getActivePlan } from '@/lib/data';
 
 export async function Header() {
@@ -23,7 +24,10 @@ export async function Header() {
               </h1>
             </div>
           </div>
-          <UserMenu />
+          <div className="flex items-center gap-2">
+            <NotificationBell />
+            <UserMenu />
+          </div>
         </div>
         <div className="mt-4">
           <Nav />

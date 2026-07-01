@@ -9,6 +9,7 @@ import { toDateInput } from '@/lib/utils';
 import { IndicateursPanel } from './IndicateursPanel';
 import { CommentairesPanel } from './CommentairesPanel';
 import { AttributsPanel } from './AttributsPanel';
+import { ValidationPanel } from './ValidationPanel';
 
 const formSchema = z.object({
   titre: z.string().min(1, 'Le titre est requis'),
@@ -204,6 +205,7 @@ export function ActionForm({
 
       {action && <AttributsPanel actionId={action.id} planId={planId} niveau={action.niveau} canEdit />}
       {action && <IndicateursPanel actionId={action.id} canEdit />}
+      {action && <ValidationPanel actionId={action.id} canEdit />}
       {action && <CommentairesPanel actionId={action.id} />}
 
       {errors.root && <p className="text-sm text-statut-rouge">{errors.root.message}</p>}
