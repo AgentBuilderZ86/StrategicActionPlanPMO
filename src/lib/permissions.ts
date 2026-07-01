@@ -43,7 +43,7 @@ const UNAUTHENTICATED: Guard = {
 
 /** Le lecteur n'a pas le droit d'écrire ; les autres rôles oui. Une session
  *  valide est toujours exigée, en développement comme en production. */
-export async function requireEdit(scopePaysId?: string): Promise<Guard> {
+export async function requireEdit(scopePaysId?: string | null): Promise<Guard> {
   const user = await getCurrentUser();
   if (!user) return UNAUTHENTICATED;
   if (user.role === 'LECTEUR') return DENY;

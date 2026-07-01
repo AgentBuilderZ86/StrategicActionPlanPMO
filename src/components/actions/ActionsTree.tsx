@@ -1,6 +1,6 @@
 'use client';
 
-import { useMemo, useState } from 'react';
+import { useMemo, useState, type ReactNode } from 'react';
 import type { ActionDTO } from '@/lib/types';
 import { construireArbre, type ArbreNoeud } from '@/lib/tree';
 import { niveauLabel } from '@/lib/constants';
@@ -39,7 +39,7 @@ export function ActionsTree({
     return <div className="card p-12 text-center text-slate-400">Aucune action à afficher.</div>;
   }
 
-  const rendreNoeud = (n: ArbreNoeud<ActionDTO>): React.ReactNode => {
+  const rendreNoeud = (n: ArbreNoeud<ActionDTO>): ReactNode => {
     const aEnfants = n.enfants.length > 0;
     const replie = replies.has(n.id);
     return (
