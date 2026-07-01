@@ -7,6 +7,7 @@ import { ROLES, ROLE_LABEL, type Role } from '@/lib/constants';
 import { SectionCard } from '@/components/ui/Cards';
 import { AuditJournal } from './AuditJournal';
 import { AttributsAdmin } from './AttributsAdmin';
+import { ValidationQueue } from './ValidationQueue';
 
 type Axe = { id: string; nom: string; ordre: number };
 type Pays = { id: string; nom: string; code: string | null };
@@ -179,6 +180,8 @@ export function ParametresClient({ planId, planNom }: { planId: string; planNom:
           </div>
         </SectionCard>
       )}
+
+      {canManage && <ValidationQueue />}
 
       <AttributsAdmin planId={planId} canManage={canManage} />
 

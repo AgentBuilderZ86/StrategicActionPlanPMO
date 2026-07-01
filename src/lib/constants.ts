@@ -130,6 +130,22 @@ export const SNSR_OBJECTIF = {
   reductionCible: 50, // %
 };
 
+// Validation hiérarchique (T1.5)
+export const VALIDATION_STATUTS = ['EN_ATTENTE', 'APPROUVE', 'REJETE'] as const;
+export type ValidationStatut = (typeof VALIDATION_STATUTS)[number];
+
+export const VALIDATION_LABEL: Record<ValidationStatut, string> = {
+  EN_ATTENTE: 'En attente',
+  APPROUVE: 'Approuvé',
+  REJETE: 'Rejeté',
+};
+
+/** Rôle validateur attendu selon le niveau (validation hiérarchique, exig. 25).
+ *  Les nœuds hauts (Pilier/Axe) sont validés par un ADMIN, les autres par le PMO. */
+export function roleValidateurPourNiveau(niveau: number): Role {
+  return niveau <= 2 ? 'ADMIN' : 'PMO';
+}
+
 // Types d'attributs personnalisables (T1.1)
 export const ATTRIBUT_TYPES = ['TEXTE', 'NOMBRE', 'DATE', 'BOOLEEN', 'LISTE'] as const;
 export type AttributType = (typeof ATTRIBUT_TYPES)[number];

@@ -120,9 +120,10 @@ model Action {
   enfants     Action[]     @relation("Arbre")
   jalons          Jalon[]
   historique      Avancement[]
-  indicateurs     Indicateur[]
-  commentaires    Commentaire[]
-  attributValeurs AttributValeur[]
+  indicateurs      Indicateur[]
+  commentaires     Commentaire[]
+  attributValeurs  AttributValeur[]
+  demandesValidation DemandeValidation[]
 
   @@unique([planId, code])
   @@index([planId])
@@ -150,6 +151,27 @@ model Indicateur {
   updatedAt DateTime @updatedAt
 
   @@index([actionId])
+}
+
+// Demandes de validation hiérarchique par nœud (T1.5, exig. 24, 25).
+model DemandeValidation {
+  id           String    @id @default(cuid())
+  actionId     String
+  action       Action    @relation(fields: [actionId], references: [id], onDelete: Cascade)
+  demandeurId  String?
+  demandeurNom String?
+  // Statut : EN_ATTENTE | APPROUVE | REJETE
+  statut       String    @default("EN_ATTENTE")
+  // Rôle attendu du validateur (validation hiérarchique selon le niveau).
+  roleValidateur String  @default("PMO")
+  validateurId String?
+  validateurNom String?
+  commentaire  String?
+  decideeAt    DateTime?
+  createdAt    DateTime  @default(now())
+
+  @@index([actionId])
+  @@index([statut])
 }
 
 // Notifications in-app (T1.4, exig. 8, 18).

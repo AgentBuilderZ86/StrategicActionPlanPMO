@@ -26,8 +26,8 @@ Statuts : ✅ conforme · 🟡 en cours · ⬜ à faire.
 | 13 | Remontée automatique multi-niveaux | ✅ | T1.2 · `consoliderIndicateurs()` (remontée ascendante sur le sous-arbre) exposée dans `GET /api/actions/[id]`, `indicateurs.test.ts` |
 | 14 | Indicateurs d'impact sécurité routière | 🟡 | T1.2 · structure en place (sens BAISSE pour mortalité) ; indicateurs d'impact à saisir/seed |
 | 18 | Rappels d'échéance | ✅ | T1.4 · `genererRappelsEcheance()` (retard + échéance ≤ 7 j), `POST /api/notifications/rappels` (cron-ready), génération opportuniste in-app |
-| 24 | Workflows de validation configurables | ⬜ | T1.5 |
-| 25 | Validation hiérarchique | ⬜ | T1.5 |
+| 24 | Workflows de validation configurables | 🟡 | T1.5 · flux soumission→décision, `DemandeValidation`, file d'attente ADMIN/PMO, historique & audit (paramétrage par niveau ; moteur multi-étapes configurable à venir) |
+| 25 | Validation hiérarchique | ✅ | T1.5 · `roleValidateurPourNiveau()` (Pilier/Axe→ADMIN, sinon PMO), décision réservée au bon rôle, notifications demandeur/validateur |
 | 30 | Habilitations fines (lecture/saisie/validation/reporting) | ⬜ | T1.6 |
 | 31 | Profils partenaires externes | ⬜ | T1.6 |
 | 32 | Fil de commentaires / collaboration | ✅ | T1.3 · modèle `Commentaire`, `/api/actions/[id]/commentaires`, panneau fil dans la fiche action |

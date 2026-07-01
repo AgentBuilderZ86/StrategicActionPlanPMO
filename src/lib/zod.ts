@@ -146,6 +146,15 @@ export const attributValeursSchema = z.object({
   valeurs: z.record(z.string(), z.string().nullable()),
 });
 
+export const soumettreValidationSchema = z.object({
+  commentaire: z.string().max(2000).optional().nullable(),
+});
+
+export const deciderValidationSchema = z.object({
+  decision: z.enum(['APPROUVE', 'REJETE']),
+  commentaire: z.string().max(2000).optional().nullable(),
+});
+
 export const commentaireSchema = z.object({
   contenu: z.string().min(1, 'Le commentaire ne peut pas être vide').max(2000),
 });
