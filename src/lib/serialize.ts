@@ -32,6 +32,7 @@ export function serializeAction(a: ActionWithRelations) {
     commentaire: a.commentaire,
     enRetard: enRetard(a.dateFin, a.statut),
     niveau: a.niveau,
+    code: a.code,
     indicateur: a.indicateur,
     cibleIndicateur: a.cibleIndicateur,
     valeurIndicateur: a.valeurIndicateur,

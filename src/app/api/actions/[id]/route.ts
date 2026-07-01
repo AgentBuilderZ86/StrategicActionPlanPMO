@@ -4,6 +4,7 @@ import { actionUpdateSchema } from '@/lib/zod';
 import { ACTION_INCLUDE, serializeAction } from '@/lib/serialize';
 import { requireEdit } from '@/lib/permissions';
 import { construireArbre, aplatirArbre, niveauEnfantAttendu } from '@/lib/tree';
+import { reindexerCodesPlan } from '@/lib/codes';
 
 export const dynamic = 'force-dynamic';
 
@@ -70,16 +71,20 @@ export async function PATCH(req: Request, { params }: { params: { id: string } }
       }
     }
 
+    // Un changement de structure (parent, ordre, niveau) impose de recalculer
+    // les codes de tout le plan (T0.2).
+    const structuralChange =
+      parentChange ||
+      (parsed.ordre !== undefined && parsed.ordre !== existing.ordre) ||
+      (parsed.niveau !== undefined && parsed.niveau !== existing.niveau);
+
     const updated = await prisma.$transaction(async (tx) => {
-      const u = await tx.action.update({
-        where: { id: params.id },
-        data: parsed,
-        include: ACTION_INCLUDE,
-      });
+      await tx.action.update({ where: { id: params.id }, data: parsed });
       for (const r of recompute) {
         await tx.action.update({ where: { id: r.id }, data: { niveau: r.niveau } });
       }
-      return u;
+      if (structuralChange) await reindexerCodesPlan(tx, existing.planId);
+      return tx.action.findUniqueOrThrow({ where: { id: params.id }, include: ACTION_INCLUDE });
     });
 
     // Si l'avancement ou le statut change, on enregistre un snapshot

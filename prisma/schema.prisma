@@ -101,6 +101,8 @@ model Action {
   commentaire String?
   // Niveau hiérarchique : 1=Pilier, 2=Axe, 3=Projet, 4=Action, 5=Sous-action
   niveau      Int       @default(4)
+  // Codification automatique cohérente avec l'arbre (ex. PS1.CS2.PRJ1), cf. T0.2
+  code        String?
   // Indicateur de performance associé (taux réduction accidents, etc.)
   indicateur  String?
   // Valeur cible de l'indicateur
@@ -119,6 +121,7 @@ model Action {
   jalons     Jalon[]
   historique Avancement[]
 
+  @@unique([planId, code])
   @@index([planId])
   @@index([axeId])
   @@index([paysId])

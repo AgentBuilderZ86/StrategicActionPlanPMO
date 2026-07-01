@@ -24,6 +24,7 @@ export type ActionDTO = {
   commentaire: string | null;
   enRetard: boolean;
   niveau: number;
+  code: string | null;
   indicateur: string | null;
   cibleIndicateur: number | null;
   valeurIndicateur: number | null;

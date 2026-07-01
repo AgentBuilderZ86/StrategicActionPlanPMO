@@ -60,7 +60,12 @@ export function ActionsTree({
           ) : (
             <span className="w-5 shrink-0 text-center text-slate-300">·</span>
           )}
-          <span className="shrink-0 rounded bg-slate-100 px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-slate-500">
+          {n.code && (
+            <span className="shrink-0 rounded bg-accent/10 px-1.5 py-0.5 font-mono text-[10px] font-semibold text-accent" title={niveauLabel(n.niveau)}>
+              {n.code}
+            </span>
+          )}
+          <span className="hidden shrink-0 rounded bg-slate-100 px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-slate-500 lg:inline">
             {niveauLabel(n.niveau).replace(/\s*\(.*\)/, '')}
           </span>
           <span className="min-w-0 grow truncate font-semibold text-ink" title={n.titre}>

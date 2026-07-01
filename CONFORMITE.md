@@ -9,7 +9,7 @@ Statuts : ✅ conforme · 🟡 en cours · ⬜ à faire.
 |------:|----------|:------:|-------|--------|
 | 2 | Arborescence hiérarchique du plan (parent-enfant) | ✅ | T0.1 | `Action.parentId` + relation « Arbre », `src/lib/tree.ts`, vue `/actions` arborescente |
 | 3 | Imbrication / déplacement / suppression en cascade des nœuds | ✅ | T0.1 | `onDelete: Cascade` (parent), déplacement `PATCH /api/actions/[id]`, `tree.test.ts` |
-| 4 | Codification automatique des nœuds | ⬜ | T0.2 | — |
+| 4 | Codification automatique des nœuds | ✅ | T0.2 | `Action.code` unique par plan, `genererCode`/`calculerCodesArbre`, reindex sur toute modif structurelle, `utils.test.ts` |
 | 33 | Traçabilité des connexions | ⬜ | T0.4 | — |
 | 35 | Piste d'audit des modifications (avant/après) | ⬜ | T0.4 | — |
 | 37 | Durcissement authentification (politique MDP, verrouillage) | 🟡 | T0.3 | Partiel : session 8h, guards, suppression bypass dev (branche sécurité) |

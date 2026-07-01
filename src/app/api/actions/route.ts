@@ -5,6 +5,7 @@ import { actionCreateSchema } from '@/lib/zod';
 import { ACTION_INCLUDE, serializeAction } from '@/lib/serialize';
 import { requireEdit } from '@/lib/permissions';
 import { niveauEnfantAttendu } from '@/lib/tree';
+import { reindexerCodesPlan } from '@/lib/codes';
 
 export const dynamic = 'force-dynamic';
 
@@ -89,9 +90,11 @@ export async function POST(req: Request) {
       data.niveau = niveauEnfantAttendu(parent.niveau);
     }
 
-    const created = await prisma.action.create({
-      data,
-      include: ACTION_INCLUDE,
+    const created = await prisma.$transaction(async (tx) => {
+      const c = await tx.action.create({ data });
+      // Codification automatique cohérente avec l'arbre (T0.2).
+      await reindexerCodesPlan(tx, c.planId);
+      return tx.action.findUniqueOrThrow({ where: { id: c.id }, include: ACTION_INCLUDE });
     });
 
     // Snapshot initial d'avancement pour la courbe de tendance

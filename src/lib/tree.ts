@@ -1,5 +1,8 @@
 // Utilitaires d'arborescence (purs, testables, sans dépendance Prisma) —
-// support de l'arbre parent-enfant des actions (T0.1, exig. 2 & 3).
+// support de l'arbre parent-enfant des actions (T0.1, exig. 2 & 3)
+// et de la codification automatique (T0.2, exig. 4).
+
+import { segmentCode } from './utils';
 
 export type NoeudBase = { id: string; parentId?: string | null; ordre?: number | null };
 
@@ -67,4 +70,25 @@ export function niveauCoherent(niveauParent: number, niveauEnfant: number): bool
 /** Collecte les identifiants d'un nœud et de tous ses descendants. */
 export function idsDescendants<T extends NoeudBase>(racine: ArbreNoeud<T>): string[] {
   return aplatirArbre([racine]).map((n) => n.id);
+}
+
+type NoeudNiveau = NoeudBase & { niveau: number };
+
+/**
+ * Calcule le code de chaque nœud d'un plan de façon cohérente avec l'arbre
+ * (ex. `PS1`, `PS1.CS2`, `PS1.CS2.PRJ1`). La position est déterminée par
+ * l'ordre de fratrie (tri par `ordre` puis `id`). Renvoie une Map id → code.
+ */
+export function calculerCodesArbre<T extends NoeudNiveau>(items: T[]): Map<string, string> {
+  const codes = new Map<string, string>();
+  const parcourir = (noeuds: ArbreNoeud<T>[], segmentsAncetres: string[]) => {
+    noeuds.forEach((n, index) => {
+      const segment = segmentCode(n.niveau, index + 1);
+      const code = [...segmentsAncetres, segment].join('.');
+      codes.set(n.id, code);
+      parcourir(n.enfants, [...segmentsAncetres, segment]);
+    });
+  };
+  parcourir(construireArbre(items), []);
+  return codes;
 }

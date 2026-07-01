@@ -197,7 +197,10 @@ export function ActionsClient({ planId, referentiels }: { planId: string; refere
             {rows.map((a) => (
               <tr key={a.id} className="border-t border-slate-100 hover:bg-slate-50/60">
                 <td className="td max-w-xs">
-                  <div className="font-semibold text-ink">{a.titre}</div>
+                  <div className="font-semibold text-ink">
+                    {a.code && <span className="mr-1.5 font-mono text-xs font-semibold text-accent">{a.code}</span>}
+                    {a.titre}
+                  </div>
                   <div className="text-xs text-slate-400">{a.axe}</div>
                 </td>
                 <td className="td text-xs">
