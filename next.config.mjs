@@ -5,23 +5,8 @@ const nextConfig = {
     // Lint is run explicitly via `pnpm lint`; don't fail the Netlify build on it.
     ignoreDuringBuilds: false,
   },
-  async headers() {
-    return [
-      {
-        source: '/:path*',
-        headers: [
-          { key: 'X-Frame-Options', value: 'DENY' },
-          { key: 'X-Content-Type-Options', value: 'nosniff' },
-          { key: 'X-XSS-Protection', value: '1; mode=block' },
-          {
-            key: 'Strict-Transport-Security',
-            value: 'max-age=31536000; includeSubDomains',
-          },
-          { key: 'Referrer-Policy', value: 'strict-origin-when-cross-origin' },
-        ],
-      },
-    ];
-  },
+  // Les en-têtes de sécurité (dont la CSP) sont déclarés dans netlify.toml
+  // (natif Netlify) — voir T3.1 — pour éviter la traduction du plugin.
 };
 
 export default nextConfig;
