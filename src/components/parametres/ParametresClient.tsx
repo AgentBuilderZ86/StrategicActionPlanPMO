@@ -11,6 +11,7 @@ import { SectionCard } from '@/components/ui/Cards';
 import { AuditJournal } from './AuditJournal';
 import { AttributsAdmin } from './AttributsAdmin';
 import { ValidationQueue } from './ValidationQueue';
+import { TokensAdmin } from './TokensAdmin';
 
 type Axe = { id: string; nom: string; ordre: number };
 type Pays = { id: string; nom: string; code: string | null };
@@ -174,6 +175,8 @@ export function ParametresClient({ planId, planNom }: { planId: string; planNom:
       {canManage && <ValidationQueue />}
 
       <AttributsAdmin planId={planId} canManage={canManage} />
+
+      {isAdmin && <TokensAdmin />}
 
       {isAdmin && <AuditJournal />}
 

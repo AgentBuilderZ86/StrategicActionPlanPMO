@@ -168,6 +168,45 @@ export const SNSR_OBJECTIF = {
   reductionCible: 50, // %
 };
 
+// Volet Agile (T2.3, exig. 19, 20, 21)
+export const SPRINT_STATUTS = ['PLANIFIE', 'EN_COURS', 'CLOS'] as const;
+export type SprintStatut = (typeof SPRINT_STATUTS)[number];
+export const SPRINT_STATUT_LABEL: Record<SprintStatut, string> = {
+  PLANIFIE: 'Planifié',
+  EN_COURS: 'En cours',
+  CLOS: 'Clôturé',
+};
+
+export const KANBAN_COLONNES = ['BACKLOG', 'A_FAIRE', 'EN_COURS', 'EN_REVUE', 'TERMINE'] as const;
+export type KanbanColonne = (typeof KANBAN_COLONNES)[number];
+export const KANBAN_LABEL: Record<KanbanColonne, string> = {
+  BACKLOG: 'Backlog',
+  A_FAIRE: 'À faire',
+  EN_COURS: 'En cours',
+  EN_REVUE: 'En revue',
+  TERMINE: 'Terminé',
+};
+
+// Widgets du tableau de bord personnalisable (T2.2, exig. 23)
+export const DASHBOARD_WIDGETS = [
+  { key: 'heatmap', label: 'Carte de chaleur (région × axe)' },
+  { key: 'parAxe', label: 'Avancement par axe' },
+  { key: 'statuts', label: 'Répartition par statut' },
+  { key: 'parPays', label: 'Avancement par région' },
+  { key: 'budget', label: 'Budget par axe' },
+  { key: 'tendance', label: 'Tendance d’avancement' },
+  { key: 'attention', label: 'Points d’attention' },
+] as const;
+
+export type WidgetKey = (typeof DASHBOARD_WIDGETS)[number]['key'];
+
+export type WidgetConfig = { key: WidgetKey; visible: boolean };
+
+/** Configuration par défaut : tous les widgets visibles, dans l'ordre canonique. */
+export function dashboardConfigParDefaut(): WidgetConfig[] {
+  return DASHBOARD_WIDGETS.map((w) => ({ key: w.key, visible: true }));
+}
+
 // Validation hiérarchique (T1.5)
 export const VALIDATION_STATUTS = ['EN_ATTENTE', 'APPROUVE', 'REJETE'] as const;
 export type ValidationStatut = (typeof VALIDATION_STATUTS)[number];

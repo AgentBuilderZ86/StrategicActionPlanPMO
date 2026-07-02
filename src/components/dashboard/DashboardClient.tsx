@@ -4,6 +4,9 @@ import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import type { DashboardData } from '@/lib/data';
 import { fmtMoney, fmtPct } from '@/lib/utils';
+import {
+  DASHBOARD_WIDGETS, dashboardConfigParDefaut, type WidgetConfig, type WidgetKey,
+} from '@/lib/constants';
 import { KpiCard, SectionCard } from '@/components/ui/Cards';
 import { Heatmap } from './Heatmap';
 import {
@@ -16,6 +19,10 @@ import {
 import { PointsAttention } from './PointsAttention';
 
 type Plan = { id: string; nom: string };
+
+const WIDGET_LABEL: Record<WidgetKey, string> = Object.fromEntries(
+  DASHBOARD_WIDGETS.map((w) => [w.key, w.label]),
+) as Record<WidgetKey, string>;
 
 export function DashboardClient({
   plans,
@@ -33,10 +40,61 @@ export function DashboardClient({
   const [from, setFrom] = useState('');
   const [to, setTo] = useState('');
   const [loading, setLoading] = useState(false);
+  const [config, setConfig] = useState<WidgetConfig[] | null>(null);
+  const [perso, setPerso] = useState(false);
 
   useEffect(() => {
     setData(initial);
   }, [initial]);
+
+  // Préférences de widgets de l'utilisateur (T2.2).
+  useEffect(() => {
+    fetch('/api/dashboard/config', { cache: 'no-store' })
+      .then((r) => (r.ok ? r.json() : null))
+      .then((b) => { if (b?.config) setConfig(b.config as WidgetConfig[]); })
+      .catch(() => {});
+  }, []);
+
+  const configEffective = config ?? dashboardConfigParDefaut();
+
+  const enregistrerConfig = async (next: WidgetConfig[]) => {
+    setConfig(next);
+    await fetch('/api/dashboard/config', {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ config: next }),
+    }).catch(() => {});
+  };
+
+  const basculerVisible = (key: WidgetKey) =>
+    enregistrerConfig(configEffective.map((w) => (w.key === key ? { ...w, visible: !w.visible } : w)));
+
+  const deplacer = (index: number, sens: -1 | 1) => {
+    const next = [...configEffective];
+    const cible = index + sens;
+    if (cible < 0 || cible >= next.length) return;
+    [next[index], next[cible]] = [next[cible]!, next[index]!];
+    enregistrerConfig(next);
+  };
+
+  const widgetNode = (key: WidgetKey) => {
+    switch (key) {
+      case 'heatmap':
+        return <Heatmap heatmap={data.heatmap} axes={axes} />;
+      case 'parAxe':
+        return <SectionCard title="Avancement par axe" subtitle="Avancement moyen (%) par axe stratégique"><AvancementParAxe data={data.parAxe} /></SectionCard>;
+      case 'statuts':
+        return <SectionCard title="Répartition par statut" subtitle="Nombre d'actions par statut"><RepartitionStatuts data={data.statuts} /></SectionCard>;
+      case 'parPays':
+        return <SectionCard title="Avancement par région" subtitle="Avancement moyen et volume d'actions par région"><AvancementParPays data={data.parPays} /></SectionCard>;
+      case 'budget':
+        return <SectionCard title="Budget par axe" subtitle="Budget alloué vs consommé (k MAD)"><BudgetParAxe data={data.parAxe} /></SectionCard>;
+      case 'tendance':
+        return <SectionCard title="Tendance d'avancement global" subtitle="Évolution mensuelle de l'avancement moyen (snapshots)"><TendanceAvancement data={data.trend} /></SectionCard>;
+      case 'attention':
+        return <SectionCard title="Points d'attention" subtitle="Actions bloquées ou en retard, triées par priorité"><PointsAttention actions={data.attention} /></SectionCard>;
+    }
+  };
 
   const apply = async (nextFrom: string, nextTo: string) => {
     setLoading(true);
@@ -82,9 +140,31 @@ export function DashboardClient({
           <button onClick={() => { setFrom(''); setTo(''); apply('', ''); }} className="btn-ghost">Réinitialiser</button>
         )}
         {loading && <span className="text-xs text-slate-400">Actualisation…</span>}
+        <button onClick={() => setPerso((p) => !p)} className="btn-ghost ml-auto text-sm">
+          {perso ? 'Terminer' : 'Personnaliser'}
+        </button>
       </div>
 
-      {/* KPIs */}
+      {/* Panneau de personnalisation des widgets (T2.2) */}
+      {perso && (
+        <div className="card p-3">
+          <p className="mb-2 text-xs font-semibold text-slate-500">Widgets affichés (ordre &amp; visibilité) — enregistrés pour votre profil</p>
+          <ul className="space-y-1">
+            {configEffective.map((w, i) => (
+              <li key={w.key} className="flex items-center gap-2 rounded-lg bg-slate-50 px-3 py-1.5 text-sm">
+                <label className="flex grow items-center gap-2 font-medium text-ink">
+                  <input type="checkbox" checked={w.visible} onChange={() => basculerVisible(w.key)} />
+                  {WIDGET_LABEL[w.key]}
+                </label>
+                <button onClick={() => deplacer(i, -1)} disabled={i === 0} className="px-1 text-slate-400 disabled:opacity-30" aria-label="Monter">▲</button>
+                <button onClick={() => deplacer(i, 1)} disabled={i === configEffective.length - 1} className="px-1 text-slate-400 disabled:opacity-30" aria-label="Descendre">▼</button>
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
+
+      {/* KPIs (toujours affichés) */}
       <div className="grid grid-cols-2 gap-4 lg:grid-cols-4 xl:grid-cols-7">
         <KpiCard label="Actions" value={k.total} />
         <KpiCard label="Avancement" value={fmtPct(k.avancementMoyen)} accent="#1E4FD8" />
@@ -95,32 +175,10 @@ export function DashboardClient({
         <KpiCard label="Budget" value={fmtMoney(k.budgetTotal)} sub={`Consommé ${fmtPct(consoPct)}`} />
       </div>
 
-      {/* Heatmap */}
-      <Heatmap heatmap={data.heatmap} axes={axes} />
-
-      {/* Charts */}
-      <div className="grid grid-cols-1 gap-5 lg:grid-cols-2">
-        <SectionCard title="Avancement par axe" subtitle="Avancement moyen (%) par axe stratégique">
-          <AvancementParAxe data={data.parAxe} />
-        </SectionCard>
-        <SectionCard title="Répartition par statut" subtitle="Nombre d'actions par statut">
-          <RepartitionStatuts data={data.statuts} />
-        </SectionCard>
-        <SectionCard title="Avancement par pays" subtitle="Avancement moyen et volume d'actions par pays">
-          <AvancementParPays data={data.parPays} />
-        </SectionCard>
-        <SectionCard title="Budget par axe" subtitle="Budget alloué vs consommé (k€)">
-          <BudgetParAxe data={data.parAxe} />
-        </SectionCard>
-      </div>
-
-      <SectionCard title="Tendance d'avancement global" subtitle="Évolution mensuelle de l'avancement moyen (snapshots)">
-        <TendanceAvancement data={data.trend} />
-      </SectionCard>
-
-      <SectionCard title="Points d'attention" subtitle="Actions bloquées ou en retard, triées par priorité">
-        <PointsAttention actions={data.attention} />
-      </SectionCard>
+      {/* Widgets configurables */}
+      {configEffective.filter((w) => w.visible).map((w) => (
+        <div key={w.key}>{widgetNode(w.key)}</div>
+      ))}
     </div>
   );
 }
