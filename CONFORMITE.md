@@ -49,8 +49,8 @@ Statuts : ✅ conforme · 🟡 en cours · ⬜ à faire.
 
 | Exig. | Intitulé | Statut | Tâche |
 |------:|----------|:------:|-------|
-| 22 | Reporting budgétaire avancé | ⬜ | T3.2 |
-| 28 | Exports planifiables PDF/Excel | ⬜ | T3.2 |
-| 37 | Chiffrement, RGS, OWASP Top 10 | 🟡 | T3.1 |
-| 38 | Signature électronique | ⬜ | T3.1 |
-| — | Non-fonctionnel (perf, licences, docs CPS) | ⬜ | T3.3 |
+| 22 | Reporting budgétaire avancé | ✅ | T3.2 · `reports.ts` (+ tests), page `/rapports` (synthèse, par axe, par région, exécution budgétaire) |
+| 28 | Exports planifiables PDF/Excel | ✅ | T3.2 · `GET /api/reports` XLSX multi-feuilles + impression PDF ; endpoint cron-callable (envoi e-mail planifié → infra SMTP) |
+| 37 | Chiffrement, RGS, OWASP Top 10 | 🟡 | T3.1 · CSP + Permissions-Policy + HSTS preload, politique MDP/verrouillage/audit ; reste : CSP par nonces, campagne OWASP, rate limiting |
+| 38 | Signature électronique | ⬜ | T3.1 · décision réglementaire/infra requise |
+| — | Non-fonctionnel (perf, licences, docs CPS) | 🟡 | T3.3 · livrables docs (`docs/ARCHITECTURE`, `MANUEL_ADMINISTRATEUR`, `MANUEL_UTILISATEUR`, `CAHIER_RECETTE`) ; perf à mesurer en recette |

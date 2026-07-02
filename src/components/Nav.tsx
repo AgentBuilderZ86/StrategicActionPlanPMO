@@ -10,6 +10,7 @@ const TABS = [
   { href: '/planning', label: 'Planning' },
   { href: '/agile', label: 'Agile / SI' },
   { href: '/analyses', label: 'Analyses' },
+  { href: '/rapports', label: 'Rapports' },
   { href: '/copil', label: 'Comité de pilotage' },
   { href: '/parametres', label: 'Paramètres' },
 ];
