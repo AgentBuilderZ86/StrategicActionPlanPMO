@@ -123,12 +123,12 @@ export function ActionsClient({ planId, referentiels }: { planId: string; refere
           <option value="">Tous les axes</option>
           {referentiels.axes.map((x) => <option key={x.id} value={x.id}>{x.nom}</option>)}
         </select>
-        <select className="input w-auto" value={filters.paysId} onChange={(e) => setFilter({ paysId: e.target.value })} aria-label="Filtrer par pays">
-          <option value="">Tous les pays</option>
+        <select className="input w-auto" value={filters.paysId} onChange={(e) => setFilter({ paysId: e.target.value })} aria-label="Filtrer par région">
+          <option value="">Toutes les régions</option>
           {referentiels.pays.map((x) => <option key={x.id} value={x.id}>{x.nom}</option>)}
         </select>
-        <select className="input w-auto" value={filters.entiteId} onChange={(e) => setFilter({ entiteId: e.target.value })} aria-label="Filtrer par entité">
-          <option value="">Toutes les entités</option>
+        <select className="input w-auto" value={filters.entiteId} onChange={(e) => setFilter({ entiteId: e.target.value })} aria-label="Filtrer par pôle ou partenaire">
+          <option value="">Tous les pôles / partenaires</option>
           {referentiels.entites.map((x) => <option key={x.id} value={x.id}>{x.nom}</option>)}
         </select>
         <select className="input w-auto" value={filters.statut} onChange={(e) => setFilter({ statut: e.target.value })} aria-label="Filtrer par statut">
@@ -183,7 +183,7 @@ export function ActionsClient({ planId, referentiels }: { planId: string; refere
           <thead>
             <tr className="bg-slate-50">
               <SortHeader k="titre" label="Action" />
-              <th className="th">Pays / Entité</th>
+              <th className="th">Région / Pôle</th>
               <th className="th">Resp.</th>
               <SortHeader k="statut" label="Statut" />
               <SortHeader k="priorite" label="Priorité" />

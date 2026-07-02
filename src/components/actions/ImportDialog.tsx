@@ -12,7 +12,10 @@ type ImportReport = {
 
 // En-têtes reconnus → clés internes (insensible à la casse/accents)
 const COLUMN_MAP: Record<string, string> = {
-  titre: 'titre', axe: 'axe', pays: 'pays', entite: 'entite', entité: 'entite',
+  titre: 'titre', axe: 'axe',
+  // Alias : le référentiel « Pays » représente des régions ; « Entité » des pôles/partenaires.
+  pays: 'pays', region: 'pays', région: 'pays',
+  entite: 'entite', entité: 'entite', pole: 'entite', pôle: 'entite', partenaire: 'entite',
   responsable: 'responsable', statut: 'statut', avancement: 'avancement',
   priorite: 'priorite', priorité: 'priorite', debut: 'dateDebut', début: 'dateDebut',
   fin: 'dateFin', budget: 'budget', commentaire: 'commentaire',
@@ -72,9 +75,9 @@ export function ImportDialog({ planId, open, onClose }: { planId: string; open: 
     <Drawer open={open} onClose={onClose} title="Importer des actions (CSV)">
       <div className="space-y-4 text-sm">
         <div className="rounded-lg bg-slate-50 p-3 text-xs text-slate-600">
-          Colonnes attendues : <strong>Titre, Axe, Pays, Entité, Responsable</strong> (requis), puis
+          Colonnes attendues : <strong>Titre, Axe, Région, Pôle/Partenaire, Responsable</strong> (requis), puis
           Statut, Avancement, Priorité, Début, Fin, Budget, Commentaire. Séparateur <code>;</code> ou <code>,</code>.
-          Les axes, pays et entités doivent exister dans le référentiel.
+          Les axes, régions et pôles/partenaires doivent exister dans le référentiel.
         </div>
         <label className="btn-primary cursor-pointer">
           {busy ? 'Import en cours…' : 'Choisir un fichier CSV'}

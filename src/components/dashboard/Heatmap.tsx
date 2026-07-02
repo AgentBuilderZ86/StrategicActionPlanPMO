@@ -5,14 +5,14 @@ import { SectionCard } from '@/components/ui/Cards';
 export function Heatmap({ heatmap, axes }: { heatmap: HeatRow[]; axes: { id: string; nom: string }[] }) {
   return (
     <SectionCard
-      title="Matrice d'avancement — Pays × Axes"
+      title="Matrice d'avancement — Région × Axe"
       subtitle="Avancement moyen par cellule (rouge → ambre → vert). Survol pour le détail."
     >
       <div className="overflow-x-auto">
         <table className="w-full border-collapse">
           <thead>
             <tr>
-              <th className="sticky left-0 z-10 bg-white p-2 text-left text-xs font-bold text-ink">Pays</th>
+              <th className="sticky left-0 z-10 bg-white p-2 text-left text-xs font-bold text-ink">Région</th>
               {axes.map((ax) => (
                 <th key={ax.id} className="p-2 text-center align-bottom text-[11px] font-semibold text-slate-500" style={{ minWidth: 92 }}>
                   {ax.nom}
