@@ -1,4 +1,4 @@
-import { createHash, randomBytes } from 'crypto';
+import { createHash, randomBytes } from 'node:crypto';
 import { prisma } from './prisma';
 
 /** Génère un jeton d'API en clair (préfixe lisible + secret aléatoire). */

@@ -68,7 +68,7 @@ describe('computeHeatmap', () => {
 
 describe('aggregateByDimension', () => {
   it('regroupe par axe', () => {
-    const res = aggregateByDimension(actions, (a) => a.axeId, (a) => a.axe ?? '');
+    const res = aggregateByDimension(actions, (a) => a.axeId ?? '', (a) => a.axe ?? '');
     expect(res).toHaveLength(2);
     const ax1 = res.find((r) => r.key === 'ax1')!;
     expect(ax1.count).toBe(2);
