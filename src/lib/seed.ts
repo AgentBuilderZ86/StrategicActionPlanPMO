@@ -118,6 +118,42 @@ async function seedActionsHierarchiques(
     });
     await seedHistorique(prisma, action.id, avancement);
 
+    // Indicateur multi-lignes (T1.2) migré depuis le triplet historique.
+    if (indicateur) {
+      await prisma.indicateur.create({
+        data: {
+          actionId: action.id,
+          libelle: indicateur,
+          unite: indicateur.includes('%') ? '%' : null,
+          cible: cible ?? null,
+          realise: valeur ?? null,
+          sens: 'HAUSSE',
+          agregeable: true,
+        },
+      });
+    }
+
+    // Jalons (T2.1) : lancement + revue à mi-parcours + livraison.
+    await prisma.jalon.createMany({
+      data: [
+        { actionId: action.id, titre: 'Lancement', date: daysFromNow(finDays - 360), atteint: avancement > 0 },
+        { actionId: action.id, titre: 'Revue à mi-parcours', date: daysFromNow(finDays - 180), atteint: avancement >= 50 },
+        { actionId: action.id, titre: 'Livraison', date: daysFromNow(finDays), atteint: statut === 'TERMINE' },
+      ],
+    });
+
+    // Commentaires de contexte (démo collaboration) : blocages et actions
+    // prioritaires en retard de démarrage.
+    if (statut === 'BLOQUE') {
+      await prisma.commentaire.create({
+        data: { actionId: action.id, auteurNom: 'pmo@narsa.ma', contenu: 'Action bloquée : arbitrage budgétaire en attente au comité de pilotage.' },
+      });
+    } else if (priorite === 'HAUTE' && avancement < 40 && statut !== 'TERMINE') {
+      await prisma.commentaire.create({
+        data: { actionId: action.id, auteurNom: 'pmo@narsa.ma', contenu: 'Action prioritaire en retard de démarrage — point de suivi hebdomadaire mis en place avec le responsable.' },
+      });
+    }
+
     if (premier) {
       premier = false;
       const sousActions: [string, number][] = [
@@ -157,8 +193,52 @@ async function seedActionsHierarchiques(
   }
 }
 
+/** Amorce le volet Agile (sprints + backlog Kanban) d'un plan SI (T2.3). */
+async function seedAgile(prisma: PrismaClient, planId: string) {
+  const [s1, s2, s3] = await Promise.all([
+    prisma.sprint.create({ data: { planId, nom: 'Sprint 1 — Socle', statut: 'CLOS', ordre: 0, dateDebut: daysFromNow(-42), dateFin: daysFromNow(-28), objectif: 'Mettre en place le socle technique et CI/CD.' } }),
+    prisma.sprint.create({ data: { planId, nom: 'Sprint 2 — Portail', statut: 'EN_COURS', ordre: 1, dateDebut: daysFromNow(-7), dateFin: daysFromNow(7), objectif: 'Livrer le portail permis de conduire en ligne.' } }),
+    prisma.sprint.create({ data: { planId, nom: 'Sprint 3 — Mobile', statut: 'PLANIFIE', ordre: 2, dateDebut: daysFromNow(8), dateFin: daysFromNow(22), objectif: 'Application NARSA Mobile — MVP.' } }),
+  ]);
+  const sid = [s1.id, s2.id, s3.id];
+
+  // [titre, points, colonne Kanban, index sprint (-1 = backlog), assigné]
+  const items: [string, number, string, number, string][] = [
+    ['Provisionner l’environnement cloud souverain', 8, 'TERMINE', 0, 'Équipe Infra'],
+    ['Mettre en place le pipeline CI/CD', 5, 'TERMINE', 0, 'Équipe Infra'],
+    ['Configurer l’authentification SSO', 5, 'TERMINE', 0, 'Équipe Sécurité'],
+    ['Modèle de données permis de conduire', 3, 'TERMINE', 1, 'Équipe Back'],
+    ['API de dépôt de dossier en ligne', 8, 'EN_REVUE', 1, 'Équipe Back'],
+    ['Écran de suivi de dossier (front)', 5, 'EN_COURS', 1, 'Équipe Front'],
+    ['Paiement en ligne des redevances', 8, 'EN_COURS', 1, 'Équipe Back'],
+    ['Notifications e-mail/SMS usager', 3, 'A_FAIRE', 1, 'Équipe Back'],
+    ['Tableau de bord agent régional', 5, 'A_FAIRE', 1, 'Équipe Front'],
+    ['Tests de charge portail', 3, 'A_FAIRE', 1, 'Équipe QA'],
+    ['Maquettes application mobile', 3, 'A_FAIRE', 2, 'UX/UI'],
+    ['Auth mobile + biométrie', 5, 'BACKLOG', 2, 'Équipe Mobile'],
+    ['Consultation des points de permis', 3, 'BACKLOG', 2, 'Équipe Mobile'],
+    ['Prise de rendez-vous visite technique', 5, 'BACKLOG', 2, 'Équipe Mobile'],
+    ['Open data — API publique statistiques SR', 8, 'BACKLOG', -1, 'Équipe Data'],
+    ['Interconnexion base accidents ↔ santé', 13, 'BACKLOG', -1, 'Équipe Data'],
+  ];
+
+  await prisma.itemBacklog.createMany({
+    data: items.map(([titre, points, statut, sIdx, assigne], i) => ({
+      planId, titre, points, statut, assigne, ordre: i,
+      sprintId: sIdx >= 0 ? sid[sIdx]! : null,
+    })),
+  });
+}
+
 /** (Ré)initialise le jeu de données de démonstration NARSA. Idempotent. */
 export async function seedDemo(prisma: PrismaClient) {
+  // Tables sans cascade depuis Plan/Action : à purger explicitement.
+  await prisma.itemBacklog.deleteMany();
+  await prisma.sprint.deleteMany();
+  await prisma.attributDef.deleteMany();
+  await prisma.notification.deleteMany();
+  // Le reste (indicateurs, commentaires, demandes, attributs valeurs, jalons,
+  // avancements) est supprimé en cascade avec les actions.
   await prisma.avancement.deleteMany();
   await prisma.jalon.deleteMany();
   await prisma.action.deleteMany();
@@ -416,6 +496,9 @@ export async function seedDemo(prisma: PrismaClient) {
     psi,
     actionsSi,
   );
+
+  // Volet Agile (sprints + backlog Kanban) pour le plan SI.
+  await seedAgile(prisma, planSi.id);
 
   // ─── Utilisateurs NARSA ──────────────────────────────────────────────────────
   const usersData = [

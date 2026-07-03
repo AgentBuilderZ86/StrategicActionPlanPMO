@@ -4,8 +4,8 @@ import type { ActionDTO } from './types';
 export const EXPORT_HEADERS = [
   'Titre',
   'Axe',
-  'Pays',
-  'Entité',
+  'Région',
+  'Pôle / Partenaire',
   'Responsable',
   'Statut',
   'Avancement',

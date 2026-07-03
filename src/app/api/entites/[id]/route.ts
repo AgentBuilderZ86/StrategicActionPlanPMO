@@ -24,7 +24,7 @@ export async function DELETE(req: Request, { params }: { params: { id: string } 
     const guard = await requireRole(['ADMIN', 'PMO']);
     if (!guard.ok) return fail(guard.code, guard.message, guard.status);
     const count = await prisma.action.count({ where: { entiteId: params.id } });
-    if (count > 0) return fail('CONFLICT', `Entité utilisée par ${count} action(s)`, 409);
+    if (count > 0) return fail('CONFLICT', `Pôle / partenaire utilisé par ${count} action(s)`, 409);
     await prisma.entite.delete({ where: { id: params.id } });
     await logAction({ action: 'DELETE', entite: 'Entite', entiteId: params.id }, req);
     return ok({ id: params.id, deleted: true });

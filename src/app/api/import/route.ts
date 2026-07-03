@@ -66,8 +66,8 @@ export async function POST(req: Request) {
       const py = findBy(pays, r.pays);
       const ent = findBy(entites, r.entite);
       if (!axe) { reports.push({ ligne, ok: false, titre: r.titre, message: `Axe inconnu : « ${r.axe} »` }); continue; }
-      if (!py) { reports.push({ ligne, ok: false, titre: r.titre, message: `Pays inconnu : « ${r.pays} »` }); continue; }
-      if (!ent) { reports.push({ ligne, ok: false, titre: r.titre, message: `Entité inconnue : « ${r.entite} »` }); continue; }
+      if (!py) { reports.push({ ligne, ok: false, titre: r.titre, message: `Région inconnue : « ${r.pays} »` }); continue; }
+      if (!ent) { reports.push({ ligne, ok: false, titre: r.titre, message: `Pôle / partenaire inconnu : « ${r.entite} »` }); continue; }
 
       const avancement = Math.max(0, Math.min(100, Math.round(toNum(r.avancement) ?? 0)));
       const action = await prisma.action.create({
