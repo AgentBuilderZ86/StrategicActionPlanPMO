@@ -12,8 +12,8 @@ export function VelocityChart({ data }: { data: { sprint: string; points: number
     <ResponsiveContainer width="100%" height={220}>
       <BarChart data={data} margin={{ top: 8, right: 16, bottom: 4, left: 0 }}>
         <CartesianGrid strokeDasharray="3 3" stroke="#EEF1F4" vertical={false} />
-        <XAxis dataKey="sprint" tick={{ fontSize: 11, fill: '#64748B' }} />
-        <YAxis tick={{ fontSize: 11, fill: '#64748B' }} />
+        <XAxis dataKey="sprint" tick={{ fontSize: 11, fill: '#586059' }} />
+        <YAxis tick={{ fontSize: 11, fill: '#586059' }} />
         <Tooltip formatter={(v: number) => `${v} pts`} />
         <Bar dataKey="points" name="Points terminés" radius={[6, 6, 0, 0]} fill={COLORS.accent} />
       </BarChart>
@@ -27,8 +27,8 @@ export function CFDChart({ data }: { data: { colonne: KanbanColonne; count: numb
     <ResponsiveContainer width="100%" height={220}>
       <BarChart data={rows} margin={{ top: 8, right: 16, bottom: 4, left: 0 }}>
         <CartesianGrid strokeDasharray="3 3" stroke="#EEF1F4" vertical={false} />
-        <XAxis dataKey="label" tick={{ fontSize: 11, fill: '#64748B' }} />
-        <YAxis allowDecimals={false} tick={{ fontSize: 11, fill: '#64748B' }} />
+        <XAxis dataKey="label" tick={{ fontSize: 11, fill: '#586059' }} />
+        <YAxis allowDecimals={false} tick={{ fontSize: 11, fill: '#586059' }} />
         <Tooltip formatter={(v: number) => `${v} items`} />
         <Bar dataKey="count" name="Items" radius={[6, 6, 0, 0]} fill={COLORS.vert} />
       </BarChart>
@@ -42,8 +42,8 @@ export function BurndownChart({ data }: { data: BurndownPoint[] }) {
     <ResponsiveContainer width="100%" height={220}>
       <LineChart data={data} margin={{ top: 8, right: 16, bottom: 4, left: 0 }}>
         <CartesianGrid strokeDasharray="3 3" stroke="#EEF1F4" />
-        <XAxis dataKey="jour" tick={{ fontSize: 11, fill: '#64748B' }} label={{ value: 'jour', position: 'insideBottomRight', fontSize: 10, fill: '#94a3b8' }} />
-        <YAxis tick={{ fontSize: 11, fill: '#64748B' }} />
+        <XAxis dataKey="jour" tick={{ fontSize: 11, fill: '#586059' }} label={{ value: 'jour', position: 'insideBottomRight', fontSize: 10, fill: '#94a3b8' }} />
+        <YAxis tick={{ fontSize: 11, fill: '#586059' }} />
         <Tooltip formatter={(v: number) => `${v} pts`} />
         <Legend wrapperStyle={{ fontSize: 11 }} />
         <Line type="monotone" dataKey="ideal" name="Idéal" stroke="#94a3b8" strokeDasharray="4 4" dot={false} />

@@ -110,7 +110,7 @@ export function AlertesClient({ initial, pilotage }: { initial: AlerteDTO[]; pil
       ) : (
         <div className="space-y-3">
           {visibles.map((a) => {
-            const color = NIVEAU_RISQUE_COLOR[a.niveau as NiveauRisque] ?? '#64748B';
+            const color = NIVEAU_RISQUE_COLOR[a.niveau as NiveauRisque] ?? '#586059';
             return (
               <div key={a.id} className="card p-4" style={{ borderLeft: `4px solid ${color}` }}>
                 <div className="flex flex-wrap items-start gap-3">

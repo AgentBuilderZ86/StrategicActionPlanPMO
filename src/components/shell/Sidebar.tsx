@@ -17,7 +17,7 @@ export async function Sidebar() {
     <div className="flex h-full flex-col text-white">
       <div className="p-4">
         <Link href="/portefeuille" className="flex items-center gap-3 rounded-lg p-1 hover:bg-white/5">
-          <div className="flex h-11 w-11 shrink-0 flex-col items-center justify-center rounded-xl bg-accent px-1 font-title text-[10px] font-extrabold leading-tight text-white">
+          <div className="flex h-11 w-11 shrink-0 flex-col items-center justify-center rounded-[11px] px-1 font-mono text-[10px] font-bold leading-tight text-sombre-profond" style={{ background: 'linear-gradient(140deg, #2BBB71, #0D8B50)', boxShadow: '0 4px 14px rgba(0,0,0,0.28), inset 0 1px 0 rgba(255,255,255,0.3)' }}>
             <span className="text-[12px] font-black">NARSA</span>
             <span className="text-[7px] font-semibold tracking-wider opacity-80">PMO</span>
           </div>

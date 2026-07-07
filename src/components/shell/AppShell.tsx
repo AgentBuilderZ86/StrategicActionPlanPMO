@@ -40,7 +40,7 @@ export function AppShell({
 
       <aside
         className={cn(
-          'no-print fixed inset-y-0 left-0 z-40 w-64 shrink-0 overflow-y-auto bg-ink transition-transform duration-200 md:static md:translate-x-0',
+          'no-print fixed inset-y-0 left-0 z-40 w-64 shrink-0 overflow-y-auto sidebar-fond transition-transform duration-200 md:static md:translate-x-0',
           mobileOpen ? 'translate-x-0' : '-translate-x-full',
         )}
       >
@@ -64,7 +64,7 @@ export function AppShell({
           </div>
         </header>
 
-        <main className="mx-auto w-full max-w-[1280px] flex-1 px-4 py-6 sm:px-6">{children}</main>
+        <main className="page-enter mx-auto w-full max-w-[1280px] flex-1 px-4 py-6 sm:px-6">{children}</main>
 
         <footer className="no-print mx-auto w-full max-w-[1280px] px-4 pb-8 pt-2 text-center text-xs text-slate-400 sm:px-6">
           NARSA · Agence Nationale de la Sécurité Routière · Pilotage SNSR 2026-2030 · Montants en k MAD

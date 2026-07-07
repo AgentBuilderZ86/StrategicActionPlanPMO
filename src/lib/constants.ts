@@ -38,9 +38,9 @@ export const NAV_ITEMS = [
 /** Style visuel (badge, carte) par type de PMO — partagé par PlanBanner,
  *  PortfolioCard et PlanSwitcher. */
 export const PMO_TYPE_BADGE: Record<PmoType, { bg: string; fg: string; icon: string }> = {
-  ECOSYSTEME: { bg: 'rgba(27,158,98,0.12)', fg: '#1B9E62', icon: '🛣️' },
-  INTERNE: { bg: 'rgba(0,107,63,0.12)', fg: '#006B3F', icon: '🏛️' },
-  SI: { bg: 'rgba(30,79,216,0.12)', fg: '#1E4FD8', icon: '💻' },
+  ECOSYSTEME: { bg: 'rgba(27,158,98,0.12)', fg: '#0D8B50', icon: '🛣️' },
+  INTERNE: { bg: 'rgba(0,107,63,0.12)', fg: '#006436', icon: '🏛️' },
+  SI: { bg: 'rgba(30,79,216,0.12)', fg: '#007CB8', icon: '💻' },
 };
 
 export const STATUT_LABEL: Record<Statut, string> = {
@@ -51,10 +51,10 @@ export const STATUT_LABEL: Record<Statut, string> = {
 };
 
 export const STATUT_COLOR: Record<Statut, string> = {
-  A_LANCER: '#64748B', // gris
-  EN_COURS: '#006B3F', // vert NARSA
-  TERMINE: '#1B9E62', // vert clair
-  BLOQUE: '#D64545', // rouge
+  A_LANCER: '#586059', // gris
+  EN_COURS: '#006436', // vert NARSA
+  TERMINE: '#0D8B50', // vert clair
+  BLOQUE: '#D33A3C', // rouge
 };
 
 export const PRIORITE_LABEL: Record<Priorite, string> = {
@@ -64,9 +64,9 @@ export const PRIORITE_LABEL: Record<Priorite, string> = {
 };
 
 export const PRIORITE_COLOR: Record<Priorite, string> = {
-  HAUTE: '#D64545',
-  MOYENNE: '#E8A13D',
-  BASSE: '#64748B',
+  HAUTE: '#D33A3C',
+  MOYENNE: '#BE7200',
+  BASSE: '#586059',
 };
 
 export const PRIORITE_RANG: Record<Priorite, number> = {
@@ -176,12 +176,12 @@ export function droitsEffectifs(role: Role, droits: Droits | null | undefined): 
 // Palette « statut » pour la heatmap (rouge → ambre → vert)
 export const COLORS = {
   canvas: '#F4F6F5',
-  ink: '#0D2818',
-  accent: '#006B3F',
-  vert: '#1B9E62',
-  ambre: '#E8A13D',
-  rouge: '#D64545',
-  gris: '#64748B',
+  ink: '#0B2516',
+  accent: '#006436',
+  vert: '#0D8B50',
+  ambre: '#BE7200',
+  rouge: '#D33A3C',
+  gris: '#586059',
 };
 
 // Monnaie — Maroc : MAD (Dirham marocain), exprimé en milliers

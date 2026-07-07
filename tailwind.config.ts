@@ -5,26 +5,33 @@ const config: Config = {
   theme: {
     extend: {
       colors: {
-        // Identité NARSA — Sécurité Routière Maroc
-        canvas: '#F4F6F5',
+        // Identité NARSA — design « PMO NARSA Strategic » (palette oklch convertie sRGB)
+        canvas: '#F1F7F2',
+        ligne: '#D9E0DA',
         ink: {
-          DEFAULT: '#0D2818',
-          soft: '#1A3D28',
+          DEFAULT: '#161D17',
+          soft: '#586059',
+        },
+        sombre: {
+          DEFAULT: '#0B2516',
+          profond: '#001C0B',
         },
         accent: {
-          DEFAULT: '#006B3F',
-          soft: '#2E9E6B',
+          DEFAULT: '#006436',
+          soft: '#0D8B50',
         },
         statut: {
-          vert: '#1B9E62',
-          ambre: '#E8A13D',
-          rouge: '#D64545',
-          gris: '#64748B',
+          vert: '#1A8A51',
+          ambre: '#BE7200',
+          rouge: '#D33A3C',
+          bleu: '#007CB8',
+          gris: '#586059',
         },
       },
       fontFamily: {
-        title: ['var(--font-archivo)', 'system-ui', 'sans-serif'],
-        sans: ['var(--font-inter)', 'system-ui', 'sans-serif'],
+        title: ['var(--font-plex-sans)', 'system-ui', 'sans-serif'],
+        sans: ['var(--font-plex-sans)', 'system-ui', 'sans-serif'],
+        mono: ['var(--font-plex-mono)', 'ui-monospace', 'monospace'],
       },
     },
   },

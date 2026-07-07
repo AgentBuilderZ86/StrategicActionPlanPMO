@@ -19,7 +19,7 @@ import { SectionCard } from '@/components/ui/Cards';
 
 type ActionPlan = { id: string; titre: string; code: string | null; statut: string };
 
-const jauge = (v: number) => (v >= 60 ? '#1B9E62' : v >= 40 ? '#E8A13D' : '#D64545');
+const jauge = (v: number) => (v >= 60 ? '#0D8B50' : v >= 40 ? '#BE7200' : '#D33A3C');
 
 function Jauge({ label, valeur, max = 100 }: { label: string; valeur: number; max?: number }) {
   const pct = Math.round((valeur / max) * 100);

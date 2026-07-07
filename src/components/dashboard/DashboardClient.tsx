@@ -162,11 +162,11 @@ export function DashboardClient({
       {/* KPIs (toujours affichés) */}
       <div className="grid grid-cols-2 gap-4 lg:grid-cols-4 xl:grid-cols-7">
         <KpiCard label="Actions" value={k.total} />
-        <KpiCard label="Avancement" value={fmtPct(k.avancementMoyen)} accent="#1E4FD8" />
-        <KpiCard label="Terminées" value={k.terminees} accent="#1B9E62" />
+        <KpiCard label="Avancement" value={fmtPct(k.avancementMoyen)} accent="#007CB8" />
+        <KpiCard label="Terminées" value={k.terminees} accent="#0D8B50" />
         <KpiCard label="En cours" value={k.enCours} />
-        <KpiCard label="Bloquées" value={k.bloquees} accent="#D64545" />
-        <KpiCard label="En retard" value={k.enRetard} accent="#E8A13D" />
+        <KpiCard label="Bloquées" value={k.bloquees} accent="#D33A3C" />
+        <KpiCard label="En retard" value={k.enRetard} accent="#BE7200" />
         <KpiCard label="Budget" value={fmtMoney(k.budgetTotal)} sub={`Consommé ${fmtPct(consoPct)}`} />
       </div>
 
