@@ -1,5 +1,6 @@
 'use client';
 
+import { Icone } from '@/components/ui/Icones';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { NAV_ITEMS } from '@/lib/constants';
@@ -19,7 +20,7 @@ export function Breadcrumb() {
       <Link href="/portefeuille" className="shrink-0 text-slate-400 hover:text-ink">Portefeuille</Link>
       <span className="text-slate-300" aria-hidden>/</span>
       <span className="truncate font-semibold text-ink">
-        {current ? <>{current.icon} {current.label}</> : 'PMO NARSA'}
+        {current ? <span className="inline-flex items-center gap-1.5"><Icone nom={current.icon} className="h-4 w-4" /> {current.label}</span> : 'PMO NARSA'}
       </span>
     </div>
   );

@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { NAV_ITEMS, type PmoType } from '@/lib/constants';
+import { Icone } from '@/components/ui/Icones';
 
 type ActionResult = { id: string; titre: string; code: string | null };
 
@@ -59,6 +60,16 @@ export function CommandPalette({ planId, typePmo }: { planId: string | null; typ
   const pagesDuPlan = typePmo ? NAV_ITEMS.filter((t) => (t.modules as readonly string[]).includes(typePmo)) : NAV_ITEMS;
   const pagesFiltrees = pagesDuPlan.filter((t) => termeNormalise === '' || t.label.toLowerCase().includes(termeNormalise));
 
+  // Gestes rapides : raccourcis vers les rituels clés, filtrés comme les pages.
+  const GESTES: { label: string; icone: string; href: string }[] = [
+    { label: 'Lancer le check-in hebdomadaire', icone: 'journee', href: '/ma-journee' },
+    { label: 'Traiter les alertes', icone: 'alertes', href: '/alertes' },
+    { label: 'Préparer le COPIL', icone: 'copil', href: '/copil' },
+  ];
+  const gestesFiltres = GESTES.filter(
+    (g) => termeNormalise === '' || g.label.toLowerCase().includes(termeNormalise),
+  );
+
   const allerA = (href: string) => { setOpen(false); router.push(href); };
   const ouvrirAction = (id: string) => { setOpen(false); router.push(`/actions?focus=${id}`); };
 
@@ -68,7 +79,7 @@ export function CommandPalette({ planId, typePmo }: { planId: string | null; typ
         onClick={() => setOpen(true)}
         className="flex items-center gap-2 rounded-lg border border-slate-200 px-3 py-1.5 text-xs font-medium text-slate-500 hover:bg-slate-50"
       >
-        <span aria-hidden>🔍</span>
+        <Icone nom="recherche" className="h-3.5 w-3.5" />
         <span className="hidden sm:inline">Rechercher…</span>
         <kbd className="hidden rounded border border-slate-200 bg-slate-50 px-1 text-[10px] sm:inline">Ctrl K</kbd>
       </button>
@@ -102,7 +113,22 @@ export function CommandPalette({ planId, typePmo }: { planId: string | null; typ
                       onClick={() => allerA(t.href)}
                       className="flex w-full items-center gap-2.5 rounded-lg px-2.5 py-2 text-left text-sm text-ink hover:bg-slate-50"
                     >
-                      <span aria-hidden>{t.icon}</span> {t.label}
+                      <Icone nom={t.icon} className="h-4 w-4 shrink-0 text-slate-400" /> {t.label}
+                    </button>
+                  ))}
+                </div>
+              )}
+
+              {gestesFiltres.length > 0 && (
+                <div className="mb-1">
+                  <p className="px-2 py-1 text-[10px] font-semibold uppercase tracking-wide text-slate-400">Gestes rapides</p>
+                  {gestesFiltres.map((g) => (
+                    <button
+                      key={g.label}
+                      onClick={() => allerA(g.href)}
+                      className="flex w-full items-center gap-2.5 rounded-lg px-2.5 py-2 text-left text-sm text-ink hover:bg-slate-50"
+                    >
+                      <Icone nom={g.icone} className="h-4 w-4 shrink-0 text-accent" /> {g.label}
                     </button>
                   ))}
                 </div>

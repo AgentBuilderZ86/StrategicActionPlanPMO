@@ -22,17 +22,17 @@ export type PmoType = (typeof PMO_TYPES)[number];
  * « Agile / SI ». Filtré par `Nav` selon le plan actif.
  */
 export const NAV_ITEMS = [
-  { href: '/ma-journee', label: 'Ma journée', icon: '☀️', modules: PMO_TYPES },
-  { href: '/', label: 'Tableau de bord', icon: '📊', modules: PMO_TYPES },
-  { href: '/alertes', label: 'Alertes', icon: '🚨', modules: PMO_TYPES },
-  { href: '/populations', label: 'Populations', icon: '👥', modules: PMO_TYPES },
-  { href: '/actions', label: "Plan d'actions", icon: '🗂️', modules: PMO_TYPES },
-  { href: '/planning', label: 'Planning', icon: '🗓️', modules: PMO_TYPES },
-  { href: '/agile', label: 'Agile / SI', icon: '🧩', modules: ['SI'] as PmoType[] },
-  { href: '/analyses', label: 'Analyses', icon: '📈', modules: PMO_TYPES },
-  { href: '/rapports', label: 'Rapports', icon: '📄', modules: PMO_TYPES },
-  { href: '/copil', label: 'Comité de pilotage', icon: '🎯', modules: ['ECOSYSTEME', 'INTERNE'] as PmoType[] },
-  { href: '/parametres', label: 'Paramètres', icon: '⚙️', modules: PMO_TYPES },
+  { href: '/ma-journee', label: 'Ma journée', icon: 'journee', modules: PMO_TYPES },
+  { href: '/', label: 'Tableau de bord', icon: 'dashboard', modules: PMO_TYPES },
+  { href: '/alertes', label: 'Alertes', icon: 'alertes', modules: PMO_TYPES },
+  { href: '/populations', label: 'Populations', icon: 'populations', modules: PMO_TYPES },
+  { href: '/actions', label: "Plan d'actions", icon: 'actions', modules: PMO_TYPES },
+  { href: '/planning', label: 'Planning', icon: 'planning', modules: PMO_TYPES },
+  { href: '/agile', label: 'Agile / SI', icon: 'agile', modules: ['SI'] as PmoType[] },
+  { href: '/analyses', label: 'Analyses', icon: 'analyses', modules: PMO_TYPES },
+  { href: '/rapports', label: 'Rapports', icon: 'rapports', modules: PMO_TYPES },
+  { href: '/copil', label: 'Comité de pilotage', icon: 'copil', modules: ['ECOSYSTEME', 'INTERNE'] as PmoType[] },
+  { href: '/parametres', label: 'Paramètres', icon: 'parametres', modules: PMO_TYPES },
 ] as const;
 
 /** Style visuel (badge, carte) par type de PMO — partagé par PlanBanner,
