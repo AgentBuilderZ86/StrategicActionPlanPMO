@@ -7,7 +7,13 @@
 }
 
 body {
-  background-color: #F1F7F2;
+  /* Fond lumineux : halos verts/bleus sur base claire (design v2 « vibrant ») */
+  background:
+    radial-gradient(900px 520px at 88% -12%, rgba(13, 139, 80, 0.16), transparent 60%),
+    radial-gradient(760px 460px at -12% 18%, rgba(0, 124, 184, 0.13), transparent 55%),
+    radial-gradient(680px 420px at 55% 115%, rgba(43, 187, 113, 0.1), transparent 55%),
+    linear-gradient(180deg, #f5faf6, #edf4ef);
+  background-attachment: fixed;
   color: #161D17;
 }
 
@@ -20,7 +26,9 @@ body {
 
 @layer components {
   .card {
-    @apply rounded-[14px] border border-ligne bg-white;
+    /* Verre dépoli : translucide, flouté, bord lumineux */
+    @apply rounded-2xl border border-white/60 bg-white/70 backdrop-blur-xl;
+    box-shadow: 0 8px 30px -18px rgba(11, 37, 22, 0.28);
   }
   .btn-primary {
     @apply inline-flex items-center justify-center gap-2 rounded-[9px] bg-accent px-4 py-2 text-sm font-semibold text-white transition-all hover:-translate-y-px hover:bg-accent-soft disabled:opacity-50;
@@ -41,6 +49,30 @@ body {
     @apply px-3 py-2.5 align-middle text-sm;
   }
 }
+
+/* Tuiles colorées — dégradés ton sur ton avec reflet lumineux */
+.tuile {
+  position: relative;
+  overflow: hidden;
+  border-radius: 16px;
+  padding: 15px 17px;
+  color: #fff;
+  box-shadow: 0 12px 26px -14px rgba(11, 37, 22, 0.45);
+}
+.tuile::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(130% 95% at 88% -25%, rgba(255, 255, 255, 0.35), transparent 55%);
+  pointer-events: none;
+}
+.tuile-vert { background: linear-gradient(135deg, #10a35c, #04673a); }
+.tuile-emeraude { background: linear-gradient(135deg, #17b978, #0d8b50); }
+.tuile-ambre { background: linear-gradient(135deg, #f09d1b, #b36a00); }
+.tuile-rouge { background: linear-gradient(135deg, #e4575a, #b3282e); }
+.tuile-bleu { background: linear-gradient(135deg, #22a3dd, #04679e); }
+.tuile-violet { background: linear-gradient(135deg, #9d6bff, #6d28d9); }
+.tuile-sombre { background: linear-gradient(135deg, #14532d, #06281a); }
 
 /* Fond de la barre latérale — dégradé radial du design « PMO NARSA Strategic » */
 .sidebar-fond {

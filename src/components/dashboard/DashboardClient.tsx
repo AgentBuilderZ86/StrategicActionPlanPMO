@@ -170,10 +170,19 @@ export function DashboardClient({
         <KpiCard label="Budget" value={fmtMoney(k.budgetTotal)} sub={`Consommé ${fmtPct(consoPct)}`} />
       </div>
 
-      {/* Widgets configurables */}
-      {configEffective.filter((w) => w.visible).map((w) => (
-        <div key={w.key}>{widgetNode(w.key)}</div>
-      ))}
+      {/* Widgets configurables — grille 2 colonnes pour limiter le scroll */}
+      <div className="grid gap-4 lg:grid-cols-2">
+        {configEffective
+          .filter((w) => w.visible)
+          .map((w) => {
+            const pleineLargeur = ['insights', 'risques', 'heatmap', 'tendance', 'attention'].includes(w.key);
+            return (
+              <div key={w.key} className={pleineLargeur ? 'lg:col-span-2' : ''}>
+                {widgetNode(w.key)}
+              </div>
+            );
+          })}
+      </div>
     </div>
   );
 }

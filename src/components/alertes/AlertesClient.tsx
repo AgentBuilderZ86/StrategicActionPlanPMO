@@ -108,7 +108,7 @@ export function AlertesClient({ initial, pilotage }: { initial: AlerteDTO[]; pil
             : 'Aucune alerte dans cet état.'}
         </div>
       ) : (
-        <div className="space-y-3">
+        <div className="grid items-start gap-3 xl:grid-cols-2">
           {visibles.map((a) => {
             const color = NIVEAU_RISQUE_COLOR[a.niveau as NiveauRisque] ?? '#586059';
             return (
