@@ -15,8 +15,12 @@ generator client {
 }
 
 datasource db {
-  provider = "postgresql"
-  url      = env("DATABASE_URL")
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  // Connexion directe (non poolée) requise par Prisma Migrate : le verrou
+  // consultatif Postgres ne passe pas par PgBouncer (P1002 sinon). Sur Neon,
+  // c'est la même URL sans le suffixe « -pooler » dans l'hôte.
+  directUrl = env("DIRECT_URL")
 }
 
 model Plan {
