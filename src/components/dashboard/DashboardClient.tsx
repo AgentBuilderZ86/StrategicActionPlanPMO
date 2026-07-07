@@ -1,7 +1,6 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { useRouter } from 'next/navigation';
 import type { DashboardData } from '@/lib/data';
 import { fmtMoney, fmtPct } from '@/lib/utils';
 import {
@@ -18,24 +17,19 @@ import {
 } from './Charts';
 import { PointsAttention } from './PointsAttention';
 
-type Plan = { id: string; nom: string };
-
 const WIDGET_LABEL: Record<WidgetKey, string> = Object.fromEntries(
   DASHBOARD_WIDGETS.map((w) => [w.key, w.label]),
 ) as Record<WidgetKey, string>;
 
 export function DashboardClient({
-  plans,
   planId,
   axes,
   initial,
 }: {
-  plans: Plan[];
   planId: string;
   axes: { id: string; nom: string }[];
   initial: DashboardData;
 }) {
-  const router = useRouter();
   const [data, setData] = useState<DashboardData>(initial);
   const [from, setFrom] = useState('');
   const [to, setTo] = useState('');
@@ -112,21 +106,8 @@ export function DashboardClient({
 
   return (
     <div className="space-y-5">
-      {/* Filtres globaux */}
+      {/* Filtres globaux (le choix du plan se fait désormais dans l'en-tête) */}
       <div className="card flex flex-wrap items-end gap-3 p-3">
-        {plans.length > 1 && (
-          <div>
-            <label className="label" htmlFor="plan">Plan</label>
-            <select
-              id="plan"
-              className="input w-auto"
-              value={planId}
-              onChange={(e) => router.push(`/?planId=${e.target.value}`)}
-            >
-              {plans.map((p) => <option key={p.id} value={p.id}>{p.nom}</option>)}
-            </select>
-          </div>
-        )}
         <div>
           <label className="label" htmlFor="from">Période — du</label>
           <input id="from" type="date" className="input w-auto" value={from} onChange={(e) => setFrom(e.target.value)} />
