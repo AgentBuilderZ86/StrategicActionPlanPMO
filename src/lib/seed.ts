@@ -1,6 +1,7 @@
 import type { PrismaClient } from '@prisma/client';
 import bcrypt from 'bcryptjs';
 import { calculerCodesArbre } from './tree';
+import { seedEnrichi } from './seed-enrichi';
 
 function daysFromNow(n: number): Date {
   const d = new Date();
@@ -516,8 +517,13 @@ export async function seedDemo(prisma: PrismaClient) {
     });
   }
 
+  // Enrichissement : populations, pulses, signaux de risque, portefeuille PPM
+  // DSI avec historique de transitions daté (dette #7).
+  const enrichi = await seedEnrichi(prisma, planSnsr.id, planSi.id);
+
   return {
     plan: planSnsr,
+    enrichi,
     axes: axesSnsr.length + axesNarsa.length + axesSi.length,
     pays: regions.length + regionsNarsa.length + regionsSi.length,
     entites: partenaires.length + poles.length + polesSi.length,
