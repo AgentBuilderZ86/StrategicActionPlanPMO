@@ -77,11 +77,11 @@ export function CommandPalette({ planId, typePmo }: { planId: string | null; typ
     <>
       <button
         onClick={() => setOpen(true)}
-        className="flex items-center gap-2 rounded-lg border border-slate-200 px-3 py-1.5 text-xs font-medium text-slate-500 hover:bg-slate-50"
+        className="flex items-center gap-2 rounded-full border border-white/25 bg-white/15 px-3 py-1.5 text-xs font-medium text-white/90 backdrop-blur transition-colors hover:bg-white/25"
       >
         <Icone nom="recherche" className="h-3.5 w-3.5" />
         <span className="hidden sm:inline">Rechercher…</span>
-        <kbd className="hidden rounded border border-slate-200 bg-slate-50 px-1 text-[10px] sm:inline">Ctrl K</kbd>
+        <kbd className="hidden rounded border border-white/25 bg-white/10 px-1 text-[10px] sm:inline">Ctrl K</kbd>
       </button>
 
       {open && (

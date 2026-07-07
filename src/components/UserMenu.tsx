@@ -23,7 +23,7 @@ export function UserMenu() {
   return (
     <div className="flex items-center gap-3">
       <div className="hidden text-right sm:block">
-        <div className="text-sm font-semibold leading-tight">{session.user.name ?? session.user.email}</div>
+        <div className="text-sm font-semibold leading-tight text-white">{session.user.name ?? session.user.email}</div>
         <div className="text-[11px] text-accent-soft">{ROLE_LABEL[role]}</div>
       </div>
       <button
