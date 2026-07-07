@@ -2,7 +2,7 @@ export function KpiCard({
   label,
   value,
   sub,
-  accent = '#16202E',
+  accent = '#161D17',
 }: {
   label: string;
   value: string | number;
@@ -12,7 +12,7 @@ export function KpiCard({
   return (
     <div className="card p-4">
       <div className="text-[11px] font-semibold uppercase tracking-wide text-slate-500">{label}</div>
-      <div className="mt-1 font-title text-2xl font-extrabold tabular-nums" style={{ color: accent }}>
+      <div className="mt-1 font-mono text-2xl font-bold tabular-nums" style={{ color: accent }}>
         {value}
       </div>
       {sub && <div className="mt-0.5 text-xs text-slate-400">{sub}</div>}

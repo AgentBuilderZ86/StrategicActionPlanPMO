@@ -61,10 +61,10 @@ export default async function CopilPage() {
         {/* KPIs */}
         <div className="grid grid-cols-3 gap-4 lg:grid-cols-6">
           <KpiCard label="Actions" value={k.total} />
-          <KpiCard label="Avancement" value={fmtPct(k.avancementMoyen)} accent="#1E4FD8" />
-          <KpiCard label="Terminées" value={k.terminees} accent="#1B9E62" />
-          <KpiCard label="Bloquées" value={k.bloquees} accent="#D64545" />
-          <KpiCard label="En retard" value={k.enRetard} accent="#E8A13D" />
+          <KpiCard label="Avancement" value={fmtPct(k.avancementMoyen)} accent="#007CB8" />
+          <KpiCard label="Terminées" value={k.terminees} accent="#0D8B50" />
+          <KpiCard label="Bloquées" value={k.bloquees} accent="#D33A3C" />
+          <KpiCard label="En retard" value={k.enRetard} accent="#BE7200" />
           <KpiCard label="Budget" value={fmtMoney(k.budgetTotal)} sub={`Consommé ${fmtPct(consoPct)}`} />
         </div>
 
@@ -86,7 +86,7 @@ export default async function CopilPage() {
           ) : (
             <div className="space-y-2">
               {alertesOuvertes.map((a) => {
-                const color = NIVEAU_RISQUE_COLOR[a.niveau as NiveauRisque] ?? '#64748B';
+                const color = NIVEAU_RISQUE_COLOR[a.niveau as NiveauRisque] ?? '#586059';
                 const principal = facteurPrincipal(a.facteurs);
                 return (
                   <div key={a.id} className="flex items-center gap-3 rounded-xl bg-slate-50 p-3" style={{ borderLeft: `4px solid ${color}` }}>
@@ -126,7 +126,7 @@ export default async function CopilPage() {
                 <div key={t.nom} className="rounded-xl bg-slate-50 p-3">
                   <div className="flex items-center justify-between gap-2">
                     <span className="truncate text-sm font-semibold text-ink">{t.nom}</span>
-                    <span className="shrink-0 rounded-full px-2 py-0.5 text-xs font-bold text-white" style={{ backgroundColor: t.receptivite >= 50 ? '#E8A13D' : '#D64545' }}>
+                    <span className="shrink-0 rounded-full px-2 py-0.5 text-xs font-bold text-white" style={{ backgroundColor: t.receptivite >= 50 ? '#BE7200' : '#D33A3C' }}>
                       Réceptivité {t.receptivite}
                     </span>
                   </div>

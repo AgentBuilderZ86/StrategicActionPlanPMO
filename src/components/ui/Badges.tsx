@@ -17,7 +17,7 @@ function hexToRgba(hex: string, alpha: number) {
 
 export function StatutBadge({ statut }: { statut: string }) {
   const s = statut as Statut;
-  const color = STATUT_COLOR[s] ?? '#64748B';
+  const color = STATUT_COLOR[s] ?? '#586059';
   return (
     <span
       className="inline-flex items-center gap-1.5 whitespace-nowrap rounded-full px-2.5 py-0.5 text-xs font-semibold"
@@ -31,7 +31,7 @@ export function StatutBadge({ statut }: { statut: string }) {
 
 export function PrioriteBadge({ priorite }: { priorite: string }) {
   const p = priorite as Priorite;
-  const color = PRIORITE_COLOR[p] ?? '#64748B';
+  const color = PRIORITE_COLOR[p] ?? '#586059';
   return (
     <span className="inline-flex items-center gap-1.5 text-xs font-medium text-ink">
       <span className="h-2 w-2 rounded-full" style={{ backgroundColor: color }} />

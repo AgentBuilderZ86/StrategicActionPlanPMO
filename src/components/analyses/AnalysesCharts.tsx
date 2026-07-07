@@ -22,8 +22,8 @@ export function ComparAvancement({ data }: { data: DimAgg[] }) {
     <ResponsiveContainer width="100%" height={300}>
       <BarChart data={rows} margin={{ top: 8, right: 8, bottom: 24, left: -16 }}>
         <CartesianGrid strokeDasharray="3 3" stroke="#EEF1F4" />
-        <XAxis dataKey="label" tick={{ fontSize: 11, fill: '#64748B' }} interval={0} angle={-20} textAnchor="end" height={56} />
-        <YAxis domain={[0, 100]} tick={{ fontSize: 11, fill: '#64748B' }} />
+        <XAxis dataKey="label" tick={{ fontSize: 11, fill: '#586059' }} interval={0} angle={-20} textAnchor="end" height={56} />
+        <YAxis domain={[0, 100]} tick={{ fontSize: 11, fill: '#586059' }} />
         <Tooltip formatter={(v: number) => `${v}%`} labelFormatter={(_l, p) => p?.[0]?.payload?.full ?? ''} />
         <Bar dataKey="avancement" name="Avancement %" radius={[6, 6, 0, 0]} fill={COLORS.accent} />
       </BarChart>
@@ -37,8 +37,8 @@ export function ComparBudget({ data }: { data: DimAgg[] }) {
     <ResponsiveContainer width="100%" height={300}>
       <BarChart data={rows} margin={{ top: 8, right: 8, bottom: 24, left: 4 }}>
         <CartesianGrid strokeDasharray="3 3" stroke="#EEF1F4" />
-        <XAxis dataKey="label" tick={{ fontSize: 11, fill: '#64748B' }} interval={0} angle={-20} textAnchor="end" height={56} />
-        <YAxis tick={{ fontSize: 11, fill: '#64748B' }} />
+        <XAxis dataKey="label" tick={{ fontSize: 11, fill: '#586059' }} interval={0} angle={-20} textAnchor="end" height={56} />
+        <YAxis tick={{ fontSize: 11, fill: '#586059' }} />
         <Tooltip formatter={(v: number) => fmtMoney(v)} labelFormatter={(_l, p) => p?.[0]?.payload?.full ?? ''} />
         <Legend wrapperStyle={{ fontSize: 12 }} />
         <Bar dataKey="budget" name="Budget" radius={[6, 6, 0, 0]} fill={COLORS.ink} />

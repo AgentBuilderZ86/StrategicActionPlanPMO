@@ -43,10 +43,10 @@ export const NIVEAU_RISQUE_LABEL: Record<NiveauRisque, string> = {
 };
 
 export const NIVEAU_RISQUE_COLOR: Record<NiveauRisque, string> = {
-  CRITIQUE: '#D64545',
-  ELEVE: '#E8A13D',
-  MODERE: '#2563EB',
-  FAIBLE: '#64748B',
+  CRITIQUE: '#D33A3C',
+  ELEVE: '#BE7200',
+  MODERE: '#007CB8',
+  FAIBLE: '#586059',
 };
 
 const toTime = (d: Date | string | null | undefined): number | null => {

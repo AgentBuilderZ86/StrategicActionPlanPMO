@@ -1,6 +1,6 @@
 import { fmtPct } from '@/lib/utils';
 
-export function ProgressBar({ value, color = '#1E4FD8', showLabel = true }: { value: number; color?: string; showLabel?: boolean }) {
+export function ProgressBar({ value, color = '#007CB8', showLabel = true }: { value: number; color?: string; showLabel?: boolean }) {
   const v = Math.max(0, Math.min(100, value));
   return (
     <div className="flex items-center gap-2">

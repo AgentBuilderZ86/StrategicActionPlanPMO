@@ -37,18 +37,18 @@ export function MaJourneeClient({
         <KpiCard
           label="Échéances sous 14 jours"
           value={data.mesEcheances.length}
-          accent={data.mesEcheances.length > 0 ? '#E8A13D' : undefined}
+          accent={data.mesEcheances.length > 0 ? '#BE7200' : undefined}
         />
         <KpiCard
           label="Mes retards"
           value={data.mesRetards}
-          accent={data.mesRetards > 0 ? '#D64545' : '#1B9E62'}
+          accent={data.mesRetards > 0 ? '#D33A3C' : '#0D8B50'}
         />
         {pilotage ? (
           <KpiCard
             label="Validations en attente"
             value={data.validationsEnAttente}
-            accent={data.validationsEnAttente > 0 ? '#1E4FD8' : undefined}
+            accent={data.validationsEnAttente > 0 ? '#007CB8' : undefined}
           />
         ) : (
           <KpiCard label="File de check-in" value={data.fileCheckin.length} />
