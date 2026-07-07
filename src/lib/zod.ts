@@ -1,6 +1,7 @@
 import { z } from 'zod';
 import { STATUTS, PRIORITES, ROLES, NIVEAUX, NIVEAU_MAX, PMO_TYPES, SENS_INDICATEUR, ATTRIBUT_TYPES, TYPES_UTILISATEUR, SPRINT_STATUTS, KANBAN_COLONNES } from './constants';
 import { EXPOSITIONS, K_ANONYMAT, NIVEAUX_IMPACT, TRANCHES_AGE } from './populations';
+import { MODES, TYPES_INITIATIVE } from './ppm';
 
 export const statutEnum = z.enum(STATUTS);
 export const prioriteEnum = z.enum(PRIORITES);
@@ -253,4 +254,34 @@ export const liensPopulationSchema = z.object({
       }),
     )
     .max(200),
+});
+
+// --- PPM DSI (V1.3) --------------------------------------------------------
+export const initiativeSchema = z.object({
+  planId: z.string().min(1),
+  titre: z.string().min(1, 'Le titre est requis').max(200),
+  description: z.string().max(2000).optional().nullable(),
+  type: z.enum(TYPES_INITIATIVE).default('INITIATIVE'),
+  mode: z.enum(MODES).default('WATERFALL'),
+  domaineId: z.string().optional().nullable().transform((v) => v || null),
+  sousDomaineId: z.string().optional().nullable().transform((v) => v || null),
+  valeurMetier: z.coerce.number().int().min(1).max(5).default(3),
+  effortEstime: z.coerce.number().min(0).optional().nullable(),
+  budget: z.coerce.number().min(0).optional().nullable(),
+  chefProjet: z.string().max(120).optional().nullable(),
+  chefProjetExterne: z.string().max(120).optional().nullable(),
+  productOwner: z.string().max(120).optional().nullable(),
+  proxyPo: z.string().max(120).optional().nullable(),
+  keyUsers: z.string().max(400).optional().nullable(),
+  equipeMep: z.string().max(120).optional().nullable(),
+});
+
+export const initiativeUpdateSchema = initiativeSchema.partial().omit({ planId: true, mode: true });
+
+export const transitionSchema = z.object({
+  vers: z.string().min(1),
+  commentaire: z.string().max(1000).optional().nullable(),
+  lot: z.string().max(60).optional().nullable(),
+  motifGoNoGo: z.string().max(1000).optional().nullable(),
+  reservesRecette: z.string().max(2000).optional().nullable(),
 });

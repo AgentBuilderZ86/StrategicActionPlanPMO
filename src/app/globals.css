@@ -112,6 +112,17 @@ body {
   background: linear-gradient(120deg, #06301b 0%, #0a5b33 45%, #12995c 85%, #2bbb71 100%);
 }
 
+/* Univers PPM DSI : bleu nuit (différenciation immédiate du PMO Stratégique vert) */
+.bandeau-dsi {
+  background: linear-gradient(120deg, #071b31 0%, #0b3b6b 45%, #1479d9 88%, #3b9bf0 100%);
+}
+.sidebar-fond-dsi {
+  background: radial-gradient(120% 140% at 15% 0%, #12395e 0%, #0a1c30 45%, #040d18 100%);
+  box-shadow: 2px 0 24px rgba(0, 0, 0, 0.25);
+}
+.tuile-dsi { background: linear-gradient(135deg, #2793e8, #0b5cad); }
+.tuile-cyan { background: linear-gradient(135deg, #22b8d4, #0e7490); }
+
 /* Fond de la barre latérale — dégradé radial du design « PMO NARSA Strategic » */
 .sidebar-fond {
   background: radial-gradient(120% 140% at 15% 0%, #0F3620 0%, #0B2516 45%, #001C0B 100%);

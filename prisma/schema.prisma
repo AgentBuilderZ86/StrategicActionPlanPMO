@@ -42,6 +42,8 @@ model Plan {
   snapshots SnapshotCopil[]
   alertes   Alerte[]
   populations Population[]
+  domaines    Domaine[]
+  initiatives Initiative[]
 }
 
 model Axe {
@@ -523,4 +525,94 @@ model Pulse {
   population Population @relation(fields: [populationId], references: [id], onDelete: Cascade)
 
   @@index([populationId, date])
+}
+
+// ---------------------------------------------------------------------------
+// Module PPM DSI (V1.3) — portefeuille d'initiatives/projets SI structuré par
+// domaines métiers, avec cycles de vie Waterfall et Agile, transitions
+// contrôlées, rôles par initiative et historique pour les lead times.
+// ---------------------------------------------------------------------------
+
+model Domaine {
+  id     String @id @default(cuid())
+  planId String
+  nom    String
+  // Type : PILOTAGE | COEUR_METIER | SUPPORT
+  type   String @default("COEUR_METIER")
+  ordre  Int    @default(0)
+
+  plan        Plan         @relation(fields: [planId], references: [id], onDelete: Cascade)
+  sousDomaines SousDomaine[]
+  initiatives Initiative[]
+
+  @@unique([planId, nom])
+  @@index([planId])
+}
+
+model SousDomaine {
+  id        String @id @default(cuid())
+  domaineId String
+  nom       String
+  ordre     Int    @default(0)
+
+  domaine     Domaine      @relation(fields: [domaineId], references: [id], onDelete: Cascade)
+  initiatives Initiative[]
+
+  @@unique([domaineId, nom])
+  @@index([domaineId])
+}
+
+model Initiative {
+  id          String  @id @default(cuid())
+  planId      String
+  titre       String
+  description String?
+  // Type : INITIATIVE | PROJET
+  type        String  @default("INITIATIVE")
+  // Mode de delivery : WATERFALL | AGILE
+  mode        String  @default("WATERFALL")
+  // Statut du cycle de vie (voir src/lib/ppm.ts pour les valeurs par mode)
+  statutCycle String  @default("NON_QUALIFIE")
+  domaineId     String?
+  sousDomaineId String?
+  // Qualification
+  valeurMetier Int    @default(3) // 1-5
+  effortEstime Float? // j/h
+  budget       Float? // k MAD
+  // Rôles affectés à l'initiative (noms libres, notifiés par correspondance)
+  chefProjet        String?
+  chefProjetExterne String?
+  productOwner      String?
+  proxyPo           String?
+  keyUsers          String?
+  equipeMep         String?
+  // Champs d'étape
+  motifGoNoGo     String?
+  reservesRecette String?
+  lot             String? // n° de lot / release (requis pour A_DEPLOYER)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  plan        Plan         @relation(fields: [planId], references: [id], onDelete: Cascade)
+  domaine     Domaine?     @relation(fields: [domaineId], references: [id], onDelete: SetNull)
+  sousDomaine SousDomaine? @relation(fields: [sousDomaineId], references: [id], onDelete: SetNull)
+  transitions TransitionCycle[]
+
+  @@index([planId, statutCycle])
+  @@index([domaineId])
+}
+
+// Historique horodaté des transitions — la matière première des lead times.
+model TransitionCycle {
+  id           String   @id @default(cuid())
+  initiativeId String
+  de           String
+  vers         String
+  par          String
+  commentaire  String?
+  createdAt    DateTime @default(now())
+
+  initiative Initiative @relation(fields: [initiativeId], references: [id], onDelete: Cascade)
+
+  @@index([initiativeId, createdAt])
 }

@@ -40,7 +40,8 @@ export function AppShell({
 
       <aside
         className={cn(
-          'no-print fixed inset-y-0 left-0 z-40 w-64 shrink-0 overflow-y-auto sidebar-fond transition-transform duration-200 md:static md:translate-x-0',
+          'no-print fixed inset-y-0 left-0 z-40 w-64 shrink-0 overflow-y-auto transition-transform duration-200 md:static md:translate-x-0',
+          typePmo === 'SI' ? 'sidebar-fond-dsi' : 'sidebar-fond',
           mobileOpen ? 'translate-x-0' : '-translate-x-full',
         )}
       >
@@ -49,7 +50,7 @@ export function AppShell({
 
       <div className="relative flex min-w-0 flex-1 flex-col">
         {/* Bandeau dégradé de marque derrière la topbar et le haut de page (V3) */}
-        <div aria-hidden className="bandeau-marque no-print absolute inset-x-0 top-0 z-0 h-[240px]" />
+        <div aria-hidden className={cn('no-print absolute inset-x-0 top-0 z-0 h-[240px]', typePmo === 'SI' ? 'bandeau-dsi' : 'bandeau-marque')} />
         <header className="no-print relative z-10 flex items-center gap-3 px-4 py-3 text-white sm:px-6">
           <button
             className="rounded-lg p-1.5 text-lg text-white/80 hover:bg-white/10 md:hidden"
