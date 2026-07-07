@@ -1,6 +1,8 @@
 import { describe, expect, it } from 'vitest';
 import {
   CYCLE_AGILE,
+  fluxMensuel,
+  pivotParDomaine,
   initiativesEnSouffrance,
   matriceDomainePhase,
   CYCLE_WATERFALL,
@@ -133,5 +135,27 @@ describe('tableau de bord DSI', () => {
     );
     expect(rows).toHaveLength(1);
     expect(rows[0]!.joursImmobile).toBeGreaterThanOrEqual(36);
+  });
+});
+
+describe('analyses DSI', () => {
+  it('pivote le portefeuille par domaine', () => {
+    const p = pivotParDomaine([
+      { domaine: 'Cœur métier', mode: 'WATERFALL', statutCycle: 'REALISATION_EN_COURS', valeurMetier: 5, budget: 100 },
+      { domaine: 'Cœur métier', mode: 'AGILE', statutCycle: 'DEPLOYE', valeurMetier: 3, budget: 50 },
+      { domaine: 'Support', mode: 'WATERFALL', statutCycle: 'NON_QUALIFIE', valeurMetier: 2, budget: null },
+    ]);
+    expect(p[0]).toMatchObject({ domaine: 'Cœur métier', total: 2, actives: 1, deployees: 1, agile: 1, waterfall: 1, valeurMoyenne: 4, budget: 150 });
+  });
+  it('trace le flux soumissions vs déploiements par mois', () => {
+    const flux = fluxMensuel(
+      [{ createdAt: '2026-06-10' }, { createdAt: '2026-07-01' }],
+      [{ initiativeId: 'x', de: 'A_DEPLOYER', vers: 'DEPLOYE', createdAt: '2026-07-03' }],
+      3,
+      new Date('2026-07-07T12:00:00Z'),
+    );
+    expect(flux.map((f) => f.mois)).toEqual(['2026-05', '2026-06', '2026-07']);
+    expect(flux[1]).toMatchObject({ soumissions: 1, deploiements: 0 });
+    expect(flux[2]).toMatchObject({ soumissions: 1, deploiements: 1 });
   });
 });

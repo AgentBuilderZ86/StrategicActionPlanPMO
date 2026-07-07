@@ -1,6 +1,9 @@
 import { PageHeader } from '@/components/PageHeader';
 import { RapportActions } from '@/components/rapports/RapportActions';
 import { getActivePlan, getDashboardData } from '@/lib/data';
+import { RapportDsi } from '@/components/ppm/RapportDsi';
+import { ImprimerBouton } from '@/components/ppm/ImprimerBouton';
+import { getDelivery, getInitiatives } from '@/lib/ppm-db';
 import { construireRapport } from '@/lib/reports';
 import { fmtDate } from '@/lib/utils';
 
@@ -16,6 +19,21 @@ export default async function RapportsPage() {
       </div>
     );
   }
+  // Univers DSI : revue de portefeuille imprimable (delivery, phases, lots).
+  if (plan.typePmo === 'SI') {
+    const [initiatives, delivery] = await Promise.all([getInitiatives(plan.id), getDelivery(plan.id)]);
+    return (
+      <div>
+        <PageHeader
+          title="Revue de portefeuille DSI"
+          subtitle={`${plan.nom} — générée le ${fmtDate(new Date())}`}
+          action={<ImprimerBouton />}
+        />
+        <RapportDsi planNom={plan.nom} initiatives={initiatives} delivery={delivery} />
+      </div>
+    );
+  }
+
   const data = await getDashboardData(plan.id);
   const feuilles = construireRapport(data);
 

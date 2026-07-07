@@ -7,6 +7,7 @@ import {
   canEditClient, type KanbanColonne, type Role,
 } from '@/lib/constants';
 import { SectionCard } from '@/components/ui/Cards';
+import { Onglets } from '@/components/ui/Onglets';
 import { computeVelocity, computeCFD, computeBurndown } from '@/lib/agile';
 import { VelocityChart, CFDChart, BurndownChart } from './AgileCharts';
 
@@ -23,6 +24,7 @@ export function AgileClient({ planId, estSI }: { planId: string; estSI: boolean 
   const [sprints, setSprints] = useState<Sprint[]>([]);
   const [items, setItems] = useState<Item[]>([]);
   const [scope, setScope] = useState<string>('TOUS'); // TOUS | BACKLOG | <sprintId>
+  const [onglet, setOnglet] = useState<'board' | 'graphiques' | 'sprints'>('board');
   const [nouvelItem, setNouvelItem] = useState({ titre: '', points: '' });
   const [nouveauSprint, setNouveauSprint] = useState({ nom: '', dateDebut: '', dateFin: '' });
 
@@ -81,104 +83,152 @@ export function AgileClient({ planId, estSI }: { planId: string; estSI: boolean 
   };
   const majSprintStatut = async (id: string, statut: string) => { await jset(`/api/sprints/${id}`, 'PATCH', { statut }); load(); };
 
+  const sprintEnCours = sprints.find((sp) => sp.statut === 'EN_COURS') ?? null;
+  const derniereVelocite = [...velocity].reverse().find((v) => v.points > 0) ?? null;
+  const pointsRestants = sprintEnCours
+    ? items.filter((it) => it.sprintId === sprintEnCours.id && it.statut !== 'TERMINE').reduce((s2, it) => s2 + (it.points ?? 0), 0)
+    : 0;
+  const pointsTermines = items.filter((it) => it.statut === 'TERMINE').reduce((s2, it) => s2 + (it.points ?? 0), 0);
+
   return (
-    <div className="space-y-5">
+    <div className="flex min-h-0 flex-1 flex-col gap-3">
       {!estSI && (
-        <div className="card border-statut-ambre/40 bg-statut-ambre/5 p-3 text-xs text-ink">
-          Ce plan n’est pas de type « PMO SI ». Le volet Agile reste disponible mais est surtout pertinent pour les plans SI.
+        <div className="card px-4 py-2.5 text-xs text-ink">
+          Ce plan n&apos;est pas de type « PMO SI ». Le volet Sprints reste disponible mais est surtout pertinent pour les plans SI.
         </div>
       )}
 
-      {/* Sprints */}
-      <SectionCard title="Sprints" subtitle="Itérations de travail.">
-        <div className="mb-3 flex flex-wrap gap-2">
-          {sprints.map((s) => (
-            <div key={s.id} className="flex items-center gap-2 rounded-lg bg-slate-50 px-3 py-1.5 text-xs">
-              <span className="font-semibold text-ink">{s.nom}</span>
-              {canEdit ? (
-                <select className="input w-auto py-0.5 text-xs" value={s.statut} onChange={(e) => majSprintStatut(s.id, e.target.value)}>
-                  {SPRINT_STATUTS.map((st) => <option key={st} value={st}>{SPRINT_STATUT_LABEL[st]}</option>)}
-                </select>
-              ) : <span className="text-slate-400">{SPRINT_STATUT_LABEL[s.statut as keyof typeof SPRINT_STATUT_LABEL] ?? s.statut}</span>}
-            </div>
-          ))}
-          {sprints.length === 0 && <span className="text-xs text-slate-400">Aucun sprint.</span>}
+      {/* Tuiles d'exécution */}
+      <div className="grid grid-cols-2 gap-2.5 sm:grid-cols-4">
+        <div className="tuile tuile-dsi">
+          <div className="text-[10px] font-bold uppercase tracking-wide text-white/70">Sprint en cours</div>
+          <div className="mt-1 truncate font-mono text-lg font-bold">{sprintEnCours?.nom ?? '—'}</div>
+          <div className="text-[10px] text-white/70">{sprints.length} sprint(s) au total</div>
         </div>
-        {canEdit && (
-          <div className="flex flex-wrap gap-2">
-            <input className="input grow" placeholder="Nom du sprint…" value={nouveauSprint.nom} onChange={(e) => setNouveauSprint({ ...nouveauSprint, nom: e.target.value })} />
-            <input className="input w-auto" type="date" value={nouveauSprint.dateDebut} onChange={(e) => setNouveauSprint({ ...nouveauSprint, dateDebut: e.target.value })} />
-            <input className="input w-auto" type="date" value={nouveauSprint.dateFin} onChange={(e) => setNouveauSprint({ ...nouveauSprint, dateFin: e.target.value })} />
-            <button onClick={creerSprint} className="btn-ghost">+ Sprint</button>
-          </div>
-        )}
-      </SectionCard>
+        <div className="tuile tuile-cyan">
+          <div className="text-[10px] font-bold uppercase tracking-wide text-white/70">Reste à faire</div>
+          <div className="mt-1 font-mono text-lg font-bold">{pointsRestants} pts</div>
+          <div className="text-[10px] text-white/70">sur le sprint en cours</div>
+        </div>
+        <div className="tuile tuile-emeraude">
+          <div className="text-[10px] font-bold uppercase tracking-wide text-white/70">Dernière vélocité</div>
+          <div className="mt-1 font-mono text-lg font-bold">{derniereVelocite ? `${derniereVelocite.points} pts` : '—'}</div>
+          <div className="text-[10px] text-white/70">{derniereVelocite?.sprint ?? 'aucun sprint terminé'}</div>
+        </div>
+        <div className="tuile tuile-sombre">
+          <div className="text-[10px] font-bold uppercase tracking-wide text-white/70">Terminé (cumul)</div>
+          <div className="mt-1 font-mono text-lg font-bold">{pointsTermines} pts</div>
+          <div className="text-[10px] text-white/70">{items.length} items au board</div>
+        </div>
+      </div>
 
-      {/* Filtre + ajout item */}
-      <div className="card flex flex-wrap items-center gap-2 p-3">
-        <select className="input w-auto" value={scope} onChange={(e) => setScope(e.target.value)}>
-          <option value="TOUS">Tous les items</option>
-          <option value="BACKLOG">Backlog (non affectés)</option>
-          {sprints.map((s) => <option key={s.id} value={s.id}>{s.nom}</option>)}
-        </select>
-        {canEdit && (
+      <div className="flex flex-wrap items-center gap-2.5">
+        <Onglets
+          onglets={[
+            { key: 'board', label: 'Board' },
+            { key: 'graphiques', label: 'Graphiques' },
+            { key: 'sprints', label: `Sprints (${sprints.length})` },
+          ]}
+          actif={onglet}
+          onChange={setOnglet}
+        />
+        {onglet === 'board' && (
           <>
-            <input className="input min-w-[160px] grow" placeholder="Nouvel item / user story…" value={nouvelItem.titre} onChange={(e) => setNouvelItem({ ...nouvelItem, titre: e.target.value })} onKeyDown={(e) => e.key === 'Enter' && ajouterItem()} />
-            <input className="input w-20" type="number" min={0} placeholder="pts" value={nouvelItem.points} onChange={(e) => setNouvelItem({ ...nouvelItem, points: e.target.value })} />
-            <button onClick={ajouterItem} className="btn-primary">Ajouter</button>
+            <select aria-label="Périmètre" className="input !w-auto !py-1.5 text-xs" value={scope} onChange={(e) => setScope(e.target.value)}>
+              <option value="TOUS">Tous les items</option>
+              <option value="BACKLOG">Backlog (non affectés)</option>
+              {sprints.map((sp) => <option key={sp.id} value={sp.id}>{sp.nom}</option>)}
+            </select>
+            {canEdit && (
+              <div className="ml-auto flex flex-wrap items-center gap-2">
+                <input className="input !w-56 !py-1.5 text-xs" placeholder="Nouvel item / user story…" value={nouvelItem.titre}
+                  onChange={(e) => setNouvelItem({ ...nouvelItem, titre: e.target.value })}
+                  onKeyDown={(e) => e.key === 'Enter' && ajouterItem()} />
+                <input className="input !w-16 !py-1.5 text-xs" type="number" min={0} placeholder="pts" value={nouvelItem.points}
+                  onChange={(e) => setNouvelItem({ ...nouvelItem, points: e.target.value })} />
+                <button onClick={ajouterItem} className="btn-primary !py-1.5 text-xs">Ajouter</button>
+              </div>
+            )}
           </>
         )}
       </div>
 
-      {/* Kanban */}
-      <div className="grid grid-cols-2 gap-3 lg:grid-cols-5">
-        {KANBAN_COLONNES.map((col) => {
-          const cards = itemsBoard.filter((i) => i.statut === col);
-          return (
-            <div key={col} className="rounded-xl bg-slate-50 p-2">
-              <div className="mb-2 flex items-center justify-between px-1 text-xs font-bold text-ink">
-                <span>{KANBAN_LABEL[col]}</span>
-                <span className="text-slate-400">{cards.length}</span>
-              </div>
-              <ul className="space-y-2">
-                {cards.map((it) => {
-                  const idx = KANBAN_COLONNES.indexOf(col);
-                  return (
-                    <li key={it.id} className="rounded-lg bg-white p-2 shadow-sm">
-                      <div className="text-xs font-semibold text-ink">{it.titre}</div>
+      {onglet === 'board' && (
+        <div className="flex min-h-0 flex-1 gap-2.5 overflow-x-auto pb-2">
+          {KANBAN_COLONNES.map((col) => {
+            const cards = itemsBoard.filter((it) => it.statut === col);
+            const idx = KANBAN_COLONNES.indexOf(col);
+            return (
+              <div key={col} className="flex w-[210px] min-w-[210px] flex-col rounded-xl bg-white/50 p-2 backdrop-blur">
+                <div className="flex items-center justify-between px-1 pb-2 text-[10px] font-bold uppercase tracking-wide text-slate-500">
+                  <span>{KANBAN_LABEL[col]}</span>
+                  <span className="rounded-full bg-white px-1.5 font-mono text-ink">{cards.length}</span>
+                </div>
+                <ul className="scrolly flex-1 space-y-2">
+                  {cards.map((it) => (
+                    <li key={it.id} className="card p-2.5">
+                      <div className="text-xs font-semibold leading-snug text-ink">{it.titre}</div>
                       <div className="mt-1 flex items-center gap-1.5 text-[10px] text-slate-400">
-                        {it.points != null && <span className="rounded bg-accent/10 px-1 font-bold text-accent">{it.points} pts</span>}
+                        {it.points != null && <span className="rounded bg-blue-50 px-1.5 font-mono font-bold text-statut-bleu">{it.points} pts</span>}
                         {it.assigne && <span className="truncate">{it.assigne}</span>}
                       </div>
                       {canEdit && (
                         <div className="mt-1.5 flex items-center gap-1">
                           <button onClick={() => bougerItem(it, -1)} disabled={idx === 0} className="px-1 text-slate-400 disabled:opacity-30" aria-label="Colonne précédente">◀</button>
                           <button onClick={() => bougerItem(it, 1)} disabled={idx === KANBAN_COLONNES.length - 1} className="px-1 text-slate-400 disabled:opacity-30" aria-label="Colonne suivante">▶</button>
-                          <select className="input ml-auto w-auto py-0.5 text-[10px]" value={it.sprintId ?? ''} onChange={(e) => affecterSprint(it, e.target.value)}>
+                          <select aria-label="Sprint" className="input ml-auto !w-auto !py-0.5 text-[10px]" value={it.sprintId ?? ''} onChange={(e) => affecterSprint(it, e.target.value)}>
                             <option value="">Backlog</option>
-                            {sprints.map((s) => <option key={s.id} value={s.id}>{s.nom}</option>)}
+                            {sprints.map((sp) => <option key={sp.id} value={sp.id}>{sp.nom}</option>)}
                           </select>
                           <button onClick={() => supprimerItem(it.id)} className="text-statut-rouge" aria-label="Supprimer">✕</button>
                         </div>
                       )}
                     </li>
-                  );
-                })}
-                {cards.length === 0 && <li className="px-1 py-4 text-center text-[10px] text-slate-300">—</li>}
-              </ul>
-            </div>
-          );
-        })}
-      </div>
+                  ))}
+                  {cards.length === 0 && <li className="px-1 py-4 text-center text-[10px] text-slate-300">—</li>}
+                </ul>
+              </div>
+            );
+          })}
+        </div>
+      )}
 
-      {/* Graphiques agiles */}
-      <div className="grid grid-cols-1 gap-5 lg:grid-cols-2">
-        <SectionCard title="Velocity" subtitle="Points terminés par sprint"><VelocityChart data={velocity} /></SectionCard>
-        <SectionCard title="Cumulative Flow" subtitle="Répartition des items par colonne (périmètre courant)"><CFDChart data={cfd} /></SectionCard>
-        <SectionCard title="Burndown" subtitle={sprintSelectionne ? `Sprint « ${sprintSelectionne.nom} »` : 'Sélectionnez un sprint'}>
-          <BurndownChart data={burndown} />
-        </SectionCard>
-      </div>
+      {onglet === 'graphiques' && (
+        <div className="grid min-h-0 flex-1 content-start gap-3 lg:grid-cols-2">
+          <SectionCard title="Velocity" subtitle="Points terminés par sprint"><VelocityChart data={velocity} /></SectionCard>
+          <SectionCard title="Cumulative Flow" subtitle="Répartition des items par colonne (périmètre courant)"><CFDChart data={cfd} /></SectionCard>
+          <SectionCard title="Burndown" subtitle={sprintSelectionne ? `Sprint « ${sprintSelectionne.nom} »` : 'Sélectionnez un sprint dans le Board'}>
+            <BurndownChart data={burndown} />
+          </SectionCard>
+        </div>
+      )}
+
+      {onglet === 'sprints' && (
+        <div className="card card-liseret flex min-h-0 flex-1 flex-col p-4">
+          <div className="scrolly space-y-2">
+            {sprints.map((sp) => (
+              <div key={sp.id} className="flex flex-wrap items-center gap-3 rounded-xl bg-canvas px-3 py-2 text-xs">
+                <span className="font-semibold text-ink">{sp.nom}</span>
+                <span className="text-slate-400">{sp.dateDebut?.slice(0, 10) ?? '—'} → {sp.dateFin?.slice(0, 10) ?? '—'}</span>
+                {canEdit ? (
+                  <select aria-label="Statut du sprint" className="input ml-auto !w-auto !py-0.5 text-xs" value={sp.statut} onChange={(e) => majSprintStatut(sp.id, e.target.value)}>
+                    {SPRINT_STATUTS.map((st) => <option key={st} value={st}>{SPRINT_STATUT_LABEL[st]}</option>)}
+                  </select>
+                ) : <span className="ml-auto text-slate-400">{SPRINT_STATUT_LABEL[sp.statut as keyof typeof SPRINT_STATUT_LABEL] ?? sp.statut}</span>}
+              </div>
+            ))}
+            {sprints.length === 0 && <p className="py-4 text-center text-xs text-slate-400">Aucun sprint.</p>}
+          </div>
+          {canEdit && (
+            <div className="mt-3 flex flex-wrap gap-2 border-t border-ligne/60 pt-3">
+              <input className="input !py-1.5 text-xs grow" placeholder="Nom du sprint…" value={nouveauSprint.nom} onChange={(e) => setNouveauSprint({ ...nouveauSprint, nom: e.target.value })} />
+              <input className="input !w-auto !py-1.5 text-xs" type="date" aria-label="Début" value={nouveauSprint.dateDebut} onChange={(e) => setNouveauSprint({ ...nouveauSprint, dateDebut: e.target.value })} />
+              <input className="input !w-auto !py-1.5 text-xs" type="date" aria-label="Fin" value={nouveauSprint.dateFin} onChange={(e) => setNouveauSprint({ ...nouveauSprint, dateFin: e.target.value })} />
+              <button onClick={creerSprint} className="btn-primary !py-1.5 text-xs">+ Sprint</button>
+            </div>
+          )}
+        </div>
+      )}
     </div>
   );
 }
