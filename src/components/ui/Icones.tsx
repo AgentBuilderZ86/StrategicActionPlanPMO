@@ -16,6 +16,8 @@ export type IconeNom =
   | 'rapports'
   | 'copil'
   | 'parametres'
+  | 'pipeline'
+  | 'delivery'
   | 'recherche'
   | 'menu';
 
@@ -79,6 +81,14 @@ const TRACES: Record<IconeNom, React.ReactNode> = {
       <path d="M12 2.8 13.5 5a7.6 7.6 0 0 1 2.9 1.2l2.6-.7 1.5 2.6-1.8 2a7.7 7.7 0 0 1 0 3.3l1.8 2-1.5 2.6-2.6-.7a7.6 7.6 0 0 1-2.9 1.2L12 21.2 10.5 19a7.6 7.6 0 0 1-2.9-1.2l-2.6.7-1.5-2.6 1.8-2a7.7 7.7 0 0 1 0-3.3l-1.8-2L5 6.4l2.6.7A7.6 7.6 0 0 1 10.5 5L12 2.8Z" />
     </>
   ),
+  pipeline: (
+    <>
+      <rect x="3" y="4" width="5" height="16" rx="1.5" />
+      <rect x="9.5" y="4" width="5" height="10" rx="1.5" />
+      <rect x="16" y="4" width="5" height="13" rx="1.5" />
+    </>
+  ),
+  delivery: <path d="m4 17 5-6 4 3 7-8m0 0h-5m5 0v5" />,
   recherche: (
     <>
       <circle cx="11" cy="11" r="6.5" />
