@@ -438,6 +438,9 @@ model AuditLog {
 }
 
 // Centre d'alertes (V1.1) : matérialisation des dérives détectées par le
+// NB : un index UNIQUE PARTIEL « Alerte_action_ouverte_key » (une seule alerte
+// ouverte par action) existe en base (migration 19) mais n'est pas exprimable
+// ici — ne pas le supprimer via migrate dev.
 // moteur de risque, avec cycle de vie de traitement. L'historique des alertes
 // résolues/acceptées reste consultable et alimente le COPIL.
 model Alerte {

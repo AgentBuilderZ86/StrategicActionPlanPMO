@@ -95,9 +95,32 @@ export function AlertesClient({ initial, pilotage }: { initial: AlerteDTO[]; pil
           ))}
         </div>
         {pilotage && (
-          <button type="button" className="btn-ghost" onClick={digest}>
-            ✉ Envoyer le digest
-          </button>
+          <div className="flex gap-2">
+            <button
+              type="button"
+              className="btn-primary"
+              disabled={chargement === 'sync'}
+              onClick={async () => {
+                setChargement('sync');
+                setInfo(null);
+                const res = await fetch('/api/alertes', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: '{}' });
+                const body = await res.json().catch(() => null);
+                setChargement(null);
+                if (res.ok) {
+                  const r = body?.data ?? body;
+                  setInfo(`Synchronisation : ${r.creees} créée(s), ${r.misesAJour} mise(s) à jour, ${r.resolues} résolue(s).`);
+                  router.refresh();
+                } else {
+                  setInfo(body?.error?.message ?? 'Erreur de synchronisation');
+                }
+              }}
+            >
+              {chargement === 'sync' ? 'Analyse…' : '⟳ Actualiser'}
+            </button>
+            <button type="button" className="btn-ghost" onClick={digest}>
+              ✉ Envoyer le digest
+            </button>
+          </div>
         )}
       </div>
 

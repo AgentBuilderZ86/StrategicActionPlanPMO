@@ -1,8 +1,13 @@
 [build]
-  # Applique les migrations Prisma sur la base (DATABASE_URL fourni par Netlify)
-  # puis build Next.js.
-  command = "pnpm prisma migrate deploy && pnpm build"
+  # Par défaut (deploy previews, branches) : build SEUL, sans migration.
+  # Une PR ne doit jamais modifier le schéma de la base de production.
+  command = "pnpm build"
   publish = ".next"
+
+[context.production]
+  # Seul le déploiement de main applique les migrations (connexion directe
+  # via DIRECT_URL, cf. prisma/schema.prisma).
+  command = "pnpm prisma migrate deploy && pnpm build"
 
 # Le plugin officiel adapte le runtime Next.js (App Router, route handlers,
 # middleware) à Netlify Functions/Edge. Netlify l'installe automatiquement.
