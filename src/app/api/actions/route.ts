@@ -3,7 +3,7 @@ import { prisma } from '@/lib/prisma';
 import { ok, fail, handleError } from '@/lib/api';
 import { actionCreateSchema } from '@/lib/zod';
 import { ACTION_INCLUDE, serializeAction } from '@/lib/serialize';
-import { requireEdit } from '@/lib/permissions';
+import { requireEdit, requireRole } from '@/lib/permissions';
 import { niveauEnfantAttendu } from '@/lib/tree';
 import { reindexerCodesPlan } from '@/lib/codes';
 import { logAction } from '@/lib/audit';
@@ -14,6 +14,9 @@ const SORTABLE = new Set(['titre', 'statut', 'avancement', 'priorite', 'dateFin'
 
 export async function GET(req: Request) {
   try {
+    const guard = await requireRole(['ADMIN', 'PMO', 'CONTRIBUTEUR', 'LECTEUR']);
+    if (!guard.ok) return fail(guard.code, guard.message, guard.status);
+
     const url = new URL(req.url);
     const q = url.searchParams;
 

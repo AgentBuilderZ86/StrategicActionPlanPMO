@@ -35,6 +35,40 @@ export async function getPlans() {
   return prisma.plan.findMany({ orderBy: { createdAt: 'asc' } });
 }
 
+/**
+ * Vue portefeuille (P3) : chaque plan avec un instantané de santé léger
+ * (volumes, avancement, budget), sans les agrégations lourdes du tableau de
+ * bord (heatmap, tendance…) qui n'ont pas leur place sur une carte de synthèse.
+ */
+export async function getPortfolio() {
+  const plans = await prisma.plan.findMany({ orderBy: { createdAt: 'asc' } });
+  return Promise.all(
+    plans.map(async (plan) => {
+      const actions = await prisma.action.findMany({
+        where: { planId: plan.id },
+        select: { statut: true, priorite: true, avancement: true, budget: true, budgetConso: true, dateFin: true },
+      });
+      const kpis = computeKpis(
+        actions.map((a) => ({
+          id: '',
+          axeId: null,
+          paysId: null,
+          entiteId: null,
+          statut: a.statut,
+          priorite: a.priorite,
+          avancement: a.avancement,
+          budget: a.budget,
+          budgetConso: a.budgetConso,
+          dateFin: a.dateFin,
+        })),
+      );
+      return { plan, kpis };
+    }),
+  );
+}
+
+export type Portfolio = Awaited<ReturnType<typeof getPortfolio>>;
+
 export async function getReferentiels(planId: string) {
   const [axes, pays, entites] = await Promise.all([
     prisma.axe.findMany({ where: { planId }, orderBy: { ordre: 'asc' } }),

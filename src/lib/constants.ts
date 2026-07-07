@@ -22,15 +22,23 @@ export type PmoType = (typeof PMO_TYPES)[number];
  * « Agile / SI ». Filtré par `Nav` selon le plan actif.
  */
 export const NAV_ITEMS = [
-  { href: '/', label: 'Tableau de bord', modules: PMO_TYPES },
-  { href: '/actions', label: "Plan d'actions", modules: PMO_TYPES },
-  { href: '/planning', label: 'Planning', modules: PMO_TYPES },
-  { href: '/agile', label: 'Agile / SI', modules: ['SI'] as PmoType[] },
-  { href: '/analyses', label: 'Analyses', modules: PMO_TYPES },
-  { href: '/rapports', label: 'Rapports', modules: PMO_TYPES },
-  { href: '/copil', label: 'Comité de pilotage', modules: ['ECOSYSTEME', 'INTERNE'] as PmoType[] },
-  { href: '/parametres', label: 'Paramètres', modules: PMO_TYPES },
+  { href: '/', label: 'Tableau de bord', icon: '📊', modules: PMO_TYPES },
+  { href: '/actions', label: "Plan d'actions", icon: '🗂️', modules: PMO_TYPES },
+  { href: '/planning', label: 'Planning', icon: '🗓️', modules: PMO_TYPES },
+  { href: '/agile', label: 'Agile / SI', icon: '🧩', modules: ['SI'] as PmoType[] },
+  { href: '/analyses', label: 'Analyses', icon: '📈', modules: PMO_TYPES },
+  { href: '/rapports', label: 'Rapports', icon: '📄', modules: PMO_TYPES },
+  { href: '/copil', label: 'Comité de pilotage', icon: '🎯', modules: ['ECOSYSTEME', 'INTERNE'] as PmoType[] },
+  { href: '/parametres', label: 'Paramètres', icon: '⚙️', modules: PMO_TYPES },
 ] as const;
+
+/** Style visuel (badge, carte) par type de PMO — partagé par PlanBanner,
+ *  PortfolioCard et PlanSwitcher. */
+export const PMO_TYPE_BADGE: Record<PmoType, { bg: string; fg: string; icon: string }> = {
+  ECOSYSTEME: { bg: 'rgba(27,158,98,0.12)', fg: '#1B9E62', icon: '🛣️' },
+  INTERNE: { bg: 'rgba(0,107,63,0.12)', fg: '#006B3F', icon: '🏛️' },
+  SI: { bg: 'rgba(30,79,216,0.12)', fg: '#1E4FD8', icon: '💻' },
+};
 
 export const STATUT_LABEL: Record<Statut, string> = {
   A_LANCER: 'À lancer',

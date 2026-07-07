@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useRef, useState, useTransition } from 'react';
+import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useSession } from 'next-auth/react';
 import { PMO_TYPE_LABEL, type PmoType } from '@/lib/constants';
@@ -39,8 +40,8 @@ export function PlanSwitcher({
   const current = plans.find((p) => p.id === currentId);
   const titre = current?.nom ?? fallbackTitle;
 
-  // Lecture seule (non connecté, ou un seul plan) : pas de bascule à proposer.
-  if (status !== 'authenticated' || plans.length <= 1) {
+  // Lecture seule (non connecté) : pas de bascule à proposer.
+  if (status !== 'authenticated' || plans.length === 0) {
     return <h1 className="truncate font-title text-lg font-extrabold leading-tight">{titre}</h1>;
   }
 
@@ -69,26 +70,38 @@ export function PlanSwitcher({
 
       {open && (
         <div className="absolute left-0 z-50 mt-2 w-72 rounded-xl border border-slate-200 bg-white p-1.5 text-ink shadow-xl" role="listbox">
-          <p className="px-2 py-1 text-[11px] font-semibold uppercase tracking-wide text-slate-400">Changer de plan</p>
-          <ul>
-            {plans.map((p) => (
-              <li key={p.id}>
-                <button
-                  role="option"
-                  aria-selected={p.id === currentId}
-                  onClick={() => selectionner(p.id)}
-                  className={`flex w-full items-center justify-between gap-2 rounded-lg px-2.5 py-2 text-left text-sm hover:bg-slate-50 ${
-                    p.id === currentId ? 'bg-accent/5 font-semibold text-accent' : 'text-ink'
-                  }`}
-                >
-                  <span className="truncate">{p.nom}</span>
-                  <span className="shrink-0 rounded-full bg-slate-100 px-1.5 py-0.5 text-[10px] font-semibold text-slate-500">
-                    {(PMO_TYPE_LABEL[p.typePmo as PmoType] ?? p.typePmo).replace(/^PMO /, '')}
-                  </span>
-                </button>
-              </li>
-            ))}
-          </ul>
+          {plans.length > 1 && (
+            <>
+              <p className="px-2 py-1 text-[11px] font-semibold uppercase tracking-wide text-slate-400">Changer de plan</p>
+              <ul>
+                {plans.map((p) => (
+                  <li key={p.id}>
+                    <button
+                      role="option"
+                      aria-selected={p.id === currentId}
+                      onClick={() => selectionner(p.id)}
+                      className={`flex w-full items-center justify-between gap-2 rounded-lg px-2.5 py-2 text-left text-sm hover:bg-slate-50 ${
+                        p.id === currentId ? 'bg-accent/5 font-semibold text-accent' : 'text-ink'
+                      }`}
+                    >
+                      <span className="truncate">{p.nom}</span>
+                      <span className="shrink-0 rounded-full bg-slate-100 px-1.5 py-0.5 text-[10px] font-semibold text-slate-500">
+                        {(PMO_TYPE_LABEL[p.typePmo as PmoType] ?? p.typePmo).replace(/^PMO /, '')}
+                      </span>
+                    </button>
+                  </li>
+                ))}
+              </ul>
+              <div className="my-1 border-t border-slate-100" />
+            </>
+          )}
+          <Link
+            href="/portefeuille"
+            onClick={() => setOpen(false)}
+            className="flex items-center gap-1.5 rounded-lg px-2.5 py-2 text-sm font-semibold text-accent hover:bg-accent/5"
+          >
+            <span aria-hidden>🗂️</span> Vue portefeuille (tous les plans)
+          </Link>
         </div>
       )}
     </div>

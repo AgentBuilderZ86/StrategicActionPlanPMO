@@ -69,6 +69,22 @@ export function ActionsClient({ planId, referentiels }: { planId: string; refere
     return () => clearTimeout(t);
   }, [view, load, loadTree, filters.q]);
 
+  // Ouverture directe d'une action via ?focus=<id> (liens depuis notifications,
+  // validations, palette de commandes). Lu une seule fois au montage.
+  useEffect(() => {
+    const focusId = new URLSearchParams(window.location.search).get('focus');
+    if (!focusId) return;
+    let cancelled = false;
+    fetch(`/api/actions/${focusId}`, { cache: 'no-store' })
+      .then((r) => (r.ok ? r.json() : null))
+      .then((a) => {
+        if (a && !cancelled) { setEditing(a); setParentDefaut(null); setDrawerOpen(true); }
+      })
+      .catch(() => {});
+    return () => { cancelled = true; };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
   const parentOptions: ParentOption[] = treeRows.map((a) => ({ id: a.id, titre: a.titre, niveau: a.niveau }));
 
   const reload = () => (view === 'arbre' ? loadTree() : load());
