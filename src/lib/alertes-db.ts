@@ -28,9 +28,13 @@ export async function synchroniserAlertes(planId: string) {
 
   const titres = new Map(actionsRaw.map((a) => [a.id, a.titre]));
 
-  await prisma.$transaction([
-    ...sync.creer.map((c) =>
-      prisma.alerte.create({
+  // Créations une à une : l'index unique partiel (une alerte ouverte par
+  // action) peut rejeter un doublon si deux synchronisations se croisent —
+  // on l'ignore, l'autre synchronisation a déjà créé l'alerte.
+  let creees = 0;
+  for (const c of sync.creer) {
+    try {
+      await prisma.alerte.create({
         data: {
           planId,
           actionId: c.actionId,
@@ -39,8 +43,14 @@ export async function synchroniserAlertes(planId: string) {
           facteurs: JSON.stringify(c.facteurs),
           motif: c.motif ?? null,
         },
-      }),
-    ),
+      });
+      creees++;
+    } catch {
+      // violation d'unicité : alerte ouverte déjà présente pour cette action
+    }
+  }
+
+  await prisma.$transaction([
     ...sync.mettreAJour.map((m) =>
       prisma.alerte.update({
         where: { id: m.id },
@@ -66,7 +76,7 @@ export async function synchroniserAlertes(planId: string) {
   }
 
   return {
-    creees: sync.creer.length,
+    creees,
     misesAJour: sync.mettreAJour.length,
     resolues: sync.resoudre.length,
   };

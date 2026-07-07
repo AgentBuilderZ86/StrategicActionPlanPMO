@@ -1,0 +1,15 @@
+# Veille de dépendances (dette #8) : PR hebdomadaires groupées, mineures/patchs.
+version: 2
+updates:
+  - package-ecosystem: npm
+    directory: /
+    schedule:
+      interval: weekly
+    groups:
+      mineures-et-patchs:
+        update-types: ["minor", "patch"]
+    open-pull-requests-limit: 5
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: weekly

@@ -1,7 +1,7 @@
 import { PageHeader } from '@/components/PageHeader';
 import { AlertesClient } from '@/components/alertes/AlertesClient';
 import { getActivePlan } from '@/lib/data';
-import { getAlertes, synchroniserAlertes } from '@/lib/alertes-db';
+import { getAlertes } from '@/lib/alertes-db';
 import { getCurrentUser } from '@/lib/permissions';
 
 export const dynamic = 'force-dynamic';
@@ -24,10 +24,10 @@ export default async function AlertesPage({
     );
   }
 
-  // Synchronisation idempotente au chargement : les alertes reflètent
-  // toujours le dernier état du moteur de risque, sans cron obligatoire.
+  // Dette #3 : la synchronisation n'est plus faite au chargement (latence,
+  // écritures concurrentes). Elle passe par le bouton « Actualiser » (POST
+  // /api/alertes) — un cron quotidien prendra le relais (phase 3).
   const pilotage = user?.role === 'ADMIN' || user?.role === 'PMO';
-  if (pilotage) await synchroniserAlertes(plan.id);
   const alertes = await getAlertes(plan.id);
 
   return (
