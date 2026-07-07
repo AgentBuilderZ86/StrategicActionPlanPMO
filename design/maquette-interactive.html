@@ -1,0 +1,505 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PMO Cockpit — Maquette interactive</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Sora:wght@600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#f6f7f9; --surface:#ffffff; --ink:#0f1729; --muted:#64748b; --line:#e6e9ef;
+    --accent:#0e7a52; --accent-2:#12b981; --accent-soft:#e7f6ef;
+    --navy:#0d1b2e; --navy-2:#132844;
+    --ok:#16a34a; --warn:#d97706; --danger:#dc2626; --info:#2563eb;
+    --r:16px; --shadow:0 1px 2px rgba(15,23,41,.05),0 8px 24px -12px rgba(15,23,41,.12);
+  }
+  *{margin:0;padding:0;box-sizing:border-box}
+  body{font-family:'Inter',system-ui,sans-serif;background:var(--bg);color:var(--ink);font-size:14px;-webkit-font-smoothing:antialiased}
+  .num{font-variant-numeric:tabular-nums}
+  h1,h2,.display{font-family:'Sora','Inter',sans-serif}
+
+  /* ---------- layout ---------- */
+  .app{display:flex;min-height:100vh}
+  .sidebar{width:236px;background:linear-gradient(180deg,var(--navy) 0%,var(--navy-2) 100%);color:#cbd5e1;padding:20px 14px;position:fixed;inset:0 auto 0 0;display:flex;flex-direction:column;gap:4px}
+  .main{margin-left:236px;flex:1;padding:28px 36px 60px;max-width:1240px}
+  .logo{display:flex;align-items:center;gap:10px;padding:4px 10px 18px;color:#fff}
+  .logo .mark{width:32px;height:32px;border-radius:9px;background:linear-gradient(135deg,var(--accent-2),#0ea5e9);display:grid;place-items:center;font-weight:800;color:#fff;font-family:'Sora'}
+  .logo b{font-family:'Sora';font-size:15px}
+  .logo small{display:block;font-size:10.5px;color:#7f93ad;font-weight:500}
+  .navlink{display:flex;align-items:center;gap:11px;padding:9px 12px;border-radius:10px;color:#9fb0c3;font-weight:600;font-size:13.5px;cursor:pointer;transition:all .15s;border:none;background:none;width:100%;text-align:left}
+  .navlink:hover{background:rgba(255,255,255,.06);color:#fff}
+  .navlink.active{background:rgba(18,185,129,.14);color:#fff;box-shadow:inset 3px 0 0 var(--accent-2)}
+  .navlink svg{width:17px;height:17px;flex:none}
+  .navlink .badge{margin-left:auto;background:var(--danger);color:#fff;font-size:10.5px;font-weight:700;border-radius:99px;padding:1px 7px}
+  .navlink .badge.soft{background:rgba(255,255,255,.14)}
+  .sidebar .foot{margin-top:auto;padding:12px 10px;border-top:1px solid rgba(255,255,255,.08);display:flex;align-items:center;gap:10px}
+  .avatar{width:32px;height:32px;border-radius:99px;background:linear-gradient(135deg,#f59e0b,#ef4444);display:grid;place-items:center;color:#fff;font-weight:700;font-size:12px}
+  .kbd-hint{margin:10px 10px 4px;padding:8px 12px;border:1px dashed rgba(255,255,255,.18);border-radius:10px;font-size:11.5px;color:#7f93ad;cursor:pointer}
+  kbd{background:rgba(255,255,255,.12);border-radius:5px;padding:1px 6px;font-family:inherit;font-size:10.5px;color:#cbd5e1}
+
+  /* ---------- generic ---------- */
+  .screen{display:none;animation:fade .25s ease}
+  .screen.on{display:block}
+  @keyframes fade{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+  .topbar{display:flex;align-items:flex-end;justify-content:space-between;margin-bottom:22px;gap:16px;flex-wrap:wrap}
+  .topbar h1{font-size:22px;font-weight:800;letter-spacing:-.02em}
+  .topbar p{color:var(--muted);margin-top:3px;font-size:13px}
+  .card{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);box-shadow:var(--shadow)}
+  .btn{display:inline-flex;align-items:center;gap:7px;border-radius:10px;padding:8px 14px;font-weight:600;font-size:13px;cursor:pointer;border:1px solid transparent;transition:all .15s;font-family:inherit}
+  .btn-p{background:var(--accent);color:#fff}
+  .btn-p:hover{background:#0a5f40;transform:translateY(-1px)}
+  .btn-g{background:#fff;border-color:var(--line);color:var(--ink)}
+  .btn-g:hover{border-color:#c8d0dc;background:#fafbfc}
+  .btn-s{padding:5px 11px;font-size:12px;border-radius:8px}
+  .chip{display:inline-flex;align-items:center;gap:5px;font-size:11px;font-weight:700;padding:3px 9px;border-radius:99px}
+  .c-red{background:#fee2e2;color:#b91c1c}.c-amber{background:#fef3c7;color:#b45309}.c-green{background:#dcfce7;color:#15803d}.c-blue{background:#dbeafe;color:#1d4ed8}.c-slate{background:#f1f5f9;color:#475569}.c-violet{background:#ede9fe;color:#6d28d9}
+  .grid{display:grid;gap:16px}
+  .g4{grid-template-columns:repeat(4,1fr)}.g3{grid-template-columns:repeat(3,1fr)}.g2{grid-template-columns:repeat(2,1fr)}
+  .sec-t{font-size:15px;font-weight:700;letter-spacing:-.01em}
+  .sec-s{font-size:12px;color:var(--muted);margin-top:2px}
+  .bar{height:6px;border-radius:99px;background:#eef1f5;overflow:hidden}
+  .bar>i{display:block;height:100%;border-radius:99px;background:var(--accent-2);transition:width .6s ease}
+
+  /* ---------- KPI ---------- */
+  .kpi{padding:18px 20px;position:relative;overflow:hidden}
+  .kpi .lbl{font-size:11.5px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.06em}
+  .kpi .val{font-family:'Sora';font-size:30px;font-weight:800;letter-spacing:-.03em;margin-top:6px}
+  .kpi .sub{font-size:12px;color:var(--muted);margin-top:4px}
+  .kpi .spark{position:absolute;right:14px;bottom:12px;opacity:.9}
+  .trend-up{color:var(--ok);font-weight:700}.trend-dn{color:var(--danger);font-weight:700}
+
+  /* ---------- alerts ---------- */
+  .alert{display:flex;gap:14px;padding:16px 18px;border-bottom:1px solid var(--line);cursor:pointer;transition:background .15s}
+  .alert:hover{background:#fafbfd}
+  .alert:last-child{border-bottom:none}
+  .ring{width:46px;height:46px;flex:none}
+  .ring svg{transform:rotate(-90deg)}
+  .ring text{transform:rotate(90deg);transform-origin:center}
+  .a-title{font-weight:700;font-size:13.5px}
+  .a-meta{font-size:11.5px;color:var(--muted);margin-top:2px}
+  .a-diag{font-size:12.5px;margin-top:7px;color:#334155;background:#f8fafc;border-left:3px solid var(--warn);padding:7px 10px;border-radius:0 8px 8px 0}
+  .a-actions{display:flex;gap:7px;margin-top:10px;flex-wrap:wrap}
+  .pill-btn{font-size:11.5px;font-weight:600;padding:5px 11px;border-radius:99px;border:1px solid var(--line);background:#fff;cursor:pointer;transition:all .15s;font-family:inherit;color:var(--ink)}
+  .pill-btn:hover{border-color:var(--accent);color:var(--accent);background:var(--accent-soft)}
+  .pill-btn.primary{background:var(--accent);border-color:var(--accent);color:#fff}
+  .pill-btn.primary:hover{background:#0a5f40;color:#fff}
+
+  /* ---------- ma journée ---------- */
+  .task-row{display:flex;align-items:center;gap:12px;padding:12px 16px;border-bottom:1px solid var(--line)}
+  .task-row:last-child{border:none}
+  .task-row:hover{background:#fafbfd}
+  .stepper{display:flex;align-items:center;gap:6px}
+  .stepper button{width:26px;height:26px;border-radius:8px;border:1px solid var(--line);background:#fff;cursor:pointer;font-weight:700;color:var(--muted);font-family:inherit}
+  .stepper button:hover{border-color:var(--accent);color:var(--accent)}
+  .insight{display:flex;gap:12px;padding:13px 16px;border-radius:12px;background:linear-gradient(135deg,#f0fdf7,#eff6ff);border:1px solid #d3ede0;margin-bottom:10px;cursor:pointer;transition:transform .15s}
+  .insight:hover{transform:translateX(3px)}
+  .insight .ico{width:30px;height:30px;border-radius:9px;background:#fff;display:grid;place-items:center;flex:none;box-shadow:var(--shadow)}
+
+  /* ---------- fiche action ---------- */
+  .factor{display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px dashed var(--line)}
+  .factor:last-child{border:none}
+  .factor .w{font-family:'Sora';font-weight:700;width:44px;text-align:right}
+  .traj{position:relative}
+  .pop-tag{display:inline-flex;align-items:center;gap:7px;padding:7px 12px;border-radius:11px;background:#f8fafc;border:1px solid var(--line);font-size:12px;font-weight:600;margin:0 6px 6px 0}
+  .dot{width:8px;height:8px;border-radius:99px}
+
+  /* ---------- populations ---------- */
+  .pop-card{padding:18px 20px}
+  .meter{display:flex;align-items:center;gap:10px;margin-top:8px;font-size:12px}
+  .meter .lbl2{width:130px;color:var(--muted);font-weight:600}
+  .reco{border:1px solid var(--line);border-radius:14px;padding:15px 17px;background:#fff;transition:all .2s}
+  .reco:hover{border-color:var(--accent-2);box-shadow:var(--shadow)}
+  .reco .why{font-size:11.5px;color:var(--muted);background:#f8fafc;border-radius:8px;padding:6px 10px;margin:9px 0}
+  .heat td{width:52px;height:34px;border-radius:8px;text-align:center;font-size:11px;font-weight:700}
+  .heat th{font-size:11px;color:var(--muted);font-weight:600;padding:6px;text-align:left}
+  .heat{border-spacing:5px;border-collapse:separate}
+
+  /* ---------- toast / palette ---------- */
+  #toast{position:fixed;bottom:26px;left:50%;transform:translate(-50%,20px);background:var(--navy);color:#fff;padding:11px 20px;border-radius:12px;font-size:13px;font-weight:600;opacity:0;transition:all .3s;pointer-events:none;box-shadow:0 12px 30px rgba(0,0,0,.25);display:flex;gap:9px;align-items:center;z-index:99}
+  #toast.show{opacity:1;transform:translate(-50%,0)}
+  #palette{position:fixed;inset:0;background:rgba(13,27,46,.45);backdrop-filter:blur(3px);display:none;place-items:start center;padding-top:14vh;z-index:98}
+  #palette.on{display:grid}
+  .pal-box{width:560px;background:#fff;border-radius:16px;box-shadow:0 24px 60px rgba(0,0,0,.3);overflow:hidden;animation:fade .18s ease}
+  .pal-box input{width:100%;border:none;outline:none;padding:17px 20px;font-size:15px;font-family:inherit;border-bottom:1px solid var(--line)}
+  .pal-item{display:flex;align-items:center;gap:11px;padding:11px 18px;cursor:pointer;font-size:13.5px;font-weight:500}
+  .pal-item:hover{background:var(--accent-soft)}
+  .pal-item small{margin-left:auto;color:var(--muted)}
+  .banner{background:linear-gradient(90deg,#0d1b2e,#14532d);color:#fff;border-radius:var(--r);padding:16px 22px;display:flex;align-items:center;gap:16px;margin-bottom:20px}
+  .banner b{font-family:'Sora'}
+  @media(max-width:1000px){.g4,.g3{grid-template-columns:1fr 1fr}.main{padding:20px}.g2{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<div class="app">
+
+  <!-- ================= SIDEBAR ================= -->
+  <aside class="sidebar">
+    <div class="logo">
+      <div class="mark">P</div>
+      <div><b>PMO Cockpit</b><small>Plan stratégique 2026-2028</small></div>
+    </div>
+    <button class="navlink active" data-s="journee" onclick="go('journee',this)">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg>
+      Ma journée</button>
+    <button class="navlink" data-s="alertes" onclick="go('alertes',this)">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3l9 16H3z"/><path d="M12 10v4m0 3h.01"/></svg>
+      Alertes <span class="badge">6</span></button>
+    <button class="navlink" data-s="action" onclick="go('action',this)">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="4" width="16" height="16" rx="3"/><path d="M9 12l2 2 4-5"/></svg>
+      Plan d'actions</button>
+    <button class="navlink" data-s="populations" onclick="go('populations',this)">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="9" cy="8" r="3.5"/><path d="M2.5 20c0-3.6 2.9-6.5 6.5-6.5s6.5 2.9 6.5 6.5"/><circle cx="17" cy="9" r="2.5"/><path d="M15.5 14.6a5 5 0 016 4.9"/></svg>
+      Populations <span class="badge soft">3</span></button>
+    <button class="navlink" style="opacity:.45;cursor:default">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19V5m0 14h16M8 16v-5m4 5V8m4 8v-3"/></svg>
+      Analyses</button>
+    <button class="navlink" style="opacity:.45;cursor:default">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19 12a7 7 0 01-.4 2.4l2 1.6-2 3.4-2.4-1a7 7 0 01-4.2 2.4L11.6 23h-4l-.4-2.6"/></svg>
+      Paramètres</button>
+    <div class="kbd-hint" onclick="openPal()">Recherche rapide&nbsp; <kbd>Ctrl</kbd> <kbd>K</kbd></div>
+    <div class="foot">
+      <div class="avatar">AZ</div>
+      <div style="line-height:1.25"><div style="color:#fff;font-weight:700;font-size:12.5px">Adil Z.</div><div style="font-size:11px">Rôle : PMO</div></div>
+    </div>
+  </aside>
+
+  <main class="main">
+
+  <!-- ================= ÉCRAN 1 : MA JOURNÉE ================= -->
+  <section class="screen on" id="s-journee">
+    <div class="topbar">
+      <div><h1>Bonjour Adil 👋</h1><p>Mardi 7 juillet · 3 sujets méritent votre attention avant le COPIL de jeudi</p></div>
+      <div style="display:flex;gap:9px">
+        <button class="btn btn-g" onclick="toast('Check-in hebdomadaire lancé — 5 actions à passer en revue')">▶ Check-in 2 min</button>
+        <button class="btn btn-p" onclick="go('alertes',document.querySelector('[data-s=alertes]'))">Traiter les alertes</button>
+      </div>
+    </div>
+
+    <div class="grid g4" style="margin-bottom:20px">
+      <div class="card kpi"><div class="lbl">Avancement global</div><div class="val num">54<span style="font-size:17px;color:var(--muted)">%</span></div><div class="sub"><span class="trend-up">▲ +3 pts</span> vs mois dernier</div>
+        <svg class="spark" width="72" height="30"><polyline points="0,26 12,24 24,20 36,21 48,14 60,10 72,6" fill="none" stroke="#12b981" stroke-width="2.5" stroke-linecap="round"/></svg></div>
+      <div class="card kpi"><div class="lbl">Score de risque plan</div><div class="val num" style="color:var(--warn)">38<span style="font-size:17px;color:var(--muted)">/100</span></div><div class="sub"><span class="trend-dn">▲ +6</span> — dérive axe Digital</div>
+        <svg class="spark" width="72" height="30"><polyline points="0,20 12,22 24,18 36,16 48,14 60,10 72,8" fill="none" stroke="#d97706" stroke-width="2.5" stroke-linecap="round"/></svg></div>
+      <div class="card kpi"><div class="lbl">Actions à risque</div><div class="val num">11<span style="font-size:17px;color:var(--muted)">/86</span></div><div class="sub">dont <b>4 détectées avant retard</b></div></div>
+      <div class="card kpi"><div class="lbl">Adhésion populations</div><div class="val num">64<span style="font-size:17px;color:var(--muted)">%</span></div><div class="sub">pulse S27 · <span class="trend-dn">▼ Agents guichet 41%</span></div></div>
+    </div>
+
+    <div class="grid" style="grid-template-columns:1.4fr 1fr">
+      <div>
+        <div class="card" style="margin-bottom:16px">
+          <div style="padding:16px 18px 12px;display:flex;justify-content:space-between;align-items:center">
+            <div><div class="sec-t">À faire maintenant</div><div class="sec-s">Priorisé par criticité × impact — mise à jour en ligne, sans quitter l'écran</div></div>
+            <span class="chip c-slate">5 éléments</span>
+          </div>
+          <div class="task-row">
+            <span class="chip c-red">Risque 82</span>
+            <div style="flex:1;min-width:0"><b style="font-size:13px">Déploiement CRM agences — vague 2</b><div style="font-size:11.5px;color:var(--muted)">Digital · Maroc · Échéance 24/07 · Vélocité insuffisante</div></div>
+            <div class="stepper"><button onclick="toast('Avancement -5% enregistré')">−</button><b class="num" style="width:38px;text-align:center">35%</b><button onclick="toast('Avancement +5% enregistré ✓')">+</button></div>
+            <button class="pill-btn primary" onclick="go('action',document.querySelector('[data-s=action]'))">Ouvrir</button>
+          </div>
+          <div class="task-row">
+            <span class="chip c-amber">Risque 61</span>
+            <div style="flex:1;min-width:0"><b style="font-size:13px">Formation data — managers intermédiaires</b><div style="font-size:11.5px;color:var(--muted)">Data · Sénégal · Dormante depuis 3 semaines</div></div>
+            <div class="stepper"><button>−</button><b class="num" style="width:38px;text-align:center">50%</b><button onclick="toast('Avancement +5% enregistré ✓')">+</button></div>
+            <button class="pill-btn" onclick="toast('Relance envoyée au responsable ✓')">Relancer</button>
+          </div>
+          <div class="task-row">
+            <span class="chip c-amber">Risque 58</span>
+            <div style="flex:1;min-width:0"><b style="font-size:13px">Refonte parcours client digital</b><div style="font-size:11.5px;color:var(--muted)">Digital · Côte d'Ivoire · Burn budget 78% vs avancement 45%</div></div>
+            <div class="stepper"><button>−</button><b class="num" style="width:38px;text-align:center">45%</b><button onclick="toast('Avancement +5% enregistré ✓')">+</button></div>
+            <button class="pill-btn" onclick="toast('Point budget planifié avec le responsable')">Planifier</button>
+          </div>
+          <div class="task-row">
+            <span class="chip c-blue">Validation</span>
+            <div style="flex:1;min-width:0"><b style="font-size:13px">Clôture « Charte data groupe »</b><div style="font-size:11.5px;color:var(--muted)">Demande de validation en attente depuis 2 jours</div></div>
+            <button class="pill-btn" onclick="toast('Action validée et clôturée ✓')">Valider</button>
+            <button class="pill-btn">Refuser</button>
+          </div>
+          <div class="task-row">
+            <span class="chip c-violet">Adoption</span>
+            <div style="flex:1;min-width:0"><b style="font-size:13px">Pulse S27 : adhésion faible « Agents guichet Nord »</b><div style="font-size:11.5px;color:var(--muted)">41% d'adhésion · 2 recommandations d'accompagnement prêtes</div></div>
+            <button class="pill-btn primary" onclick="go('populations',document.querySelector('[data-s=populations]'))">Voir</button>
+          </div>
+        </div>
+      </div>
+
+      <div>
+        <div class="card" style="padding:16px 18px;margin-bottom:16px">
+          <div class="sec-t" style="margin-bottom:3px">Insights automatiques</div>
+          <div class="sec-s" style="margin-bottom:13px">Générés cette nuit · cliquables vers la vue filtrée</div>
+          <div class="insight" onclick="toast('Ouverture de la vue Analyses filtrée sur l’axe Digital')">
+            <div class="ico">📉</div>
+            <div style="font-size:12.5px;line-height:1.45"><b>L'axe Digital ralentit depuis 3 mois</b> : vélocité divisée par 2. Au rythme actuel, fin projetée <b>T3 2027 (+5 mois)</b>.</div>
+          </div>
+          <div class="insight" onclick="toast('Ouverture de la vue filtrée sur les 2 entités')">
+            <div class="ico">🎯</div>
+            <div style="font-size:12.5px;line-height:1.45"><b>80 % des retards se concentrent sur 2 entités</b> (Filiale CI, DSI Groupe). Un arbitrage ciblé résorberait l'essentiel de la dérive.</div>
+          </div>
+          <div class="insight" onclick="toast('Ouverture du détail de charge par responsable')">
+            <div class="ico">⚖️</div>
+            <div style="font-size:12.5px;line-height:1.45"><b>M. Diallo porte 9 actions actives</b> dont 4 à risque. Réaffectation recommandée avant la vague 3.</div>
+          </div>
+        </div>
+        <div class="card" style="padding:16px 18px">
+          <div class="sec-t" style="margin-bottom:12px">Avancement par axe</div>
+          <div style="display:grid;gap:11px;font-size:12px">
+            <div><div style="display:flex;justify-content:space-between;margin-bottom:4px"><b>Expérience client</b><span class="num">68%</span></div><div class="bar"><i style="width:68%"></i></div></div>
+            <div><div style="display:flex;justify-content:space-between;margin-bottom:4px"><b>Digital</b><span class="num" style="color:var(--warn)">41%</span></div><div class="bar"><i style="width:41%;background:var(--warn)"></i></div></div>
+            <div><div style="display:flex;justify-content:space-between;margin-bottom:4px"><b>Data & IA</b><span class="num">57%</span></div><div class="bar"><i style="width:57%"></i></div></div>
+            <div><div style="display:flex;justify-content:space-between;margin-bottom:4px"><b>Organisation & talents</b><span class="num">49%</span></div><div class="bar"><i style="width:49%"></i></div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= ÉCRAN 2 : ALERTES ================= -->
+  <section class="screen" id="s-alertes">
+    <div class="topbar">
+      <div><h1>Centre d'alertes</h1><p>Détection quotidienne automatique · chaque alerte porte son diagnostic et ses pistes de résolution</p></div>
+      <div style="display:flex;gap:9px">
+        <button class="btn btn-g" onclick="toast('Digest hebdomadaire envoyé aux 4 destinataires ✓')">✉ Envoyer le digest</button>
+        <button class="btn btn-g">Seuils ⚙</button>
+      </div>
+    </div>
+
+    <div style="display:flex;gap:8px;margin-bottom:16px">
+      <button class="pill-btn primary">Nouvelles (6)</button>
+      <button class="pill-btn" onclick="toast('Filtre appliqué')">Prises en charge (3)</button>
+      <button class="pill-btn" onclick="toast('Filtre appliqué')">Risques acceptés (2)</button>
+      <button class="pill-btn" onclick="toast('Filtre appliqué')">Résolues (14)</button>
+    </div>
+
+    <div class="card">
+      <div class="alert" onclick="go('action',document.querySelector('[data-s=action]'))">
+        <div class="ring"><svg width="46" height="46"><circle cx="23" cy="23" r="19" fill="none" stroke="#f1f5f9" stroke-width="5"/><circle cx="23" cy="23" r="19" fill="none" stroke="#dc2626" stroke-width="5" stroke-dasharray="98 120" stroke-linecap="round"/><text x="23" y="27" text-anchor="middle" font-size="12" font-weight="800" fill="#dc2626">82</text></svg></div>
+        <div style="flex:1">
+          <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap"><span class="a-title">Déploiement CRM agences — vague 2</span><span class="chip c-red">Dérive anticipée</span><span class="chip c-slate">Impact : 340 k€ · 2 populations</span></div>
+          <div class="a-meta">Digital · Maroc · Resp. S. Bennani · Échéance 24/07</div>
+          <div class="a-diag">📐 <b>Diagnostic</b> : 35 % réalisé à 71 % du délai écoulé. Vélocité actuelle : fin projetée <b>+6 semaines</b>. Facteur aggravant : population cible à faible maturité digitale (2,1/5), adhésion pulse 41 %.</div>
+          <div class="a-actions" onclick="event.stopPropagation()">
+            <button class="pill-btn primary" onclick="toast('Plan de remédiation proposé — 3 actions pré-remplies')">⚡ Proposer une remédiation</button>
+            <button class="pill-btn" onclick="toast('Replanification simulée : nouvelle échéance 04/09')">Replanifier</button>
+            <button class="pill-btn" onclick="toast('Ajoutée à l’ordre du jour du COPIL de jeudi ✓')">Escalader au COPIL</button>
+            <button class="pill-btn" onclick="toast('Alerte prise en charge ✓')">Prendre en charge</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="alert">
+        <div class="ring"><svg width="46" height="46"><circle cx="23" cy="23" r="19" fill="none" stroke="#f1f5f9" stroke-width="5"/><circle cx="23" cy="23" r="19" fill="none" stroke="#d97706" stroke-width="5" stroke-dasharray="73 120" stroke-linecap="round"/><text x="23" y="27" text-anchor="middle" font-size="12" font-weight="800" fill="#d97706">61</text></svg></div>
+        <div style="flex:1">
+          <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap"><span class="a-title">Formation data — managers intermédiaires</span><span class="chip c-amber">Action dormante</span></div>
+          <div class="a-meta">Data & IA · Sénégal · Resp. M. Diallo</div>
+          <div class="a-diag">💤 <b>Diagnostic</b> : aucun avancement ni commentaire depuis <b>3 semaines</b>. Le responsable porte 9 actions actives (surcharge détectée).</div>
+          <div class="a-actions">
+            <button class="pill-btn primary" onclick="toast('Relance + proposition de point 15 min envoyées ✓')">Relancer le responsable</button>
+            <button class="pill-btn" onclick="toast('Suggestion : réaffecter à K. Ndiaye (2 actions actives)')">Suggérer une réaffectation</button>
+            <button class="pill-btn" onclick="toast('Alerte prise en charge ✓')">Prendre en charge</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="alert">
+        <div class="ring"><svg width="46" height="46"><circle cx="23" cy="23" r="19" fill="none" stroke="#f1f5f9" stroke-width="5"/><circle cx="23" cy="23" r="19" fill="none" stroke="#d97706" stroke-width="5" stroke-dasharray="70 120" stroke-linecap="round"/><text x="23" y="27" text-anchor="middle" font-size="12" font-weight="800" fill="#d97706">58</text></svg></div>
+        <div style="flex:1">
+          <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap"><span class="a-title">Refonte parcours client digital</span><span class="chip c-amber">Burn budgétaire</span></div>
+          <div class="a-meta">Digital · Côte d'Ivoire · Resp. A. Kouassi</div>
+          <div class="a-diag">💰 <b>Diagnostic</b> : 78 % du budget consommé pour 45 % d'avancement. Écart de 33 pts, en aggravation depuis 2 mois.</div>
+          <div class="a-actions">
+            <button class="pill-btn primary" onclick="toast('Point budget planifié — analyse d’écart pré-remplie')">Analyser l'écart</button>
+            <button class="pill-btn" onclick="toast('Demande de rallonge préparée pour arbitrage COPIL')">Préparer un arbitrage</button>
+            <button class="pill-btn" onclick="toast('Risque accepté — tracé pour le COPIL ✓')">Accepter le risque</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="alert">
+        <div class="ring"><svg width="46" height="46"><circle cx="23" cy="23" r="19" fill="none" stroke="#f1f5f9" stroke-width="5"/><circle cx="23" cy="23" r="19" fill="none" stroke="#7c3aed" stroke-width="5" stroke-dasharray="66 120" stroke-linecap="round"/><text x="23" y="27" text-anchor="middle" font-size="12" font-weight="800" fill="#7c3aed">55</text></svg></div>
+        <div style="flex:1">
+          <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap"><span class="a-title">Saturation de changement — Agents guichet Nord</span><span class="chip c-violet">Adoption</span></div>
+          <div class="a-meta">Population : 240 collaborateurs · 6 actions simultanées au S2</div>
+          <div class="a-diag">🧭 <b>Diagnostic</b> : cette population est ciblée par <b>6 changements simultanés</b> (CRM, parcours client, nouveaux horaires…). Adhésion en chute : 58 % → 41 % en 2 pulses.</div>
+          <div class="a-actions">
+            <button class="pill-btn primary" onclick="go('populations',document.querySelector('[data-s=populations]'))">Voir les recommandations</button>
+            <button class="pill-btn" onclick="toast('Proposition de rephasage ajoutée au COPIL ✓')">Proposer un rephasage</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= ÉCRAN 3 : FICHE ACTION ================= -->
+  <section class="screen" id="s-action">
+    <div class="topbar">
+      <div>
+        <p style="margin-bottom:5px"><a href="#" onclick="go('alertes',document.querySelector('[data-s=alertes]'));return false" style="color:var(--accent);text-decoration:none;font-weight:600">← Alertes</a> / Plan d'actions</p>
+        <h1>Déploiement CRM agences — vague 2</h1>
+        <p>Digital · Maroc · Banque de détail · Resp. S. Bennani · 15/03 → 24/07/2026 · Budget 340 k€</p>
+      </div>
+      <div style="display:flex;gap:9px"><button class="btn btn-g" onclick="toast('Snapshot d’avancement enregistré ✓')">＋ Mise à jour</button><button class="btn btn-p" onclick="toast('Plan de remédiation généré — 3 actions à valider')">⚡ Remédiation</button></div>
+    </div>
+
+    <div class="grid g3" style="margin-bottom:16px">
+      <div class="card" style="padding:18px 20px;display:flex;gap:16px;align-items:center">
+        <div class="ring" style="width:74px;height:74px"><svg width="74" height="74"><circle cx="37" cy="37" r="31" fill="none" stroke="#f1f5f9" stroke-width="7"/><circle cx="37" cy="37" r="31" fill="none" stroke="#dc2626" stroke-width="7" stroke-dasharray="160 195" stroke-linecap="round"/><text x="37" y="43" text-anchor="middle" font-size="19" font-weight="800" fill="#dc2626" font-family="Sora">82</text></svg></div>
+        <div><div class="lbl" style="font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.06em">Score de risque</div>
+        <div style="font-size:13px;font-weight:700;color:var(--danger);margin-top:3px">Critique · ▲ +14 en 30 j</div>
+        <div style="font-size:11.5px;color:var(--muted);margin-top:2px">Explicable — 4 facteurs ↓</div></div>
+      </div>
+      <div class="card kpi"><div class="lbl">Avancement</div><div class="val num">35<span style="font-size:17px;color:var(--muted)">%</span></div><div class="sub">attendu à date : <b>71 %</b> · écart −36 pts</div></div>
+      <div class="card kpi"><div class="lbl">Fin projetée</div><div class="val num" style="font-size:24px;color:var(--warn)">04 sept.</div><div class="sub">vs 24/07 contractuel · <b>+6 semaines</b></div></div>
+    </div>
+
+    <div class="grid g2">
+      <div class="card" style="padding:18px 20px">
+        <div class="sec-t">Pourquoi ce score ?</div>
+        <div class="sec-s" style="margin-bottom:8px">Facteurs pondérés, jamais de boîte noire</div>
+        <div class="factor"><span class="chip c-red">●</span><div style="flex:1"><b style="font-size:12.5px">Dérive de vélocité</b><div style="font-size:11.5px;color:var(--muted)">35 % réalisé à 71 % du délai — rythme ÷2 depuis mai</div></div><div class="w" style="color:var(--danger)">+34</div></div>
+        <div class="factor"><span class="chip c-violet">●</span><div style="flex:1"><b style="font-size:12.5px">Risque d'adoption</b><div style="font-size:11.5px;color:var(--muted)">Population cible : maturité digitale 2,1/5 · adhésion 41 %</div></div><div class="w" style="color:#7c3aed">+22</div></div>
+        <div class="factor"><span class="chip c-amber">●</span><div style="flex:1"><b style="font-size:12.5px">Jalon à risque</b><div style="font-size:11.5px;color:var(--muted)">« Go/No-Go pilote » dans 9 jours, prérequis à 40 %</div></div><div class="w" style="color:var(--warn)">+16</div></div>
+        <div class="factor"><span class="chip c-slate">●</span><div style="flex:1"><b style="font-size:12.5px">Signal humain</b><div style="font-size:11.5px;color:var(--muted)">Confiance déclarée au check-in : 2/5 · « attente prestataire » ×3</div></div><div class="w" style="color:var(--muted)">+10</div></div>
+      </div>
+
+      <div>
+        <div class="card traj" style="padding:18px 20px;margin-bottom:16px">
+          <div class="sec-t">Trajectoire</div>
+          <div class="sec-s" style="margin-bottom:6px">Réel vs théorique vs projection au rythme actuel</div>
+          <svg width="100%" height="150" viewBox="0 0 460 150" preserveAspectRatio="none">
+            <line x1="0" y1="120" x2="460" y2="120" stroke="#e6e9ef"/><line x1="0" y1="75" x2="460" y2="75" stroke="#f1f5f9"/><line x1="0" y1="30" x2="460" y2="30" stroke="#f1f5f9"/>
+            <polyline points="20,120 320,18" fill="none" stroke="#cbd5e1" stroke-width="2" stroke-dasharray="5 5"/>
+            <polyline points="20,120 90,108 160,96 230,88 290,84" fill="none" stroke="#dc2626" stroke-width="3" stroke-linecap="round"/>
+            <polyline points="290,84 460,44" fill="none" stroke="#dc2626" stroke-width="2.5" stroke-dasharray="3 6" opacity=".65"/>
+            <circle cx="290" cy="84" r="5" fill="#dc2626"/>
+            <line x1="320" y1="10" x2="320" y2="130" stroke="#d97706" stroke-width="1.5" stroke-dasharray="4 4"/>
+            <text x="326" y="22" font-size="10" fill="#b45309" font-weight="700">Échéance 24/07</text>
+            <text x="296" y="72" font-size="10.5" fill="#dc2626" font-weight="700">35 %</text>
+            <text x="230" y="40" font-size="10" fill="#94a3b8">théorique</text>
+          </svg>
+        </div>
+        <div class="card" style="padding:18px 20px">
+          <div class="sec-t" style="margin-bottom:10px">Populations impactées</div>
+          <span class="pop-tag"><span class="dot" style="background:var(--danger)"></span>Agents guichet Nord · 240 pers. · adhésion 41 %</span>
+          <span class="pop-tag"><span class="dot" style="background:var(--warn)"></span>Conseillers clientèle · 115 pers. · adhésion 63 %</span>
+          <div style="font-size:12px;color:var(--muted);margin-top:8px">Niveau d'impact : <b>Transformé</b> (nouveau poste de travail) · 2 recommandations d'accompagnement disponibles → <a href="#" onclick="go('populations',document.querySelector('[data-s=populations]'));return false" style="color:var(--accent);font-weight:700;text-decoration:none">voir le module Populations</a></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= ÉCRAN 4 : POPULATIONS ================= -->
+  <section class="screen" id="s-populations">
+    <div class="topbar">
+      <div><h1>Populations & adoption</h1><p>Profils agrégés et anonymisés (k ≥ 8) · pulses intégrés · recommandations d'accompagnement adaptées</p></div>
+      <button class="btn btn-p" onclick="toast('Pulse S28 programmé pour les 3 populations ✓')">＋ Lancer un pulse</button>
+    </div>
+
+    <div class="banner">
+      <div style="font-size:22px">🧭</div>
+      <div style="font-size:13px;line-height:1.5"><b>Alerte saturation</b> — « Agents guichet Nord » cumule 6 changements simultanés au S2. L'adhésion chute (58 % → 41 %). Le moteur propose 3 actions d'accompagnement et un rephasage.</div>
+      <button class="btn btn-g btn-s" style="margin-left:auto;flex:none" onclick="toast('Proposition de rephasage ajoutée à l’ordre du jour COPIL ✓')">Proposer au COPIL</button>
+    </div>
+
+    <div class="grid g3" style="margin-bottom:20px">
+      <div class="card pop-card">
+        <div style="display:flex;justify-content:space-between;align-items:start"><div><b style="font-size:14px">Agents guichet Nord</b><div style="font-size:11.5px;color:var(--muted)">240 pers. · 68 % de +45 ans · anc. moy. 16 ans</div></div><span class="chip c-red">À risque</span></div>
+        <div class="meter"><span class="lbl2">Maturité digitale</span><div class="bar" style="flex:1"><i style="width:42%;background:var(--danger)"></i></div><b class="num">2,1/5</b></div>
+        <div class="meter"><span class="lbl2">Adhésion (pulse S27)</span><div class="bar" style="flex:1"><i style="width:41%;background:var(--danger)"></i></div><b class="num">41 %</b></div>
+        <div class="meter"><span class="lbl2">Sentiment de préparation</span><div class="bar" style="flex:1"><i style="width:35%;background:var(--warn)"></i></div><b class="num">35 %</b></div>
+        <div class="meter"><span class="lbl2">Charge de changement</span><div class="bar" style="flex:1"><i style="width:90%;background:var(--danger)"></i></div><b class="num">6 actions</b></div>
+      </div>
+      <div class="card pop-card">
+        <div style="display:flex;justify-content:space-between;align-items:start"><div><b style="font-size:14px">Conseillers clientèle</b><div style="font-size:11.5px;color:var(--muted)">115 pers. · profil mixte · anc. moy. 8 ans</div></div><span class="chip c-amber">À suivre</span></div>
+        <div class="meter"><span class="lbl2">Maturité digitale</span><div class="bar" style="flex:1"><i style="width:64%"></i></div><b class="num">3,2/5</b></div>
+        <div class="meter"><span class="lbl2">Adhésion (pulse S27)</span><div class="bar" style="flex:1"><i style="width:63%;background:var(--warn)"></i></div><b class="num">63 %</b></div>
+        <div class="meter"><span class="lbl2">Sentiment de préparation</span><div class="bar" style="flex:1"><i style="width:58%;background:var(--warn)"></i></div><b class="num">58 %</b></div>
+        <div class="meter"><span class="lbl2">Charge de changement</span><div class="bar" style="flex:1"><i style="width:50%;background:var(--warn)"></i></div><b class="num">3 actions</b></div>
+      </div>
+      <div class="card pop-card">
+        <div style="display:flex;justify-content:space-between;align-items:start"><div><b style="font-size:14px">Équipes DSI</b><div style="font-size:11.5px;color:var(--muted)">85 pers. · 61 % de −35 ans · anc. moy. 4 ans</div></div><span class="chip c-green">Favorable</span></div>
+        <div class="meter"><span class="lbl2">Maturité digitale</span><div class="bar" style="flex:1"><i style="width:88%"></i></div><b class="num">4,4/5</b></div>
+        <div class="meter"><span class="lbl2">Adhésion (pulse S27)</span><div class="bar" style="flex:1"><i style="width:79%"></i></div><b class="num">79 %</b></div>
+        <div class="meter"><span class="lbl2">Sentiment de préparation</span><div class="bar" style="flex:1"><i style="width:72%"></i></div><b class="num">72 %</b></div>
+        <div class="meter"><span class="lbl2">Charge de changement</span><div class="bar" style="flex:1"><i style="width:33%"></i></div><b class="num">2 actions</b></div>
+      </div>
+    </div>
+
+    <div class="grid" style="grid-template-columns:1fr 1.35fr">
+      <div class="card" style="padding:18px 20px">
+        <div class="sec-t">Carte d'impact populations × axes</div>
+        <div class="sec-s" style="margin-bottom:12px">Intensité du changement subi par population</div>
+        <table class="heat">
+          <tr><th></th><th>Exp. client</th><th>Digital</th><th>Data</th><th>Orga</th></tr>
+          <tr><th>Agents guichet</th><td style="background:#fecaca;color:#991b1b">forte</td><td style="background:#fca5a5;color:#7f1d1d">forte</td><td style="background:#fef3c7;color:#92400e">moy.</td><td style="background:#fee2e2;color:#b91c1c">forte</td></tr>
+          <tr><th>Conseillers</th><td style="background:#fef3c7;color:#92400e">moy.</td><td style="background:#fecaca;color:#991b1b">forte</td><td style="background:#f1f5f9;color:#64748b">faible</td><td style="background:#fef3c7;color:#92400e">moy.</td></tr>
+          <tr><th>Équipes DSI</th><td style="background:#f1f5f9;color:#64748b">faible</td><td style="background:#fef3c7;color:#92400e">moy.</td><td style="background:#fecaca;color:#991b1b">forte</td><td style="background:#f1f5f9;color:#64748b">faible</td></tr>
+        </table>
+        <div style="font-size:11px;color:var(--muted);margin-top:12px;border-top:1px dashed var(--line);padding-top:10px">🔒 Données agrégées uniquement · aucune restitution individuelle · seuil k-anonymat = 8 · finalité limitée à l'accompagnement du plan</div>
+      </div>
+
+      <div class="card" style="padding:18px 20px">
+        <div class="sec-t">Recommandations d'accompagnement</div>
+        <div class="sec-s" style="margin-bottom:14px">Générées en croisant profil de population × état des actions · ajout au plan en 1 clic</div>
+        <div style="display:grid;gap:11px">
+          <div class="reco">
+            <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap"><b style="font-size:13px">Relais de proximité + formation terrain renforcée</b><span class="chip c-red">Agents guichet Nord</span></div>
+            <div class="why">💡 <b>Pourquoi</b> : faible maturité digitale (2,1/5) + impact « transformé » sur le CRM → le e-learning seul échoue pour ce profil. Ancienneté élevée : privilégier les pairs référents et le pas-à-pas papier.</div>
+            <div style="display:flex;gap:7px"><button class="pill-btn primary" onclick="toast('Action d’accompagnement ajoutée au plan — resp. et échéance pré-remplis ✓')">＋ Ajouter au plan</button><button class="pill-btn" onclick="toast('Playbook ouvert')">Voir le playbook</button></div>
+          </div>
+          <div class="reco">
+            <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap"><b style="font-size:13px">Co-construction avec les experts métier</b><span class="chip c-red">Agents guichet Nord</span></div>
+            <div class="why">💡 <b>Pourquoi</b> : adhésion en chute (41 %) sur une population très expérimentée (16 ans d'ancienneté) → communiquer le « pourquoi », impliquer les anciens comme co-concepteurs plutôt que destinataires.</div>
+            <div style="display:flex;gap:7px"><button class="pill-btn primary" onclick="toast('Action d’accompagnement ajoutée au plan ✓')">＋ Ajouter au plan</button><button class="pill-btn">Voir le playbook</button></div>
+          </div>
+          <div class="reco">
+            <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap"><b style="font-size:13px">Dupliquer le dispositif du site pilote Sud</b><span class="chip c-amber">Conseillers clientèle</span></div>
+            <div class="why">💡 <b>Pourquoi</b> : avancement hétérogène entre sites, le pilote Sud atteint 78 % d'adhésion avec des ambassadeurs pairs → répliquer + organiser un partage de pratiques inter-sites.</div>
+            <div style="display:flex;gap:7px"><button class="pill-btn primary" onclick="toast('Action d’accompagnement ajoutée au plan ✓')">＋ Ajouter au plan</button><button class="pill-btn">Voir le playbook</button></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  </main>
+</div>
+
+<div id="toast">✓ <span id="toast-msg"></span></div>
+
+<div id="palette" onclick="if(event.target===this)closePal()">
+  <div class="pal-box">
+    <input id="pal-in" placeholder="Rechercher une action, une alerte, une population…  (Échap pour fermer)">
+    <div style="padding:8px 0 10px">
+      <div class="pal-item" onclick="closePal();go('action',document.querySelector('[data-s=action]'))">🗂️ Déploiement CRM agences — vague 2 <small>Action · risque 82</small></div>
+      <div class="pal-item" onclick="closePal();go('alertes',document.querySelector('[data-s=alertes]'))">⚠️ Centre d'alertes <small>6 nouvelles</small></div>
+      <div class="pal-item" onclick="closePal();go('populations',document.querySelector('[data-s=populations]'))">👥 Agents guichet Nord <small>Population · à risque</small></div>
+      <div class="pal-item" onclick="closePal();toast('Check-in hebdomadaire lancé')">▶ Lancer le check-in 2 min <small>Raccourci</small></div>
+    </div>
+  </div>
+</div>
+
+<script>
+  function go(id,btn){
+    document.querySelectorAll('.screen').forEach(s=>s.classList.remove('on'));
+    document.getElementById('s-'+id).classList.add('on');
+    document.querySelectorAll('.navlink').forEach(n=>n.classList.remove('active'));
+    if(btn&&btn.dataset.s)btn.classList.add('active');
+    else{const n=document.querySelector('[data-s='+id+']');if(n)n.classList.add('active');}
+    window.scrollTo({top:0});
+  }
+  let tT;
+  function toast(msg){
+    document.getElementById('toast-msg').textContent=msg;
+    const t=document.getElementById('toast');t.classList.add('show');
+    clearTimeout(tT);tT=setTimeout(()=>t.classList.remove('show'),2600);
+  }
+  function openPal(){document.getElementById('palette').classList.add('on');document.getElementById('pal-in').focus();}
+  function closePal(){document.getElementById('palette').classList.remove('on');}
+  document.addEventListener('keydown',e=>{
+    if((e.ctrlKey||e.metaKey)&&e.key.toLowerCase()==='k'){e.preventDefault();openPal();}
+    if(e.key==='Escape')closePal();
+  });
+</script>
+</body>
+</html>

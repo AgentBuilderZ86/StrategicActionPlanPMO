@@ -214,6 +214,8 @@ export const KANBAN_LABEL: Record<KanbanColonne, string> = {
 
 // Widgets du tableau de bord personnalisable (T2.2, exig. 23)
 export const DASHBOARD_WIDGETS = [
+  { key: 'insights', label: 'Insights automatiques' },
+  { key: 'risques', label: 'Alertes proactives (moteur de risque)' },
   { key: 'heatmap', label: 'Carte de chaleur (région × axe)' },
   { key: 'parAxe', label: 'Avancement par axe' },
   { key: 'statuts', label: 'Répartition par statut' },
