@@ -3,6 +3,7 @@ import { ACTION_INCLUDE, serializeAction } from './serialize';
 import { computeRisques, type FacteurRisque } from './risque';
 import { construireDigest, rapprocherAlertes } from './alertes';
 import { notifierRoles } from './notifications';
+import { getAdoptionParAction } from './populations-db';
 
 /**
  * Synchronise les alertes d'un plan avec l'état du moteur de risque.
@@ -10,16 +11,19 @@ import { notifierRoles } from './notifications';
  * Notifie ADMIN/PMO à la création d'une alerte CRITIQUE.
  */
 export async function synchroniserAlertes(planId: string) {
-  const [actionsRaw, existantes] = await Promise.all([
+  const [actionsRaw, existantes, adoption] = await Promise.all([
     prisma.action.findMany({ where: { planId }, include: ACTION_INCLUDE }),
     prisma.alerte.findMany({
       where: { planId },
       select: { id: true, actionId: true, statut: true, score: true },
       orderBy: { updatedAt: 'desc' },
     }),
+    getAdoptionParAction(planId),
   ]);
 
-  const risques = computeRisques(actionsRaw.map(serializeAction));
+  const risques = computeRisques(
+    actionsRaw.map((a) => ({ ...serializeAction(a), adoption: adoption.get(a.id) ?? null })),
+  );
   const sync = rapprocherAlertes(existantes, risques);
 
   const titres = new Map(actionsRaw.map((a) => [a.id, a.titre]));

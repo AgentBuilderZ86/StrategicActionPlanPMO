@@ -13,6 +13,7 @@ import {
 import { pivot, crossMatrix } from './analyses';
 import { computeInsights, computeRisques } from './risque';
 import { computeMaJournee, type MaJournee } from './ma-journee';
+import { getAdoptionParAction } from './populations-db';
 import { computeVelocity } from './agile';
 import { getSelectedPlanId } from './plan-context';
 import type { DimensionKey } from './constants';
@@ -97,7 +98,7 @@ function periodeWhere(planId: string, periode?: Periode): Prisma.ActionWhereInpu
 
 /** Agrégations serveur pour le dashboard — une seule fonction pour tout. */
 export async function getDashboardData(planId: string, periode?: Periode) {
-  const [actionsRaw, axes, pays, snapshots] = await Promise.all([
+  const [actionsRaw, axes, pays, snapshots, adoption] = await Promise.all([
     prisma.action.findMany({ where: periodeWhere(planId, periode), include: ACTION_INCLUDE }),
     prisma.axe.findMany({ where: { planId }, orderBy: { ordre: 'asc' } }),
     prisma.pays.findMany({ where: { planId }, orderBy: { nom: 'asc' } }),
@@ -106,9 +107,13 @@ export async function getDashboardData(planId: string, periode?: Periode) {
       select: { actionId: true, date: true, valeur: true },
       orderBy: { date: 'asc' },
     }),
+    getAdoptionParAction(planId),
   ]);
 
-  const actions = actionsRaw.map(serializeAction);
+  const actions = actionsRaw.map((a) => ({
+    ...serializeAction(a),
+    adoption: adoption.get(a.id) ?? null,
+  }));
 
   return {
     kpis: computeKpis(actions),

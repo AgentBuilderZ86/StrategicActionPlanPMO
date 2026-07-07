@@ -13,9 +13,11 @@ export type RisqueInput = AggAction & {
   dateDebut?: Date | string | null;
   updatedAt?: Date | string | null;
   confiance?: number | null;
+  /** Signaux d'adoption agrégés des populations impactées (module Populations). */
+  adoption?: { adhesion: number | null; maturiteDigitale: number | null } | null;
 };
 
-export type FacteurCode = 'VELOCITE' | 'BUDGET' | 'DORMANTE' | 'BLOQUE' | 'SURCHARGE' | 'CONFIANCE';
+export type FacteurCode = 'VELOCITE' | 'BUDGET' | 'DORMANTE' | 'BLOQUE' | 'SURCHARGE' | 'CONFIANCE' | 'ADOPTION';
 
 export type FacteurRisque = {
   code: FacteurCode;
@@ -128,7 +130,27 @@ export function facteursAction(a: RisqueInput, today: Date): FacteurRisque[] {
     });
   }
 
-  // 5. Blocage déclaré (15).
+  // 5. Risque d'adoption : population cible en rejet ou peu réceptive (max 15).
+  if (a.adoption) {
+    const adh = a.adoption.adhesion;
+    if (adh != null && adh < 50) {
+      facteurs.push({
+        code: 'ADOPTION',
+        label: "Risque d'adoption",
+        detail: `Adhésion mesurée à ${adh} % sur la population impactée`,
+        points: Math.min(15, Math.round((50 - adh) * 0.4) + 5),
+      });
+    } else if (a.adoption.maturiteDigitale != null && a.adoption.maturiteDigitale <= 2) {
+      facteurs.push({
+        code: 'ADOPTION',
+        label: "Risque d'adoption",
+        detail: `Population impactée à faible maturité digitale (${a.adoption.maturiteDigitale}/5)`,
+        points: 8,
+      });
+    }
+  }
+
+  // 6. Blocage déclaré (15).
   if (a.statut === 'BLOQUE') {
     facteurs.push({
       code: 'BLOQUE',

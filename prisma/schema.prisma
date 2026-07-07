@@ -41,6 +41,7 @@ model Plan {
   actions   Action[]
   snapshots SnapshotCopil[]
   alertes   Alerte[]
+  populations Population[]
 }
 
 model Axe {
@@ -132,6 +133,8 @@ model Action {
   attributValeurs  AttributValeur[]
   demandesValidation DemandeValidation[]
   alertes            Alerte[]
+
+  populations ActionPopulation[]
 
   @@unique([planId, code])
   @@index([planId])
@@ -456,4 +459,68 @@ model Alerte {
 
   @@index([planId, statut])
   @@index([actionId])
+}
+
+// ---------------------------------------------------------------------------
+// Module Populations & adoption (V1.2) — RGPD by design : uniquement des
+// profils AGRÉGÉS de groupes de collaborateurs, jamais de donnée individuelle.
+// Les pulses stockent des résultats agrégés avec seuil de k-anonymat (k >= 8).
+// ---------------------------------------------------------------------------
+
+model Population {
+  id          String  @id @default(cuid())
+  planId      String
+  nom         String
+  description String?
+  // Effectif du groupe (approximatif, agrégé)
+  effectif    Int     @default(0)
+  // Tranche d'âge dominante : MOINS_35 | ENTRE_35_50 | PLUS_50 | MIXTE
+  trancheAge  String  @default("MIXTE")
+  // Ancienneté moyenne (années)
+  ancienneteMoyenne Float?
+  // Maturité digitale estimée (1-5)
+  maturiteDigitale  Int     @default(3)
+  // Exposition au changement : FAIBLE | MOYENNE | FORTE
+  expositionChangement String @default("MOYENNE")
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  plan    Plan               @relation(fields: [planId], references: [id], onDelete: Cascade)
+  actions ActionPopulation[]
+  pulses  Pulse[]
+
+  @@unique([planId, nom])
+  @@index([planId])
+}
+
+// Lien N-N action <-> population avec niveau d'impact.
+model ActionPopulation {
+  id           String @id @default(cuid())
+  actionId     String
+  populationId String
+  // Niveau d'impact : INFORME | FORME | TRANSFORME
+  niveauImpact String @default("INFORME")
+
+  action     Action     @relation(fields: [actionId], references: [id], onDelete: Cascade)
+  population Population @relation(fields: [populationId], references: [id], onDelete: Cascade)
+
+  @@unique([actionId, populationId])
+  @@index([populationId])
+}
+
+// Pulse d'adoption : résultats AGRÉGÉS d'une mini-enquête (jamais de réponse
+// individuelle). repondants >= 8 imposé par validation (k-anonymat).
+model Pulse {
+  id           String   @id @default(cuid())
+  populationId String
+  date         DateTime @default(now())
+  // Scores agrégés 0-100
+  adhesion     Int
+  comprehension Int
+  preparation  Int
+  repondants   Int
+
+  population Population @relation(fields: [populationId], references: [id], onDelete: Cascade)
+
+  @@index([populationId, date])
 }

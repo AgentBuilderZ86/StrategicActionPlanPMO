@@ -73,6 +73,15 @@ describe('facteursAction', () => {
     expect(c!.points).toBe(12);
     expect(facteursAction(base({ avancement: 55, confiance: 4 }), TODAY).some((x) => x.code === 'CONFIANCE')).toBe(false);
   });
+  it("intègre le risque d'adoption des populations impactées", () => {
+    const f = facteursAction(base({ avancement: 55, adoption: { adhesion: 40, maturiteDigitale: 4 } }), TODAY);
+    const a = f.find((x) => x.code === 'ADOPTION');
+    expect(a).toBeDefined();
+    expect(a!.points).toBeGreaterThanOrEqual(5);
+    const f2 = facteursAction(base({ avancement: 55, adoption: { adhesion: null, maturiteDigitale: 2 } }), TODAY);
+    expect(f2.find((x) => x.code === 'ADOPTION')!.points).toBe(8);
+    expect(facteursAction(base({ avancement: 55, adoption: { adhesion: 80, maturiteDigitale: 4 } }), TODAY).some((x) => x.code === 'ADOPTION')).toBe(false);
+  });
   it('signale un blocage déclaré et ignore les actions terminées', () => {
     expect(facteursAction(base({ statut: 'BLOQUE', avancement: 55 }), TODAY).some((x) => x.code === 'BLOQUE')).toBe(true);
     expect(facteursAction(base({ statut: 'TERMINE', avancement: 10 }), TODAY)).toHaveLength(0);
