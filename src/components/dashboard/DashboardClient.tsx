@@ -16,6 +16,8 @@ import {
   BudgetParAxe,
 } from './Charts';
 import { PointsAttention } from './PointsAttention';
+import { RisquesProactifs } from './RisquesProactifs';
+import { InsightsAuto } from './InsightsAuto';
 
 const WIDGET_LABEL: Record<WidgetKey, string> = Object.fromEntries(
   DASHBOARD_WIDGETS.map((w) => [w.key, w.label]),
@@ -49,7 +51,15 @@ export function DashboardClient({
       .catch(() => {});
   }, []);
 
-  const configEffective = config ?? dashboardConfigParDefaut();
+  // Fusion avec les défauts : les widgets ajoutés depuis la sauvegarde des
+  // préférences (ex. moteur de risque) apparaissent pour tous les utilisateurs.
+  const defauts = dashboardConfigParDefaut();
+  const configEffective = config
+    ? [
+        ...config.filter((w) => defauts.some((d) => d.key === w.key)),
+        ...defauts.filter((d) => !config.some((w) => w.key === d.key)),
+      ]
+    : defauts;
 
   const enregistrerConfig = async (next: WidgetConfig[]) => {
     setConfig(next);
@@ -73,6 +83,10 @@ export function DashboardClient({
 
   const widgetNode = (key: WidgetKey) => {
     switch (key) {
+      case 'insights':
+        return data.insights.length ? <InsightsAuto insights={data.insights} /> : null;
+      case 'risques':
+        return <SectionCard title="Alertes proactives" subtitle="Dérives détectées avant le retard — score de risque explicable (vélocité, budget, dormance, blocage, surcharge)"><RisquesProactifs risques={data.risques} /></SectionCard>;
       case 'heatmap':
         return <Heatmap heatmap={data.heatmap} axes={axes} />;
       case 'parAxe':

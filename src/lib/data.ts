@@ -11,6 +11,7 @@ import {
   type AggAction,
 } from './aggregations';
 import { pivot, crossMatrix } from './analyses';
+import { computeInsights, computeRisques } from './risque';
 import { computeVelocity } from './agile';
 import { getSelectedPlanId } from './plan-context';
 import type { DimensionKey } from './constants';
@@ -106,10 +107,12 @@ export async function getDashboardData(planId: string, periode?: Periode) {
     }),
   ]);
 
-  const actions: AggAction[] = actionsRaw.map(serializeAction);
+  const actions = actionsRaw.map(serializeAction);
 
   return {
     kpis: computeKpis(actions),
+    risques: computeRisques(actions).slice(0, 12),
+    insights: computeInsights(actions),
     heatmap: computeHeatmap(
       actions,
       pays.map((p) => ({ id: p.id, nom: p.nom })),
