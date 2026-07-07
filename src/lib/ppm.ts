@@ -396,3 +396,71 @@ export function initiativesEnSouffrance<
     .filter((i) => i.joursImmobile >= SEUIL_SOUFFRANCE_JOURS)
     .sort((a, b) => b.joursImmobile - a.joursImmobile);
 }
+
+// ---------------------------------------------------------------------------
+// Analyses DSI — pivots du portefeuille
+// ---------------------------------------------------------------------------
+
+export type PivotDomaine = {
+  domaine: string;
+  total: number;
+  actives: number;
+  deployees: number;
+  agile: number;
+  waterfall: number;
+  valeurMoyenne: number;
+  budget: number;
+};
+
+export function pivotParDomaine(
+  initiatives: {
+    domaine?: string | null;
+    mode: string;
+    statutCycle: string;
+    valeurMetier: number;
+    budget?: number | null;
+  }[],
+): PivotDomaine[] {
+  const map = new Map<string, typeof initiatives>();
+  for (const i of initiatives) {
+    const dom = i.domaine ?? 'Sans domaine';
+    if (!map.has(dom)) map.set(dom, []);
+    map.get(dom)!.push(i);
+  }
+  return [...map.entries()]
+    .map(([domaine, rows]) => ({
+      domaine,
+      total: rows.length,
+      actives: rows.filter((r) => !STATUTS_TERMINES.includes(r.statutCycle)).length,
+      deployees: rows.filter((r) => r.statutCycle === 'DEPLOYE').length,
+      agile: rows.filter((r) => r.mode === 'AGILE').length,
+      waterfall: rows.filter((r) => r.mode === 'WATERFALL').length,
+      valeurMoyenne:
+        Math.round((rows.reduce((s2, r) => s2 + r.valeurMetier, 0) / rows.length) * 10) / 10,
+      budget: rows.reduce((s2, r) => s2 + (r.budget ?? 0), 0),
+    }))
+    .sort((a, b) => b.total - a.total);
+}
+
+export type FluxMois = { mois: string; soumissions: number; deploiements: number };
+
+/** Flux du pipeline : initiatives soumises vs déployées, par mois. */
+export function fluxMensuel(
+  initiatives: { createdAt: Date | string }[],
+  transitions: TransitionHisto[],
+  nbMois: number = 6,
+  today: Date = new Date(),
+): FluxMois[] {
+  const mois: string[] = [];
+  const d = new Date(Date.UTC(today.getUTCFullYear(), today.getUTCMonth(), 1));
+  for (let k = nbMois - 1; k >= 0; k--) {
+    const m = new Date(Date.UTC(d.getUTCFullYear(), d.getUTCMonth() - k, 1));
+    mois.push(m.toISOString().slice(0, 7));
+  }
+  const cle = (x: Date | string) => new Date(x).toISOString().slice(0, 7);
+  return mois.map((m) => ({
+    mois: m,
+    soumissions: initiatives.filter((i) => cle(i.createdAt) === m).length,
+    deploiements: transitions.filter((tr) => tr.vers === 'DEPLOYE' && cle(tr.createdAt) === m).length,
+  }));
+}
