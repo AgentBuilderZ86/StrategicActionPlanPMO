@@ -217,6 +217,7 @@ export const KANBAN_LABEL: Record<KanbanColonne, string> = {
 
 // Widgets du tableau de bord personnalisable (T2.2, exig. 23)
 export const DASHBOARD_WIDGETS = [
+  { key: 'impactSR', label: 'Impact sécurité routière (Baromètre 2024)' },
   { key: 'insights', label: 'Insights automatiques' },
   { key: 'risques', label: 'Alertes proactives (moteur de risque)' },
   { key: 'heatmap', label: 'Carte de chaleur (région × axe)' },

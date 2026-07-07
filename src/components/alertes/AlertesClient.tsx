@@ -7,6 +7,8 @@ import type { AlerteDTO } from '@/lib/alertes-db';
 import { ALERTE_STATUT_LABEL, type AlerteStatut } from '@/lib/alertes';
 import { NIVEAU_RISQUE_COLOR, type NiveauRisque } from '@/lib/risque';
 import { cn, fmtDate, fmtPct } from '@/lib/utils';
+import { enjeuAction } from '@/lib/impact-sr';
+import { EnjeuVies } from '@/components/ui/EnjeuVies';
 
 const ONGLETS: { key: AlerteStatut; label: string }[] = [
   { key: 'NOUVELLE', label: 'Nouvelles' },
@@ -111,6 +113,7 @@ export function AlertesClient({ initial, pilotage }: { initial: AlerteDTO[]; pil
         <div className="grid items-start gap-3 xl:grid-cols-2">
           {visibles.map((a) => {
             const color = NIVEAU_RISQUE_COLOR[a.niveau as NiveauRisque] ?? '#586059';
+            const enjeu = enjeuAction({ titre: a.action.titre, axe: a.action.axe });
             return (
               <div key={a.id} className="card p-4" style={{ borderLeft: `4px solid ${color}` }}>
                 <div className="flex flex-wrap items-start gap-3">
@@ -122,9 +125,12 @@ export function AlertesClient({ initial, pilotage }: { initial: AlerteDTO[]; pil
                     <span className="text-[8px] font-semibold uppercase opacity-90">risque</span>
                   </div>
                   <div className="min-w-0 grow">
-                    <Link href={`/actions?focus=${a.actionId}`} className="font-semibold text-ink hover:underline">
-                      {a.action.titre}
-                    </Link>
+                    <span className="flex flex-wrap items-center gap-2">
+                      <Link href={`/actions?focus=${a.actionId}`} className="font-semibold text-ink hover:underline">
+                        {a.action.titre}
+                      </Link>
+                      {enjeu && <EnjeuVies levier={enjeu.levier} />}
+                    </span>
                     <div className="text-xs text-slate-500">
                       {[a.action.axe, a.action.pays, a.action.responsable].filter(Boolean).join(' · ')}
                       {' · '}avancement {fmtPct(a.action.avancement)} · échéance {fmtDate(a.action.dateFin)}
