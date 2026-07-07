@@ -1,5 +1,6 @@
 import { z } from 'zod';
 import { STATUTS, PRIORITES, ROLES, NIVEAUX, NIVEAU_MAX, PMO_TYPES, SENS_INDICATEUR, ATTRIBUT_TYPES, TYPES_UTILISATEUR, SPRINT_STATUTS, KANBAN_COLONNES } from './constants';
+import { EXPOSITIONS, K_ANONYMAT, NIVEAUX_IMPACT, TRANCHES_AGE } from './populations';
 
 export const statutEnum = z.enum(STATUTS);
 export const prioriteEnum = z.enum(PRIORITES);
@@ -216,4 +217,40 @@ export const importRowSchema = z.object({
   dateFin: z.string().optional(),
   budget: z.union([z.string(), z.number()]).optional(),
   commentaire: z.string().optional(),
+});
+
+// --- Populations & adoption (V1.2) ---------------------------------------
+
+export const populationSchema = z.object({
+  planId: z.string().min(1),
+  nom: z.string().min(1, 'Le nom est requis').max(120),
+  description: z.string().max(1000).optional().nullable(),
+  effectif: z.coerce.number().int().min(0).default(0),
+  trancheAge: z.enum(TRANCHES_AGE).default('MIXTE'),
+  ancienneteMoyenne: z.coerce.number().min(0).max(50).optional().nullable(),
+  maturiteDigitale: z.coerce.number().int().min(1).max(5).default(3),
+  expositionChangement: z.enum(EXPOSITIONS).default('MOYENNE'),
+});
+
+export const populationUpdateSchema = populationSchema.partial().omit({ planId: true });
+
+export const pulseSchema = z.object({
+  adhesion: z.coerce.number().int().min(0).max(100),
+  comprehension: z.coerce.number().int().min(0).max(100),
+  preparation: z.coerce.number().int().min(0).max(100),
+  repondants: z.coerce
+    .number()
+    .int()
+    .min(K_ANONYMAT, `k-anonymat : au moins ${K_ANONYMAT} répondants requis pour restituer un pulse`),
+});
+
+export const liensPopulationSchema = z.object({
+  liens: z
+    .array(
+      z.object({
+        actionId: z.string().min(1),
+        niveauImpact: z.enum(NIVEAUX_IMPACT).default('INFORME'),
+      }),
+    )
+    .max(200),
 });
