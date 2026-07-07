@@ -224,3 +224,46 @@ export async function getDelivery(planId: string): Promise<IndicateursDelivery &
   ]);
   return { ...computeDelivery(transitions, initiatives), total: initiatives.length };
 }
+
+/** Correspondance statut d'action PMO → statut de cycle waterfall. */
+const STATUT_ACTION_VERS_CYCLE: Record<string, string> = {
+  A_LANCER: 'NON_QUALIFIE',
+  EN_COURS: 'REALISATION_EN_COURS',
+  BLOQUE: 'REALISATION_EN_COURS',
+  TERMINE: 'DEPLOYE',
+};
+
+/**
+ * Reprise DSI : convertit les actions « PMO stratégique » du plan en
+ * initiatives waterfall (titre, description, responsable → chef de projet,
+ * budget, statut projeté). Idempotent : une action déjà importée (même titre)
+ * est ignorée. Les actions d'origine ne sont pas supprimées.
+ */
+export async function importerActionsCommeInitiatives(planId: string): Promise<{ importees: number; ignorees: number }> {
+  const [actions, initiatives] = await Promise.all([
+    prisma.action.findMany({
+      where: { planId },
+      select: { titre: true, description: true, responsable: true, statut: true, budget: true },
+    }),
+    prisma.initiative.findMany({ where: { planId }, select: { titre: true } }),
+  ]);
+  const dejaLa = new Set(initiatives.map((i) => i.titre.trim().toLowerCase()));
+  let importees = 0;
+  for (const a of actions) {
+    if (dejaLa.has(a.titre.trim().toLowerCase())) continue;
+    await prisma.initiative.create({
+      data: {
+        planId,
+        titre: a.titre,
+        description: a.description,
+        type: 'PROJET',
+        mode: 'WATERFALL',
+        statutCycle: STATUT_ACTION_VERS_CYCLE[a.statut] ?? 'NON_QUALIFIE',
+        chefProjet: a.responsable || null,
+        budget: a.budget,
+      },
+    });
+    importees++;
+  }
+  return { importees, ignorees: actions.length - importees };
+}
