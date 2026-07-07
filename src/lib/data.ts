@@ -11,12 +11,22 @@ import {
   type AggAction,
 } from './aggregations';
 import { pivot, crossMatrix } from './analyses';
+import { computeVelocity } from './agile';
+import { getSelectedPlanId } from './plan-context';
 import type { DimensionKey } from './constants';
 
-/** Renvoie le plan « actif » (le plus récent). En V1, un seul plan de démo. */
+/**
+ * Renvoie le plan actif : priorité au paramètre explicite (ex. `?planId=`),
+ * puis à la sélection persistante de l'utilisateur (cookie, voir
+ * `PlanSwitcher`), puis au premier plan créé. Centraliser cette résolution ici
+ * fait que toutes les pages et routes API héritent automatiquement du plan
+ * choisi dans l'en-tête, sans le répéter partout.
+ */
 export async function getActivePlan(planId?: string) {
-  if (planId) {
-    return prisma.plan.findUnique({ where: { id: planId } });
+  const id = planId || getSelectedPlanId();
+  if (id) {
+    const plan = await prisma.plan.findUnique({ where: { id } });
+    if (plan) return plan;
   }
   return prisma.plan.findFirst({ orderBy: { createdAt: 'asc' } });
 }
@@ -130,3 +140,32 @@ export async function getPlanningData(planId: string) {
 }
 
 export type PlanningData = Awaited<ReturnType<typeof getPlanningData>>;
+
+/** Instantané agile d'un plan SI : sprint en cours + dernière vélocité connue
+ *  (bandeau différencié de l'accueil, voir PlanBanner). */
+export async function getAgileSnapshot(planId: string) {
+  const [sprints, items] = await Promise.all([
+    prisma.sprint.findMany({ where: { planId }, orderBy: { ordre: 'asc' } }),
+    prisma.itemBacklog.findMany({
+      where: { planId },
+      select: { id: true, sprintId: true, statut: true, points: true },
+    }),
+  ]);
+
+  const sprintEnCours = sprints.find((s) => s.statut === 'EN_COURS') ?? null;
+  const velocity = computeVelocity(sprints, items);
+  const derniereVelocity = [...velocity].reverse().find((v) => v.points > 0) ?? null;
+  const pointsRestants = sprintEnCours
+    ? items
+        .filter((i) => i.sprintId === sprintEnCours.id && i.statut !== 'TERMINE')
+        .reduce((s, i) => s + (i.points ?? 0), 0)
+    : 0;
+
+  return {
+    sprintEnCours: sprintEnCours ? { nom: sprintEnCours.nom } : null,
+    derniereVelocity,
+    pointsRestants,
+  };
+}
+
+export type AgileSnapshot = Awaited<ReturnType<typeof getAgileSnapshot>>;

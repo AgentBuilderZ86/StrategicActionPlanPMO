@@ -3,25 +3,18 @@
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { cn } from '@/lib/utils';
+import { NAV_ITEMS, type PmoType } from '@/lib/constants';
 
-const TABS = [
-  { href: '/', label: 'Tableau de bord' },
-  { href: '/actions', label: "Plan d'actions" },
-  { href: '/planning', label: 'Planning' },
-  { href: '/agile', label: 'Agile / SI' },
-  { href: '/analyses', label: 'Analyses' },
-  { href: '/rapports', label: 'Rapports' },
-  { href: '/copil', label: 'Comité de pilotage' },
-  { href: '/parametres', label: 'Paramètres' },
-];
-
-export function Nav() {
+/** Navigation adaptative : n'affiche que les modules pertinents pour le type
+ *  du plan actif (ex. « Agile / SI » n'apparaît que pour un plan SI). */
+export function Nav({ typePmo }: { typePmo?: PmoType | null }) {
   const pathname = usePathname();
   const isActive = (href: string) => (href === '/' ? pathname === '/' : pathname.startsWith(href));
+  const items = typePmo ? NAV_ITEMS.filter((t) => (t.modules as readonly string[]).includes(typePmo)) : NAV_ITEMS;
 
   return (
     <nav className="flex flex-wrap gap-1" aria-label="Navigation principale">
-      {TABS.map((t) => (
+      {items.map((t) => (
         <Link
           key={t.href}
           href={t.href}

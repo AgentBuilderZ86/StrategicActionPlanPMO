@@ -15,6 +15,23 @@ export type Role = (typeof ROLES)[number];
 export const PMO_TYPES = ['ECOSYSTEME', 'INTERNE', 'SI'] as const;
 export type PmoType = (typeof PMO_TYPES)[number];
 
+/**
+ * Navigation adaptative : chaque entrée précise les types de plan pour
+ * lesquels elle est pertinente. Un plan SI n'a par exemple pas vocation à
+ * afficher un onglet « Comité de pilotage », et seul un plan SI affiche
+ * « Agile / SI ». Filtré par `Nav` selon le plan actif.
+ */
+export const NAV_ITEMS = [
+  { href: '/', label: 'Tableau de bord', modules: PMO_TYPES },
+  { href: '/actions', label: "Plan d'actions", modules: PMO_TYPES },
+  { href: '/planning', label: 'Planning', modules: PMO_TYPES },
+  { href: '/agile', label: 'Agile / SI', modules: ['SI'] as PmoType[] },
+  { href: '/analyses', label: 'Analyses', modules: PMO_TYPES },
+  { href: '/rapports', label: 'Rapports', modules: PMO_TYPES },
+  { href: '/copil', label: 'Comité de pilotage', modules: ['ECOSYSTEME', 'INTERNE'] as PmoType[] },
+  { href: '/parametres', label: 'Paramètres', modules: PMO_TYPES },
+] as const;
+
 export const STATUT_LABEL: Record<Statut, string> = {
   A_LANCER: 'À lancer',
   EN_COURS: 'En cours',
