@@ -17,7 +17,7 @@ export async function Sidebar() {
     <div className="flex h-full flex-col text-white">
       <div className="p-4">
         <Link href="/portefeuille" className="flex items-center gap-3 rounded-lg p-1 hover:bg-white/5">
-          <div className="flex h-11 w-11 shrink-0 flex-col items-center justify-center rounded-[11px] px-1 font-mono text-[10px] font-bold leading-tight text-sombre-profond" style={{ background: 'linear-gradient(140deg, #2BBB71, #0D8B50)', boxShadow: '0 4px 14px rgba(0,0,0,0.28), inset 0 1px 0 rgba(255,255,255,0.3)' }}>
+          <div className="flex h-11 w-11 shrink-0 flex-col items-center justify-center rounded-[11px] px-1 font-mono text-[10px] font-bold leading-tight text-sombre-profond" style={{ background: typePmo === 'SI' ? 'linear-gradient(140deg, #3B9BF0, #0B5CAD)' : 'linear-gradient(140deg, #2BBB71, #0D8B50)', boxShadow: '0 4px 14px rgba(0,0,0,0.28), inset 0 1px 0 rgba(255,255,255,0.3)', color: typePmo === 'SI' ? '#fff' : undefined }}>
             <span className="text-[12px] font-black">NARSA</span>
             <span className="text-[7px] font-semibold tracking-wider opacity-80">PMO</span>
           </div>
@@ -43,7 +43,7 @@ export async function Sidebar() {
       </div>
 
       <div className="border-t border-white/10 p-3 text-[11px] text-slate-400">
-        SNSR 2026-2030 · Montants en k MAD
+        {typePmo === 'SI' ? 'PPM DSI · Montants en k MAD' : 'SNSR 2026-2030 · Montants en k MAD'}
       </div>
     </div>
   );
