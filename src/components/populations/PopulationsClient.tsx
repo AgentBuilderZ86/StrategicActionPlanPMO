@@ -15,22 +15,23 @@ import {
   receptivite,
   recommander,
 } from '@/lib/populations';
-import { SectionCard } from '@/components/ui/Cards';
+import { Tiroir } from '@/components/ui/Tiroir';
+import { Onglets } from '@/components/ui/Onglets';
 
 type ActionPlan = { id: string; titre: string; code: string | null; statut: string };
 
-const jauge = (v: number) => (v >= 60 ? '#0D8B50' : v >= 40 ? '#BE7200' : '#D33A3C');
+const couleur = (v: number) => (v >= 60 ? '#1A8A51' : v >= 40 ? '#BE7200' : '#D33A3C');
 
 function Jauge({ label, valeur, max = 100 }: { label: string; valeur: number; max?: number }) {
   const pct = Math.round((valeur / max) * 100);
   return (
-    <div className="flex items-center gap-2 text-xs">
-      <span className="w-36 shrink-0 font-medium text-slate-500">{label}</span>
-      <div className="h-1.5 grow rounded-full bg-slate-100">
-        <div className="h-full rounded-full" style={{ width: `${pct}%`, backgroundColor: jauge(pct) }} />
+    <div className="flex items-center gap-2 text-[11px]">
+      <span className="w-24 shrink-0 font-medium text-slate-500">{label}</span>
+      <div className="h-1.5 grow rounded-full bg-canvas">
+        <div className="h-full rounded-full" style={{ width: `${pct}%`, backgroundColor: couleur(pct) }} />
       </div>
-      <span className="w-12 text-right font-semibold tabular-nums text-ink">
-        {max === 5 ? `${valeur}/5` : `${valeur} %`}
+      <span className="w-9 text-right font-mono text-xs font-bold tabular-nums text-ink">
+        {max === 5 ? `${valeur}/5` : valeur}
       </span>
     </div>
   );
@@ -47,8 +48,9 @@ const FORM_VIDE = {
 };
 
 /**
- * Référentiel des populations impactées : profils agrégés, pulses, liens aux
- * actions et recommandations d'accompagnement générées par les playbooks.
+ * Populations V3 : grille compacte de cartes profil ; toute la gestion
+ * (profil, pulse, liens aux actions) vit dans un tiroir latéral à onglets —
+ * plus rien ne se déplie dans les cartes, la page tient à l'écran.
  */
 export function PopulationsClient({
   planId,
@@ -64,15 +66,15 @@ export function PopulationsClient({
   nomUtilisateur: string;
 }) {
   const router = useRouter();
-  const [formOuvert, setFormOuvert] = useState(false);
+  const [tiroirPour, setTiroirPour] = useState<PopulationDTO | 'nouvelle' | null>(null);
+  const [ongletTiroir, setOngletTiroir] = useState<'profil' | 'pulse' | 'liens'>('profil');
   const [form, setForm] = useState<typeof FORM_VIDE>(FORM_VIDE);
-  const [editionId, setEditionId] = useState<string | null>(null);
-  const [pulsePour, setPulsePour] = useState<string | null>(null);
   const [pulse, setPulse] = useState({ adhesion: 60, comprehension: 60, preparation: 60, repondants: 8 });
-  const [liensPour, setLiensPour] = useState<string | null>(null);
   const [liens, setLiens] = useState<Map<string, string>>(new Map());
   const [info, setInfo] = useState<string | null>(null);
   const [chargement, setChargement] = useState(false);
+
+  const population = tiroirPour !== 'nouvelle' ? tiroirPour : null;
 
   const appel = async (url: string, method: string, body: unknown) => {
     setChargement(true);
@@ -95,9 +97,29 @@ export function PopulationsClient({
     }
   };
 
-  const soumettre = async () => {
+  const ouvrirTiroir = (p: PopulationDTO | 'nouvelle') => {
+    setTiroirPour(p);
+    setOngletTiroir('profil');
+    setInfo(null);
+    if (p === 'nouvelle') {
+      setForm(FORM_VIDE);
+    } else {
+      setForm({
+        nom: p.nom,
+        description: p.description ?? '',
+        effectif: p.effectif,
+        trancheAge: p.trancheAge,
+        ancienneteMoyenne: p.ancienneteMoyenne == null ? '' : String(p.ancienneteMoyenne),
+        maturiteDigitale: p.maturiteDigitale,
+        expositionChangement: p.expositionChangement,
+      });
+      setLiens(new Map(p.actions.map((a) => [a.actionId, a.niveauImpact])));
+    }
+  };
+
+  const enregistrerProfil = async () => {
     const payload = {
-      ...(editionId ? {} : { planId }),
+      ...(population ? {} : { planId }),
       nom: form.nom,
       description: form.description || null,
       effectif: form.effectif,
@@ -106,33 +128,10 @@ export function PopulationsClient({
       maturiteDigitale: form.maturiteDigitale,
       expositionChangement: form.expositionChangement,
     };
-    const ok = editionId
-      ? await appel(`/api/populations/${editionId}`, 'PATCH', payload)
+    const ok = population
+      ? await appel(`/api/populations/${population.id}`, 'PATCH', payload)
       : await appel('/api/populations', 'POST', payload);
-    if (ok) {
-      setFormOuvert(false);
-      setEditionId(null);
-      setForm(FORM_VIDE);
-    }
-  };
-
-  const editer = (p: PopulationDTO) => {
-    setEditionId(p.id);
-    setForm({
-      nom: p.nom,
-      description: p.description ?? '',
-      effectif: p.effectif,
-      trancheAge: p.trancheAge,
-      ancienneteMoyenne: p.ancienneteMoyenne == null ? '' : String(p.ancienneteMoyenne),
-      maturiteDigitale: p.maturiteDigitale,
-      expositionChangement: p.expositionChangement,
-    });
-    setFormOuvert(true);
-  };
-
-  const ouvrirLiens = (p: PopulationDTO) => {
-    setLiensPour(p.id);
-    setLiens(new Map(p.actions.map((a) => [a.actionId, a.niveauImpact])));
+    if (ok) setTiroirPour(null);
   };
 
   const ajouterAuPlan = async (titre: string, description: string, priorite: string) => {
@@ -149,240 +148,104 @@ export function PopulationsClient({
   };
 
   return (
-    <div className="space-y-4">
+    <div className="flex min-h-0 flex-1 flex-col gap-3">
       <div className="flex flex-wrap items-center justify-between gap-3">
-        <p className="max-w-2xl text-xs text-slate-500">
-          🔒 Données agrégées uniquement, aucune donnée individuelle. Pulses restitués à partir de{' '}
-          8 répondants (k-anonymat). Finalité : accompagnement du plan. Cadrage détaillé :{' '}
-          <code>docs/RGPD_POPULATIONS.md</code>.
+        <p className="text-xs text-white/80">
+          🔒 Profils agrégés · k-anonymat ≥ 8 · finalité : accompagnement du plan (
+          <code className="text-white/60">docs/RGPD_POPULATIONS.md</code>)
         </p>
         {pilotage && (
-          <button
-            type="button"
-            className="btn-primary"
-            onClick={() => {
-              setEditionId(null);
-              setForm(FORM_VIDE);
-              setFormOuvert(!formOuvert);
-            }}
-          >
+          <button type="button" className="btn-primary" onClick={() => ouvrirTiroir('nouvelle')}>
             ＋ Nouvelle population
           </button>
         )}
       </div>
 
-      {info && <div className="rounded-xl bg-slate-100 px-4 py-2.5 text-sm text-slate-700">{info}</div>}
+      {info && <div className="card px-4 py-2 text-sm text-slate-700">{info}</div>}
 
-      {formOuvert && (
-        <SectionCard title={editionId ? 'Modifier la population' : 'Nouvelle population'}>
-          <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-            <div>
-              <label className="label" htmlFor="pop-nom">Nom du groupe</label>
-              <input id="pop-nom" className="input" value={form.nom} placeholder="Ex. Agents guichet région Nord"
-                onChange={(e) => setForm({ ...form, nom: e.target.value })} />
-            </div>
-            <div>
-              <label className="label" htmlFor="pop-effectif">Effectif</label>
-              <input id="pop-effectif" type="number" min={0} className="input" value={form.effectif}
-                onChange={(e) => setForm({ ...form, effectif: Number(e.target.value) })} />
-            </div>
-            <div>
-              <label className="label" htmlFor="pop-tranche">Tranche d’âge dominante</label>
-              <select id="pop-tranche" className="input" value={form.trancheAge}
-                onChange={(e) => setForm({ ...form, trancheAge: e.target.value })}>
-                {TRANCHES_AGE.map((t) => (
-                  <option key={t} value={t}>{TRANCHE_AGE_LABEL[t]}</option>
-                ))}
-              </select>
-            </div>
-            <div>
-              <label className="label" htmlFor="pop-anciennete">Ancienneté moyenne (années)</label>
-              <input id="pop-anciennete" type="number" min={0} max={50} className="input" value={form.ancienneteMoyenne}
-                onChange={(e) => setForm({ ...form, ancienneteMoyenne: e.target.value })} />
-            </div>
-            <div>
-              <label className="label" htmlFor="pop-maturite">Maturité digitale (1-5)</label>
-              <input id="pop-maturite" type="number" min={1} max={5} className="input" value={form.maturiteDigitale}
-                onChange={(e) => setForm({ ...form, maturiteDigitale: Number(e.target.value) })} />
-            </div>
-            <div>
-              <label className="label" htmlFor="pop-expo">Exposition au changement</label>
-              <select id="pop-expo" className="input" value={form.expositionChangement}
-                onChange={(e) => setForm({ ...form, expositionChangement: e.target.value })}>
-                {EXPOSITIONS.map((x) => (
-                  <option key={x} value={x}>{x.charAt(0) + x.slice(1).toLowerCase()}</option>
-                ))}
-              </select>
-            </div>
-            <div className="sm:col-span-2 lg:col-span-3">
-              <label className="label" htmlFor="pop-desc">Description</label>
-              <input id="pop-desc" className="input" value={form.description}
-                onChange={(e) => setForm({ ...form, description: e.target.value })} />
-            </div>
-          </div>
-          <div className="mt-4 flex gap-2">
-            <button type="button" className="btn-primary" disabled={!form.nom.trim() || chargement} onClick={soumettre}>
-              {editionId ? 'Enregistrer' : 'Créer'}
-            </button>
-            <button type="button" className="btn-ghost" onClick={() => { setFormOuvert(false); setEditionId(null); }}>
-              Annuler
-            </button>
-          </div>
-        </SectionCard>
-      )}
-
-      {initial.length === 0 && !formOuvert ? (
+      {initial.length === 0 ? (
         <div className="card p-10 text-center text-sm text-slate-500">
-          Aucune population référencée. Créez le premier groupe de collaborateurs impacté pour
-          activer les signaux d’adoption dans le moteur de risque.
+          Aucune population référencée. Créez le premier groupe impacté pour activer les signaux
+          d&apos;adoption dans le moteur de risque.
         </div>
       ) : (
-        <div className="grid gap-4 lg:grid-cols-2">
+        <div className="scrolly grid flex-1 content-start gap-3 sm:grid-cols-2 xl:grid-cols-3">
           {initial.map((p) => {
             const charge = chargeActive(p.actions);
             const saturee = estSaturee(p.actions);
             const recept = receptivite(p, p.dernierPulse, charge);
             const recos = pilotage ? recommander(p, p.dernierPulse, p.actions) : [];
             return (
-              <div key={p.id} className="card p-5">
-                <div className="flex items-start justify-between gap-3">
-                  <div>
-                    <h3 className="font-title text-sm font-bold text-ink">{p.nom}</h3>
-                    <p className="mt-0.5 text-xs text-slate-500">
+              <div key={p.id} className="card card-liseret p-4">
+                <div className="flex items-start justify-between gap-2">
+                  <div className="min-w-0">
+                    <div className="truncate text-[13px] font-bold text-ink">{p.nom}</div>
+                    <div className="truncate text-[10.5px] text-slate-500">
                       {p.effectif} pers. · {TRANCHE_AGE_LABEL[p.trancheAge as never] ?? p.trancheAge}
-                      {p.ancienneteMoyenne != null && ` · anc. moy. ${p.ancienneteMoyenne} ans`}
-                    </p>
+                      {p.ancienneteMoyenne != null && ` · anc. ${p.ancienneteMoyenne} ans`}
+                    </div>
                   </div>
                   <span
-                    className="rounded-full px-2.5 py-1 text-xs font-bold text-white"
-                    style={{ backgroundColor: jauge(recept) }}
+                    className="flex-none rounded-full px-2 py-0.5 text-[10.5px] font-bold text-white"
+                    style={{ backgroundColor: couleur(recept) }}
                     title="Réceptivité au changement (adhésion, préparation, maturité, charge)"
                   >
-                    Réceptivité {recept}
+                    Récept. {recept}
                   </span>
                 </div>
 
-                <div className="mt-3 space-y-1.5">
-                  <Jauge label="Maturité digitale" valeur={p.maturiteDigitale} max={5} />
+                <div className="mt-2.5 space-y-1">
+                  <Jauge label="Maturité dig." valeur={p.maturiteDigitale} max={5} />
                   {p.dernierPulse ? (
                     <>
-                      <Jauge label="Adhésion (dernier pulse)" valeur={p.dernierPulse.adhesion} />
-                      <Jauge label="Compréhension" valeur={p.dernierPulse.comprehension} />
+                      <Jauge label="Adhésion" valeur={p.dernierPulse.adhesion} />
                       <Jauge label="Préparation" valeur={p.dernierPulse.preparation} />
                     </>
                   ) : (
-                    <p className="text-xs italic text-slate-400">Aucun pulse enregistré.</p>
+                    <p className="text-[10.5px] italic text-slate-400">Aucun pulse enregistré.</p>
                   )}
-                  <div className="flex items-center gap-2 text-xs">
-                    <span className="w-36 shrink-0 font-medium text-slate-500">Charge de changement</span>
-                    <span className={saturee ? 'font-bold text-statut-rouge' : 'font-semibold text-ink'}>
-                      {charge} action{charge > 1 ? 's' : ''} active{charge > 1 ? 's' : ''}
-                      {saturee && ` — saturation (seuil ${SEUIL_SATURATION})`}
-                    </span>
-                  </div>
                 </div>
 
-                {pilotage && (
-                  <div className="mt-3 flex flex-wrap gap-2 border-t border-slate-100 pt-3">
-                    <button type="button" className="btn-ghost !px-3 !py-1.5 text-xs" onClick={() => editer(p)}>Modifier</button>
-                    <button type="button" className="btn-ghost !px-3 !py-1.5 text-xs"
-                      onClick={() => { setPulsePour(pulsePour === p.id ? null : p.id); }}>
-                      ＋ Pulse
+                <div className="mt-2.5 flex flex-wrap items-center gap-1.5">
+                  <span
+                    className={`rounded-full px-2 py-0.5 text-[10.5px] font-bold ${saturee ? 'bg-red-50 text-statut-rouge' : 'bg-canvas text-slate-600'}`}
+                  >
+                    {charge} chgt{charge > 1 ? 's' : ''} actif{charge > 1 ? 's' : ''}
+                    {saturee && ` · saturation (≥ ${SEUIL_SATURATION})`}
+                  </span>
+                  {recos.length > 0 && (
+                    <span
+                      className="cursor-help rounded-full bg-emerald-50 px-2 py-0.5 text-[10.5px] font-bold text-accent"
+                      title={recos.map((r) => r.titre).join(' · ')}
+                    >
+                      💡 {recos.length} reco{recos.length > 1 ? 's' : ''}
+                    </span>
+                  )}
+                  {pilotage && (
+                    <button
+                      type="button"
+                      className="ml-auto text-[11px] font-bold text-accent hover:underline"
+                      onClick={() => ouvrirTiroir(p)}
+                    >
+                      Gérer →
                     </button>
-                    <button type="button" className="btn-ghost !px-3 !py-1.5 text-xs" onClick={() => ouvrirLiens(p)}>
-                      Actions liées ({p.actions.length})
-                    </button>
-                  </div>
-                )}
-
-                {pulsePour === p.id && (
-                  <div className="mt-3 rounded-xl bg-slate-50 p-3">
-                    <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
-                      {(['adhesion', 'comprehension', 'preparation', 'repondants'] as const).map((k) => (
-                        <div key={k}>
-                          <label className="label" htmlFor={`pulse-${p.id}-${k}`}>
-                            {k === 'repondants' ? 'Répondants (≥ 8)' : k.charAt(0).toUpperCase() + k.slice(1)}
-                          </label>
-                          <input id={`pulse-${p.id}-${k}`} type="number" className="input"
-                            min={k === 'repondants' ? 8 : 0} max={k === 'repondants' ? 100000 : 100}
-                            value={pulse[k]}
-                            onChange={(e) => setPulse({ ...pulse, [k]: Number(e.target.value) })} />
-                        </div>
-                      ))}
-                    </div>
-                    <button type="button" className="btn-primary mt-2 !px-3 !py-1.5 text-xs" disabled={chargement}
-                      onClick={async () => {
-                        const ok = await appel(`/api/populations/${p.id}/pulses`, 'POST', pulse);
-                        if (ok) setPulsePour(null);
-                      }}>
-                      Enregistrer le pulse
-                    </button>
-                  </div>
-                )}
-
-                {liensPour === p.id && (
-                  <div className="mt-3 max-h-56 overflow-y-auto rounded-xl bg-slate-50 p-3">
-                    {actionsPlan.map((a) => {
-                      const impact = liens.get(a.id);
-                      return (
-                        <div key={a.id} className="flex items-center gap-2 py-1 text-xs">
-                          <input
-                            type="checkbox"
-                            id={`lien-${p.id}-${a.id}`}
-                            checked={impact !== undefined}
-                            onChange={(e) => {
-                              const next = new Map(liens);
-                              if (e.target.checked) next.set(a.id, 'INFORME');
-                              else next.delete(a.id);
-                              setLiens(next);
-                            }}
-                          />
-                          <label htmlFor={`lien-${p.id}-${a.id}`} className="grow truncate">
-                            {a.code ? `${a.code} — ` : ''}{a.titre}
-                          </label>
-                          {impact !== undefined && (
-                            <select
-                              aria-label="Niveau d'impact"
-                              className="input !w-32 !py-1 text-xs"
-                              value={impact}
-                              onChange={(e) => setLiens(new Map(liens).set(a.id, e.target.value))}
-                            >
-                              {NIVEAUX_IMPACT.map((n) => (
-                                <option key={n} value={n}>{NIVEAU_IMPACT_LABEL[n]}</option>
-                              ))}
-                            </select>
-                          )}
-                        </div>
-                      );
-                    })}
-                    <button type="button" className="btn-primary mt-2 !px-3 !py-1.5 text-xs" disabled={chargement}
-                      onClick={async () => {
-                        const ok = await appel(`/api/populations/${p.id}/liens`, 'PUT', {
-                          liens: [...liens.entries()].map(([actionId, niveauImpact]) => ({ actionId, niveauImpact })),
-                        });
-                        if (ok) setLiensPour(null);
-                      }}>
-                      Enregistrer les liens
-                    </button>
-                  </div>
-                )}
+                  )}
+                </div>
 
                 {recos.length > 0 && (
-                  <div className="mt-3 space-y-2 border-t border-slate-100 pt-3">
-                    <div className="text-xs font-bold uppercase tracking-wide text-slate-400">
-                      Recommandations d’accompagnement
-                    </div>
-                    {recos.map((r) => (
-                      <div key={r.code} className="rounded-xl border border-emerald-100 bg-emerald-50/50 p-3">
-                        <div className="text-xs font-bold text-ink">{r.titre}</div>
-                        <p className="mt-0.5 text-xs text-slate-600">{r.justification}</p>
+                  <div className="mt-2 space-y-1.5 border-t border-ligne/70 pt-2">
+                    {recos.slice(0, 2).map((r) => (
+                      <div key={r.code} className="flex items-center gap-2">
+                        <span className="min-w-0 flex-1 truncate text-[11px] text-slate-600" title={r.justification}>
+                          {r.titre}
+                        </span>
                         <button
                           type="button"
-                          className="btn-primary mt-2 !px-3 !py-1 text-xs"
+                          className="flex-none text-[10.5px] font-bold text-accent hover:underline"
                           disabled={chargement}
                           onClick={() => ajouterAuPlan(r.actionSuggeree.titre, r.actionSuggeree.description, r.actionSuggeree.priorite)}
                         >
-                          ＋ Ajouter au plan
+                          ＋ Plan
                         </button>
                       </div>
                     ))}
@@ -393,6 +256,160 @@ export function PopulationsClient({
           })}
         </div>
       )}
+
+      {/* Tiroir de gestion : profil / pulse / liens */}
+      <Tiroir
+        titre={population ? population.nom : 'Nouvelle population'}
+        ouvert={tiroirPour !== null}
+        onClose={() => setTiroirPour(null)}
+      >
+        {population && (
+          <Onglets
+            className="mb-4 w-full [&>button]:flex-1"
+            onglets={[
+              { key: 'profil', label: 'Profil' },
+              { key: 'pulse', label: 'Pulse' },
+              { key: 'liens', label: `Actions (${liens.size})` },
+            ]}
+            actif={ongletTiroir}
+            onChange={setOngletTiroir}
+          />
+        )}
+
+        {info && <div className="mb-3 rounded-lg bg-red-50 px-3 py-2 text-xs font-semibold text-statut-rouge">{info}</div>}
+
+        {(ongletTiroir === 'profil' || !population) && (
+          <div className="space-y-3">
+            <div>
+              <label className="label" htmlFor="pop-nom">Nom du groupe</label>
+              <input id="pop-nom" className="input" value={form.nom} placeholder="Ex. Agents guichet région Nord"
+                onChange={(e) => setForm({ ...form, nom: e.target.value })} />
+            </div>
+            <div className="grid grid-cols-2 gap-3">
+              <div>
+                <label className="label" htmlFor="pop-effectif">Effectif</label>
+                <input id="pop-effectif" type="number" min={0} className="input" value={form.effectif}
+                  onChange={(e) => setForm({ ...form, effectif: Number(e.target.value) })} />
+              </div>
+              <div>
+                <label className="label" htmlFor="pop-anciennete">Ancienneté moy. (ans)</label>
+                <input id="pop-anciennete" type="number" min={0} max={50} className="input" value={form.ancienneteMoyenne}
+                  onChange={(e) => setForm({ ...form, ancienneteMoyenne: e.target.value })} />
+              </div>
+              <div>
+                <label className="label" htmlFor="pop-tranche">Tranche d&apos;âge dominante</label>
+                <select id="pop-tranche" className="input" value={form.trancheAge}
+                  onChange={(e) => setForm({ ...form, trancheAge: e.target.value })}>
+                  {TRANCHES_AGE.map((t) => (
+                    <option key={t} value={t}>{TRANCHE_AGE_LABEL[t]}</option>
+                  ))}
+                </select>
+              </div>
+              <div>
+                <label className="label" htmlFor="pop-maturite">Maturité digitale (1-5)</label>
+                <input id="pop-maturite" type="number" min={1} max={5} className="input" value={form.maturiteDigitale}
+                  onChange={(e) => setForm({ ...form, maturiteDigitale: Number(e.target.value) })} />
+              </div>
+            </div>
+            <div>
+              <label className="label" htmlFor="pop-expo">Exposition au changement</label>
+              <select id="pop-expo" className="input" value={form.expositionChangement}
+                onChange={(e) => setForm({ ...form, expositionChangement: e.target.value })}>
+                {EXPOSITIONS.map((x) => (
+                  <option key={x} value={x}>{x.charAt(0) + x.slice(1).toLowerCase()}</option>
+                ))}
+              </select>
+            </div>
+            <div>
+              <label className="label" htmlFor="pop-desc">Description</label>
+              <input id="pop-desc" className="input" value={form.description}
+                onChange={(e) => setForm({ ...form, description: e.target.value })} />
+            </div>
+            <button type="button" className="btn-primary w-full" disabled={!form.nom.trim() || chargement} onClick={enregistrerProfil}>
+              {population ? 'Enregistrer le profil' : 'Créer la population'}
+            </button>
+          </div>
+        )}
+
+        {population && ongletTiroir === 'pulse' && (
+          <div className="space-y-3">
+            <p className="text-xs text-slate-500">
+              Résultats agrégés d&apos;une mini-enquête. Minimum 8 répondants (k-anonymat), jamais de
+              réponse individuelle.
+            </p>
+            <div className="grid grid-cols-2 gap-3">
+              {(['adhesion', 'comprehension', 'preparation', 'repondants'] as const).map((k) => (
+                <div key={k}>
+                  <label className="label" htmlFor={`pulse-${k}`}>
+                    {k === 'repondants' ? 'Répondants (≥ 8)' : k.charAt(0).toUpperCase() + k.slice(1)}
+                  </label>
+                  <input id={`pulse-${k}`} type="number" className="input"
+                    min={k === 'repondants' ? 8 : 0} max={k === 'repondants' ? 100000 : 100}
+                    value={pulse[k]}
+                    onChange={(e) => setPulse({ ...pulse, [k]: Number(e.target.value) })} />
+                </div>
+              ))}
+            </div>
+            <button type="button" className="btn-primary w-full" disabled={chargement}
+              onClick={async () => {
+                const ok = await appel(`/api/populations/${population.id}/pulses`, 'POST', pulse);
+                if (ok) setTiroirPour(null);
+              }}>
+              Enregistrer le pulse
+            </button>
+          </div>
+        )}
+
+        {population && ongletTiroir === 'liens' && (
+          <div className="space-y-3">
+            <p className="text-xs text-slate-500">Actions du plan impactant cette population, avec le niveau d&apos;impact.</p>
+            <div className="scrolly max-h-[55vh] rounded-xl bg-canvas p-2.5">
+              {actionsPlan.map((a) => {
+                const impact = liens.get(a.id);
+                return (
+                  <div key={a.id} className="flex items-center gap-2 py-1 text-xs">
+                    <input
+                      type="checkbox"
+                      id={`lien-${a.id}`}
+                      checked={impact !== undefined}
+                      onChange={(e) => {
+                        const next = new Map(liens);
+                        if (e.target.checked) next.set(a.id, 'INFORME');
+                        else next.delete(a.id);
+                        setLiens(next);
+                      }}
+                    />
+                    <label htmlFor={`lien-${a.id}`} className="min-w-0 grow truncate">
+                      {a.code ? `${a.code} — ` : ''}{a.titre}
+                    </label>
+                    {impact !== undefined && (
+                      <select
+                        aria-label="Niveau d'impact"
+                        className="input !w-28 !py-0.5 text-xs"
+                        value={impact}
+                        onChange={(e) => setLiens(new Map(liens).set(a.id, e.target.value))}
+                      >
+                        {NIVEAUX_IMPACT.map((n) => (
+                          <option key={n} value={n}>{NIVEAU_IMPACT_LABEL[n]}</option>
+                        ))}
+                      </select>
+                    )}
+                  </div>
+                );
+              })}
+            </div>
+            <button type="button" className="btn-primary w-full" disabled={chargement}
+              onClick={async () => {
+                const ok = await appel(`/api/populations/${population.id}/liens`, 'PUT', {
+                  liens: [...liens.entries()].map(([actionId, niveauImpact]) => ({ actionId, niveauImpact })),
+                });
+                if (ok) setTiroirPour(null);
+              }}>
+              Enregistrer les liens
+            </button>
+          </div>
+        )}
+      </Tiroir>
     </div>
   );
 }

@@ -29,7 +29,7 @@ export function AppShell({
   const [mobileOpen, setMobileOpen] = useState(false);
 
   return (
-    <div className="flex min-h-screen bg-canvas">
+    <div className="flex h-screen overflow-hidden bg-canvas">
       {mobileOpen && (
         <button
           aria-label="Fermer le menu"
@@ -47,10 +47,12 @@ export function AppShell({
         {sidebar}
       </aside>
 
-      <div className="flex min-w-0 flex-1 flex-col">
-        <header className="no-print sticky top-0 z-20 flex items-center gap-3 border-b border-white/50 bg-white/65 px-4 py-3 backdrop-blur-xl sm:px-6">
+      <div className="relative flex min-w-0 flex-1 flex-col">
+        {/* Bandeau dégradé de marque derrière la topbar et le haut de page (V3) */}
+        <div aria-hidden className="bandeau-marque no-print absolute inset-x-0 top-0 z-0 h-[240px]" />
+        <header className="no-print relative z-10 flex items-center gap-3 px-4 py-3 text-white sm:px-6">
           <button
-            className="rounded-lg p-1.5 text-lg text-slate-500 hover:bg-slate-100 md:hidden"
+            className="rounded-lg p-1.5 text-lg text-white/80 hover:bg-white/10 md:hidden"
             onClick={() => setMobileOpen(true)}
             aria-label="Ouvrir le menu"
           >
@@ -64,9 +66,9 @@ export function AppShell({
           </div>
         </header>
 
-        <main className="page-enter mx-auto w-full max-w-[1280px] flex-1 px-4 py-6 sm:px-6">{children}</main>
+        <main className="page-enter relative z-[1] mx-auto flex w-full max-w-[1320px] min-h-0 flex-1 flex-col overflow-y-auto px-4 pb-6 pt-2 sm:px-6">{children}</main>
 
-        <footer className="no-print mx-auto w-full max-w-[1280px] px-4 pb-8 pt-2 text-center text-xs text-slate-400 sm:px-6">
+        <footer className="no-print mx-auto w-full max-w-[1320px] px-4 pb-2 pt-1 text-center text-[10.5px] text-slate-400 sm:px-6">
           NARSA · Agence Nationale de la Sécurité Routière · Pilotage SNSR 2026-2030 · Montants en k MAD
         </footer>
       </div>

@@ -68,10 +68,10 @@ export default async function CopilPage() {
           <KpiCard label="Budget" value={fmtMoney(k.budgetTotal)} sub={`Consommé ${fmtPct(consoPct)}`} />
         </div>
 
+        <div className="grid gap-5 lg:grid-cols-2 print:grid-cols-2">
         {/* Heatmap */}
         <Heatmap heatmap={data.heatmap} axes={axes.map((a) => ({ id: a.id, nom: a.nom }))} />
 
-        <div className="grid gap-5 lg:grid-cols-2 print:grid-cols-2">
         {/* Top 5 points d'attention */}
         <SectionCard title="Top 5 points d'attention" subtitle="Actions bloquées ou en retard les plus prioritaires">
           <PointsAttention actions={top5} />
@@ -112,8 +112,6 @@ export default async function CopilPage() {
           )}
         </SectionCard>
 
-        </div>
-
         {/* Populations sous tension */}
         <SectionCard
           title="Populations sous tension"
@@ -143,6 +141,7 @@ export default async function CopilPage() {
             </div>
           )}
         </SectionCard>
+        </div>
       </div>
     </div>
   );

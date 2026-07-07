@@ -7,13 +7,7 @@
 }
 
 body {
-  /* Fond lumineux : halos verts/bleus sur base claire (design v2 « vibrant ») */
-  background:
-    radial-gradient(900px 520px at 88% -12%, rgba(13, 139, 80, 0.16), transparent 60%),
-    radial-gradient(760px 460px at -12% 18%, rgba(0, 124, 184, 0.13), transparent 55%),
-    radial-gradient(680px 420px at 55% 115%, rgba(43, 187, 113, 0.1), transparent 55%),
-    linear-gradient(180deg, #f5faf6, #edf4ef);
-  background-attachment: fixed;
+  background-color: #EFF5F0;
   color: #161D17;
 }
 
@@ -26,9 +20,48 @@ body {
 
 @layer components {
   .card {
-    /* Verre dépoli : translucide, flouté, bord lumineux */
-    @apply rounded-2xl border border-white/60 bg-white/70 backdrop-blur-xl;
-    box-shadow: 0 8px 30px -18px rgba(11, 37, 22, 0.28);
+    /* V3 : blanc plein, relief par ombre à deux niveaux (proche + portée) */
+    @apply rounded-2xl bg-white;
+    box-shadow:
+      0 1px 2px rgba(10, 41, 23, 0.06),
+      0 14px 30px -18px rgba(10, 41, 23, 0.25);
+  }
+  /* Liseré dégradé en tête des cartes clés */
+  .card-liseret {
+    @apply relative overflow-hidden;
+  }
+  .card-liseret::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 3px;
+    background: linear-gradient(90deg, #0d8b50, #2bbb71);
+  }
+  /* Onglets pilule sur fond translucide */
+  .onglets {
+    @apply flex w-fit gap-1 rounded-xl bg-white/55 p-1 backdrop-blur;
+    box-shadow: 0 1px 2px rgba(10, 41, 23, 0.06), 0 10px 24px -18px rgba(10, 41, 23, 0.3);
+  }
+  .onglet {
+    @apply rounded-lg border-0 bg-transparent px-4 py-1.5 text-xs font-semibold text-slate-500 transition-all;
+  }
+  .onglet-actif {
+    @apply bg-white text-accent shadow;
+  }
+  /* Zone à défilement interne (les pages ne scrollent plus, les panneaux si) */
+  .scrolly {
+    @apply min-h-0 overflow-y-auto;
+    scrollbar-width: thin;
+    scrollbar-color: #cdd8cf transparent;
+  }
+  .scrolly::-webkit-scrollbar {
+    width: 8px;
+  }
+  .scrolly::-webkit-scrollbar-thumb {
+    background: #cdd8cf;
+    border-radius: 99px;
   }
   .btn-primary {
     @apply inline-flex items-center justify-center gap-2 rounded-[9px] bg-accent px-4 py-2 text-sm font-semibold text-white transition-all hover:-translate-y-px hover:bg-accent-soft disabled:opacity-50;
@@ -54,10 +87,10 @@ body {
 .tuile {
   position: relative;
   overflow: hidden;
-  border-radius: 16px;
-  padding: 15px 17px;
+  border-radius: 13px;
+  padding: 10px 14px;
   color: #fff;
-  box-shadow: 0 12px 26px -14px rgba(11, 37, 22, 0.45);
+  box-shadow: 0 10px 22px -12px rgba(10, 41, 23, 0.5);
 }
 .tuile::before {
   content: '';
@@ -73,6 +106,11 @@ body {
 .tuile-bleu { background: linear-gradient(135deg, #22a3dd, #04679e); }
 .tuile-violet { background: linear-gradient(135deg, #9d6bff, #6d28d9); }
 .tuile-sombre { background: linear-gradient(135deg, #14532d, #06281a); }
+
+/* Bandeau supérieur : dégradé de marque VISIBLE derrière la topbar et le haut de page */
+.bandeau-marque {
+  background: linear-gradient(120deg, #06301b 0%, #0a5b33 45%, #12995c 85%, #2bbb71 100%);
+}
 
 /* Fond de la barre latérale — dégradé radial du design « PMO NARSA Strategic » */
 .sidebar-fond {

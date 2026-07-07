@@ -7,8 +7,40 @@ const fmt = (n: number) => n.toLocaleString('fr-FR');
  * (Baromètre 2024) et le potentiel des leviers auxquels les actions actives
  * du plan se rattachent — pour inciter à résoudre, sans sur-promettre.
  */
-export function ImpactSR({ enjeu }: { enjeu: EnjeuCumule }) {
+export function ImpactSR({ enjeu, compact = false }: { enjeu: EnjeuCumule; compact?: boolean }) {
   const b = BAROMETRE_2024;
+  if (compact) {
+    return (
+      <div className="tuile tuile-sombre flex flex-wrap items-center gap-x-5 gap-y-1 !py-2.5">
+        <span className="text-[10px] font-bold uppercase tracking-wide text-white/70">
+          Impact SR {b.annee}
+        </span>
+        <span className="font-mono text-sm font-bold tabular-nums">
+          {fmt(b.tues)} <span className="font-sans text-[10px] font-medium text-white/70">tués</span>
+        </span>
+        <span className="font-mono text-sm font-bold tabular-nums">
+          {fmt(b.blessesGraves)}{' '}
+          <span className="font-sans text-[10px] font-medium text-white/70">blessés graves</span>
+        </span>
+        <span className="font-mono text-sm font-bold tabular-nums">
+          {b.partUsagersVulnerables} %{' '}
+          <span className="font-sans text-[10px] font-medium text-white/70">usagers vulnérables</span>
+        </span>
+        {enjeu.leviers.length > 0 && (
+          <span
+            className="ml-auto rounded-lg bg-white/10 px-3 py-1 text-[11px]"
+            title={DISCLAIMER_IMPACT}
+          >
+            Leviers du plan :{' '}
+            <b className="font-mono tabular-nums">
+              {fmt(enjeu.viesMin)} – {fmt(enjeu.viesMax)} vies/an
+            </b>{' '}
+            ⓘ
+          </span>
+        )}
+      </div>
+    );
+  }
   return (
     <div className="tuile tuile-sombre">
       <div className="flex flex-wrap items-start justify-between gap-4">
