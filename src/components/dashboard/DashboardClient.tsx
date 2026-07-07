@@ -16,6 +16,7 @@ import {
   BudgetParAxe,
 } from './Charts';
 import { PointsAttention } from './PointsAttention';
+import { ImpactSR } from './ImpactSR';
 import { RisquesProactifs } from './RisquesProactifs';
 import { InsightsAuto } from './InsightsAuto';
 
@@ -83,6 +84,8 @@ export function DashboardClient({
 
   const widgetNode = (key: WidgetKey) => {
     switch (key) {
+      case 'impactSR':
+        return <ImpactSR enjeu={data.enjeuSR} />;
       case 'insights':
         return data.insights.length ? <InsightsAuto insights={data.insights} /> : null;
       case 'risques':
@@ -175,7 +178,7 @@ export function DashboardClient({
         {configEffective
           .filter((w) => w.visible)
           .map((w) => {
-            const pleineLargeur = ['insights', 'risques', 'heatmap', 'tendance', 'attention'].includes(w.key);
+            const pleineLargeur = ['impactSR', 'insights', 'risques', 'heatmap', 'tendance', 'attention'].includes(w.key);
             return (
               <div key={w.key} className={pleineLargeur ? 'lg:col-span-2' : ''}>
                 {widgetNode(w.key)}

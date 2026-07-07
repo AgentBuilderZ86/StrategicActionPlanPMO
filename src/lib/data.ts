@@ -14,6 +14,7 @@ import { pivot, crossMatrix } from './analyses';
 import { computeInsights, computeRisques } from './risque';
 import { computeMaJournee, type MaJournee } from './ma-journee';
 import { getAdoptionParAction } from './populations-db';
+import { enjeuCumule } from './impact-sr';
 import { computeVelocity } from './agile';
 import { getSelectedPlanId } from './plan-context';
 import type { DimensionKey } from './constants';
@@ -119,6 +120,7 @@ export async function getDashboardData(planId: string, periode?: Periode) {
     kpis: computeKpis(actions),
     risques: computeRisques(actions).slice(0, 12),
     insights: computeInsights(actions),
+    enjeuSR: enjeuCumule(actions),
     heatmap: computeHeatmap(
       actions,
       pays.map((p) => ({ id: p.id, nom: p.nom })),
