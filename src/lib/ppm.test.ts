@@ -1,6 +1,8 @@
 import { describe, expect, it } from 'vitest';
 import {
   CYCLE_AGILE,
+  initiativesEnSouffrance,
+  matriceDomainePhase,
   CYCLE_WATERFALL,
   champsRequisPour,
   computeDelivery,
@@ -103,5 +105,33 @@ describe('indicateurs delivery', () => {
     expect(d.wipParStatut.get('NON_QUALIFIE')).toBe(1);
     expect(d.wipParStatut.has('DEPLOYE')).toBe(false);
     expect(d.ageMoyenBacklogJours).toBe(11); // 27/06 00h → 07/07 12h = 10,5 j arrondi
+  });
+});
+
+describe('tableau de bord DSI', () => {
+  it('croise domaines × phases, agile projeté sur les phases communes', () => {
+    const m = matriceDomainePhase([
+      { domaine: 'Cœur métier', mode: 'WATERFALL', statutCycle: 'REALISATION_EN_COURS' },
+      { domaine: 'Cœur métier', mode: 'WATERFALL', statutCycle: 'RECETTE_EN_COURS' },
+      { domaine: 'Cœur métier', mode: 'AGILE', statutCycle: 'EN_SPRINT' },
+      { domaine: 'Support', mode: 'WATERFALL', statutCycle: 'NON_QUALIFIE' },
+      { domaine: 'Support', mode: 'WATERFALL', statutCycle: 'DEPLOYE' }, // terminée : exclue
+    ]);
+    expect(m[0]!.domaine).toBe('Cœur métier');
+    expect(m[0]!.total).toBe(3);
+    expect(m[0]!.cellules.find((c) => c.phase === 'Réalisation')!.count).toBe(2); // WF + agile EN_SPRINT
+    expect(m[1]!.cellules.find((c) => c.phase === 'Qualification')!.count).toBe(1);
+  });
+  it('détecte les initiatives immobiles au-delà du seuil', () => {
+    const rows = initiativesEnSouffrance(
+      [
+        { statutCycle: 'A_SPECIFIER_METIER', updatedAt: '2026-06-01' },
+        { statutCycle: 'EN_SPRINT', updatedAt: '2026-07-01' },
+        { statutCycle: 'DEPLOYE', updatedAt: '2026-01-01' },
+      ],
+      new Date('2026-07-07T12:00:00Z'),
+    );
+    expect(rows).toHaveLength(1);
+    expect(rows[0]!.joursImmobile).toBeGreaterThanOrEqual(36);
   });
 });

@@ -70,7 +70,9 @@ export function AppShell({
         <main className="page-enter relative z-[1] mx-auto flex w-full max-w-[1320px] min-h-0 flex-1 flex-col overflow-y-auto px-4 pb-6 pt-2 sm:px-6">{children}</main>
 
         <footer className="no-print mx-auto w-full max-w-[1320px] px-4 pb-2 pt-1 text-center text-[10.5px] text-slate-400 sm:px-6">
-          NARSA · Agence Nationale de la Sécurité Routière · Pilotage SNSR 2026-2030 · Montants en k MAD
+          {typePmo === 'SI'
+            ? 'NARSA · PPM DSI · Delivery & portefeuille SI · Montants en k MAD'
+            : 'NARSA · Agence Nationale de la Sécurité Routière · Pilotage SNSR 2026-2030 · Montants en k MAD'}
         </footer>
       </div>
     </div>

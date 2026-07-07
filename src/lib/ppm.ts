@@ -343,3 +343,56 @@ export const SEED_DOMAINES: { nom: string; type: string; sousDomaines: string[] 
   { nom: 'Cœur métier', type: 'COEUR_METIER', sousDomaines: ['Immatriculation', 'Permis de conduire', 'Contrôle technique', 'Contrôle & sanctions (radars)', 'Éducation routière', 'Secours & post-accident'] },
   { nom: 'Support', type: 'SUPPORT', sousDomaines: ['RH', 'Achats & moyens généraux', 'Relation usager', 'IT interne & infrastructure'] },
 ];
+
+// ---------------------------------------------------------------------------
+// Tableau de bord DSI — agrégations pures
+// ---------------------------------------------------------------------------
+
+export const PHASES_WF = ['Qualification', 'Conception', 'Réalisation', 'Recette', 'Déploiement'];
+
+export function phaseDuStatut(mode: string, statut: string): string {
+  return cyclePourMode(mode).find((e) => e.statut === statut)?.phase ?? 'Qualification';
+}
+
+export type CelluleDomainePhase = { phase: string; count: number };
+export type LigneDomainePhase = { domaine: string; total: number; cellules: CelluleDomainePhase[] };
+
+/** Matrice domaines métiers × phases du cycle (l'équivalent DSI de la
+ *  heatmap région × axe du PMO stratégique). */
+export function matriceDomainePhase(
+  initiatives: { domaine?: string | null; mode: string; statutCycle: string }[],
+): LigneDomainePhase[] {
+  const actives = initiatives.filter((i) => !STATUTS_TERMINES.includes(i.statutCycle));
+  const parDomaine = new Map<string, Map<string, number>>();
+  for (const i of actives) {
+    const dom = i.domaine ?? 'Sans domaine';
+    if (!parDomaine.has(dom)) parDomaine.set(dom, new Map());
+    const phase = phaseDuStatut(i.mode, i.statutCycle);
+    // Les phases agiles (Cadrage/Delivery) se projettent sur les phases communes.
+    const commune = phase === 'Cadrage' ? 'Qualification' : phase === 'Delivery' ? 'Réalisation' : phase;
+    parDomaine.get(dom)!.set(commune, (parDomaine.get(dom)!.get(commune) ?? 0) + 1);
+  }
+  return [...parDomaine.entries()]
+    .map(([domaine, cellules]) => ({
+      domaine,
+      total: [...cellules.values()].reduce((s, v) => s + v, 0),
+      cellules: PHASES_WF.map((phase) => ({ phase, count: cellules.get(phase) ?? 0 })),
+    }))
+    .sort((a, b) => b.total - a.total);
+}
+
+export const SEUIL_SOUFFRANCE_JOURS = 21;
+
+/** Initiatives en souffrance : immobiles dans leur statut au-delà du seuil. */
+export function initiativesEnSouffrance<
+  T extends { statutCycle: string; updatedAt: Date | string },
+>(initiatives: T[], today: Date = new Date()): (T & { joursImmobile: number })[] {
+  return initiatives
+    .filter((i) => !STATUTS_TERMINES.includes(i.statutCycle))
+    .map((i) => ({
+      ...i,
+      joursImmobile: Math.floor((today.getTime() - new Date(i.updatedAt).getTime()) / 86_400_000),
+    }))
+    .filter((i) => i.joursImmobile >= SEUIL_SOUFFRANCE_JOURS)
+    .sort((a, b) => b.joursImmobile - a.joursImmobile);
+}
