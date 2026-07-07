@@ -17,6 +17,7 @@ import {
 } from './Charts';
 import { PointsAttention } from './PointsAttention';
 import { ImpactSR } from './ImpactSR';
+import { Onglets } from '@/components/ui/Onglets';
 import { RisquesProactifs } from './RisquesProactifs';
 import { InsightsAuto } from './InsightsAuto';
 
@@ -38,6 +39,7 @@ export function DashboardClient({
   const [to, setTo] = useState('');
   const [loading, setLoading] = useState(false);
   const [config, setConfig] = useState<WidgetConfig[] | null>(null);
+  const [onglet, setOnglet] = useState<'pilotage' | 'analyse' | 'budget'>('pilotage');
   const [perso, setPerso] = useState(false);
 
   useEffect(() => {
@@ -118,11 +120,13 @@ export function DashboardClient({
     setLoading(false);
   };
 
+  const visible = (key: WidgetKey) => configEffective.some((w) => w.key === key && w.visible);
+
   const k = data.kpis;
   const consoPct = k.budgetTotal > 0 ? (k.budgetConso / k.budgetTotal) * 100 : 0;
 
   return (
-    <div className="space-y-5">
+    <div className="flex min-h-0 flex-1 flex-col gap-3">
       {/* Filtres globaux (le choix du plan se fait désormais dans l'en-tête) */}
       <div className="card flex flex-wrap items-end gap-3 p-3">
         <div>
@@ -162,8 +166,8 @@ export function DashboardClient({
         </div>
       )}
 
-      {/* KPIs (toujours affichés) */}
-      <div className="grid grid-cols-2 gap-4 lg:grid-cols-4 xl:grid-cols-7">
+      {/* Rang 1 — KPIs compacts sur une ligne */}
+      <div className="grid grid-cols-2 gap-2.5 sm:grid-cols-4 xl:grid-cols-7">
         <KpiCard label="Actions" value={k.total} />
         <KpiCard label="Avancement" value={fmtPct(k.avancementMoyen)} accent="#007CB8" />
         <KpiCard label="Terminées" value={k.terminees} accent="#0D8B50" />
@@ -173,19 +177,57 @@ export function DashboardClient({
         <KpiCard label="Budget" value={fmtMoney(k.budgetTotal)} sub={`Consommé ${fmtPct(consoPct)}`} />
       </div>
 
-      {/* Widgets configurables — grille 2 colonnes pour limiter le scroll */}
-      <div className="grid gap-4 lg:grid-cols-2">
-        {configEffective
-          .filter((w) => w.visible)
-          .map((w) => {
-            const pleineLargeur = ['impactSR', 'insights', 'risques', 'heatmap', 'tendance', 'attention'].includes(w.key);
-            return (
-              <div key={w.key} className={pleineLargeur ? 'lg:col-span-2' : ''}>
-                {widgetNode(w.key)}
-              </div>
-            );
-          })}
-      </div>
+      {/* Rang 2 — Impact SR condensé */}
+      {visible('impactSR') && <ImpactSR enjeu={data.enjeuSR} compact />}
+
+      {/* Rang 3 — Insights en fil horizontal */}
+      {visible('insights') && data.insights.length > 0 && (
+        <div className="flex gap-2.5 overflow-x-auto pb-1">
+          {data.insights.map((i) => (
+            <div key={i.code} className="card whitespace-nowrap px-3.5 py-2 text-xs text-slate-700">
+              {i.message}
+            </div>
+          ))}
+        </div>
+      )}
+
+      {/* Rang 4 — Onglets */}
+      <Onglets
+        onglets={[
+          { key: 'pilotage', label: 'Pilotage' },
+          { key: 'analyse', label: 'Analyse' },
+          { key: 'budget', label: 'Budget' },
+        ]}
+        actif={onglet}
+        onChange={setOnglet}
+      />
+
+      {onglet === 'pilotage' && (
+        <div className="grid min-h-0 flex-1 gap-3 lg:grid-cols-2">
+          {visible('heatmap') && (
+            <div className="scrolly max-h-[52vh]">{widgetNode('heatmap')}</div>
+          )}
+          {visible('risques') && (
+            <div className="scrolly max-h-[52vh]">{widgetNode('risques')}</div>
+          )}
+          {visible('attention') && (
+            <div className="scrolly max-h-[40vh] lg:col-span-2">{widgetNode('attention')}</div>
+          )}
+        </div>
+      )}
+      {onglet === 'analyse' && (
+        <div className="grid min-h-0 flex-1 content-start gap-3 lg:grid-cols-2">
+          {visible('parAxe') && widgetNode('parAxe')}
+          {visible('statuts') && widgetNode('statuts')}
+          {visible('parPays') && widgetNode('parPays')}
+          {visible('tendance') && widgetNode('tendance')}
+        </div>
+      )}
+      {onglet === 'budget' && (
+        <div className="grid min-h-0 flex-1 content-start gap-3 lg:grid-cols-2">
+          {visible('budget') && widgetNode('budget')}
+        </div>
+      )}
     </div>
   );
 }

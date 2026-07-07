@@ -110,114 +110,116 @@ export function AlertesClient({ initial, pilotage }: { initial: AlerteDTO[]; pil
             : 'Aucune alerte dans cet état.'}
         </div>
       ) : (
-        <div className="grid items-start gap-3 xl:grid-cols-2">
+        <div className="card card-liseret scrolly max-h-[68vh] px-2 py-1.5">
           {visibles.map((a) => {
             const color = NIVEAU_RISQUE_COLOR[a.niveau as NiveauRisque] ?? '#586059';
             const enjeu = enjeuAction({ titre: a.action.titre, axe: a.action.axe });
+            const principal = a.facteurs[0] ?? null;
             return (
-              <div key={a.id} className="card p-4" style={{ borderLeft: `4px solid ${color}` }}>
-                <div className="flex flex-wrap items-start gap-3">
-                  <div
-                    className="flex h-11 w-11 flex-none flex-col items-center justify-center rounded-xl text-white"
+              <details key={a.id} className="group border-b border-ligne/70 last:border-0">
+                <summary className="flex cursor-pointer list-none items-center gap-3 rounded-xl px-2.5 py-2.5 hover:bg-canvas [&::-webkit-details-marker]:hidden">
+                  <span
+                    className="grid h-9 w-9 flex-none place-items-center rounded-lg font-mono text-sm font-bold text-white"
                     style={{ backgroundColor: color }}
                   >
-                    <span className="font-title text-sm font-extrabold tabular-nums leading-none">{a.score}</span>
-                    <span className="text-[8px] font-semibold uppercase opacity-90">risque</span>
-                  </div>
-                  <div className="min-w-0 grow">
-                    <span className="flex flex-wrap items-center gap-2">
-                      <Link href={`/actions?focus=${a.actionId}`} className="font-semibold text-ink hover:underline">
-                        {a.action.titre}
-                      </Link>
-                      {enjeu && <EnjeuVies levier={enjeu.levier} />}
-                    </span>
-                    <div className="text-xs text-slate-500">
+                    {a.score}
+                  </span>
+                  <span className="min-w-0 flex-1">
+                    <span className="block truncate text-sm font-semibold text-ink">{a.action.titre}</span>
+                    <span className="block truncate text-[11px] text-slate-500">
                       {[a.action.axe, a.action.pays, a.action.responsable].filter(Boolean).join(' · ')}
-                      {' · '}avancement {fmtPct(a.action.avancement)} · échéance {fmtDate(a.action.dateFin)}
-                    </div>
-                    <ul className="mt-2 space-y-1">
-                      {a.facteurs.map((f) => (
-                        <li key={f.code} className="text-xs text-slate-600">
-                          <span className="font-semibold text-ink">{f.label}</span>
-                          <span className="tabular-nums font-semibold" style={{ color }}> +{f.points}</span>
-                          {' — '}{f.detail}
-                        </li>
-                      ))}
-                    </ul>
-                    {a.motif && (
-                      <div className="mt-2 rounded-lg bg-slate-50 px-3 py-1.5 text-xs text-slate-500">
-                        Motif : {a.motif}
-                      </div>
-                    )}
-                  </div>
-                  <div className="text-right text-[11px] text-slate-400">
+                      {principal ? ` · ${principal.label}` : ''}
+                    </span>
+                  </span>
+                  {enjeu && <EnjeuVies levier={enjeu.levier} />}
+                  <span className="hidden text-[10.5px] font-semibold text-slate-400 sm:block">
                     {ALERTE_STATUT_LABEL[a.statut as AlerteStatut] ?? a.statut}
-                    <br />
-                    {fmtDate(a.updatedAt)}
+                  </span>
+                  {pilotage && a.statut === 'NOUVELLE' && (
+                    <button
+                      type="button"
+                      className="btn-primary !px-2.5 !py-1 text-[11px]"
+                      disabled={chargement === a.id}
+                      onClick={(e) => {
+                        e.preventDefault();
+                        patcher(a.id, 'PRISE_EN_CHARGE');
+                      }}
+                    >
+                      Prendre en charge
+                    </button>
+                  )}
+                  <span aria-hidden className="text-slate-300 transition-transform group-open:rotate-90">›</span>
+                </summary>
+                <div className="space-y-2 px-2.5 pb-3 pl-[3.6rem]">
+                  <ul className="space-y-0.5">
+                    {a.facteurs.map((f) => (
+                      <li key={f.code} className="text-xs text-slate-600">
+                        <span className="font-semibold text-ink">{f.label}</span>
+                        <span className="font-mono font-bold tabular-nums" style={{ color }}> +{f.points}</span>
+                        {' — '}
+                        {f.detail}
+                      </li>
+                    ))}
+                  </ul>
+                  <div className="text-[11px] text-slate-500">
+                    Avancement {fmtPct(a.action.avancement)} · échéance {fmtDate(a.action.dateFin)} · mise à jour {fmtDate(a.updatedAt)}
+                    {a.motif ? ` · motif : ${a.motif}` : ''}
                   </div>
-                </div>
-
-                {pilotage && (a.statut === 'NOUVELLE' || a.statut === 'PRISE_EN_CHARGE') && (
-                  <div className="mt-3 flex flex-wrap items-center gap-2 border-t border-slate-100 pt-3">
-                    {a.statut === 'NOUVELLE' && (
-                      <button
-                        type="button"
-                        className="btn-primary !px-3 !py-1.5 text-xs"
-                        disabled={chargement === a.id}
-                        onClick={() => patcher(a.id, 'PRISE_EN_CHARGE')}
-                      >
-                        Prendre en charge
-                      </button>
-                    )}
-                    {a.statut === 'PRISE_EN_CHARGE' && (
-                      <button
-                        type="button"
-                        className="btn-primary !px-3 !py-1.5 text-xs"
-                        disabled={chargement === a.id}
-                        onClick={() => patcher(a.id, 'RESOLUE', 'Traitée par le PMO')}
-                      >
-                        Marquer résolue
-                      </button>
-                    )}
-                    {motifPour === a.id ? (
-                      <span className="flex grow items-center gap-2">
-                        <input
-                          className="input !w-auto grow"
-                          placeholder="Motif d’acceptation (requis, tracé pour le COPIL)"
-                          value={motif}
-                          onChange={(e) => setMotif(e.target.value)}
-                          autoFocus
-                        />
+                  {pilotage && (a.statut === 'NOUVELLE' || a.statut === 'PRISE_EN_CHARGE') && (
+                    <div className="flex flex-wrap items-center gap-2">
+                      {a.statut === 'PRISE_EN_CHARGE' && (
                         <button
                           type="button"
-                          className="btn-ghost !px-3 !py-1.5 text-xs"
-                          disabled={!motif.trim() || chargement === a.id}
-                          onClick={() => patcher(a.id, 'ACCEPTEE', motif.trim())}
+                          className="btn-primary !px-2.5 !py-1 text-[11px]"
+                          disabled={chargement === a.id}
+                          onClick={() => patcher(a.id, 'RESOLUE', 'Traitée par le PMO')}
                         >
-                          Confirmer
+                          Marquer résolue
                         </button>
-                        <button type="button" className="text-xs text-slate-400" onClick={() => setMotifPour(null)}>
-                          Annuler
+                      )}
+                      {motifPour === a.id ? (
+                        <span className="flex grow items-center gap-2">
+                          <input
+                            className="input !w-auto grow !py-1 text-xs"
+                            placeholder="Motif d'acceptation (requis, tracé pour le COPIL)"
+                            value={motif}
+                            onChange={(e) => setMotif(e.target.value)}
+                            autoFocus
+                          />
+                          <button
+                            type="button"
+                            className="btn-ghost !px-2.5 !py-1 text-[11px]"
+                            disabled={!motif.trim() || chargement === a.id}
+                            onClick={() => patcher(a.id, 'ACCEPTEE', motif.trim())}
+                          >
+                            Confirmer
+                          </button>
+                          <button type="button" className="text-[11px] text-slate-400" onClick={() => setMotifPour(null)}>
+                            Annuler
+                          </button>
+                        </span>
+                      ) : (
+                        <button
+                          type="button"
+                          className="btn-ghost !px-2.5 !py-1 text-[11px]"
+                          onClick={() => {
+                            setMotifPour(a.id);
+                            setMotif('');
+                          }}
+                        >
+                          Accepter le risque
                         </button>
-                      </span>
-                    ) : (
-                      <button
-                        type="button"
-                        className="btn-ghost !px-3 !py-1.5 text-xs"
-                        onClick={() => {
-                          setMotifPour(a.id);
-                          setMotif('');
-                        }}
+                      )}
+                      <Link
+                        href={`/actions?focus=${a.actionId}`}
+                        className="ml-auto text-[11px] font-semibold text-accent hover:underline"
                       >
-                        Accepter le risque
-                      </button>
-                    )}
-                    <Link href={`/actions?focus=${a.actionId}`} className="ml-auto text-xs font-semibold text-accent hover:underline">
-                      Ouvrir l’action →
-                    </Link>
-                  </div>
-                )}
-              </div>
+                        Ouvrir l&apos;action →
+                      </Link>
+                    </div>
+                  )}
+                </div>
+              </details>
             );
           })}
         </div>

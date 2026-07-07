@@ -80,7 +80,7 @@ export function MaJourneeClient({
               ✓ Aucune échéance imminente sur votre périmètre.
             </div>
           ) : (
-            <div className="space-y-2">
+            <div className="scrolly max-h-[38vh] space-y-2">
               {aFaire.map((a) => (
                 <Link
                   key={a.id}
@@ -115,7 +115,7 @@ export function MaJourneeClient({
               </Link>
             }
           >
-            <RisquesProactifs risques={data.risquesPlan} />
+            <div className="scrolly max-h-[38vh]"><RisquesProactifs risques={data.risquesPlan} /></div>
           </SectionCard>
         )}
       </div>
