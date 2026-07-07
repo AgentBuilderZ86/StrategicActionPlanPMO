@@ -12,9 +12,10 @@ import { enRetard } from './utils';
 export type RisqueInput = AggAction & {
   dateDebut?: Date | string | null;
   updatedAt?: Date | string | null;
+  confiance?: number | null;
 };
 
-export type FacteurCode = 'VELOCITE' | 'BUDGET' | 'DORMANTE' | 'BLOQUE' | 'SURCHARGE';
+export type FacteurCode = 'VELOCITE' | 'BUDGET' | 'DORMANTE' | 'BLOQUE' | 'SURCHARGE' | 'CONFIANCE';
 
 export type FacteurRisque = {
   code: FacteurCode;
@@ -117,7 +118,17 @@ export function facteursAction(a: RisqueInput, today: Date): FacteurRisque[] {
     }
   }
 
-  // 4. Blocage déclaré (15).
+  // 4. Signal humain : faible confiance déclarée au check-in (max 12).
+  if (a.confiance != null && a.confiance <= 2) {
+    facteurs.push({
+      code: 'CONFIANCE',
+      label: 'Confiance faible',
+      detail: `Confiance déclarée au check-in : ${a.confiance}/5`,
+      points: a.confiance === 1 ? 12 : 8,
+    });
+  }
+
+  // 5. Blocage déclaré (15).
   if (a.statut === 'BLOQUE') {
     facteurs.push({
       code: 'BLOQUE',

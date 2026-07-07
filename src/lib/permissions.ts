@@ -4,6 +4,7 @@ import { droitsEffectifs, type Droit, type Droits, type Role, type TypeUtilisate
 
 export type CurrentUser = {
   id?: string;
+  name?: string | null;
   email?: string | null;
   role: Role;
   perimetrePays: string[] | null;
@@ -16,6 +17,7 @@ export async function getCurrentUser(): Promise<CurrentUser | null> {
   if (!session?.user) return null;
   const u = session.user as {
     id?: string;
+    name?: string | null;
     email?: string | null;
     role?: Role;
     perimetrePays?: string | null;
@@ -42,6 +44,7 @@ export async function getCurrentUser(): Promise<CurrentUser | null> {
   }
   return {
     id: u.id,
+    name: u.name,
     email: u.email,
     role,
     perimetrePays: perimetre,
