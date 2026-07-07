@@ -183,3 +183,35 @@ export function recommander(
 
   return recos.slice(0, 3);
 }
+
+export type PopulationTension = {
+  nom: string;
+  receptivite: number;
+  charge: number;
+  saturee: boolean;
+  adhesion: number | null;
+};
+
+/** Populations à porter au COPIL : réceptivité < 50 ou saturation de changement. */
+export function populationsSousTension(
+  populations: {
+    nom: string;
+    maturiteDigitale: number;
+    dernierPulse: PulseAgrege | null;
+    actions: ActionLiee[];
+  }[],
+): PopulationTension[] {
+  return populations
+    .map((p) => {
+      const charge = chargeActive(p.actions);
+      return {
+        nom: p.nom,
+        receptivite: receptivite(p, p.dernierPulse, charge),
+        charge,
+        saturee: estSaturee(p.actions),
+        adhesion: p.dernierPulse?.adhesion ?? null,
+      };
+    })
+    .filter((p) => p.saturee || p.receptivite < 50)
+    .sort((a, b) => a.receptivite - b.receptivite);
+}

@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import {
   chargeActive,
+  populationsSousTension,
   estSaturee,
   pulseValide,
   receptivite,
@@ -91,5 +92,32 @@ describe('recommander (playbooks)', () => {
       [action({ niveauImpact: 'INFORME' })],
     );
     expect(recos).toHaveLength(0);
+  });
+});
+
+describe('populationsSousTension', () => {
+  it('remonte les populations saturées ou peu réceptives, les pires en premier', () => {
+    const tensions = populationsSousTension([
+      {
+        nom: 'Sereine',
+        maturiteDigitale: 4,
+        dernierPulse: { adhesion: 85, comprehension: 80, preparation: 80, repondants: 20 },
+        actions: [action({ niveauImpact: 'INFORME' })],
+      },
+      {
+        nom: 'Saturée',
+        maturiteDigitale: 3,
+        dernierPulse: null,
+        actions: Array.from({ length: 6 }, () => action()),
+      },
+      {
+        nom: 'En rejet',
+        maturiteDigitale: 2,
+        dernierPulse: { adhesion: 30, comprehension: 40, preparation: 30, repondants: 15 },
+        actions: [action(), action()],
+      },
+    ]);
+    expect(tensions.map((t) => t.nom)).toEqual(['En rejet', 'Saturée']);
+    expect(tensions[1]!.saturee).toBe(true);
   });
 });

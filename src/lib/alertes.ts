@@ -130,3 +130,9 @@ export function construireDigest(
     message: top,
   };
 }
+
+/** Facteur dominant d'une alerte : celui qui pèse le plus dans le score. */
+export function facteurPrincipal(facteurs: FacteurRisque[]): FacteurRisque | null {
+  if (facteurs.length === 0) return null;
+  return [...facteurs].sort((a, b) => b.points - a.points)[0]!;
+}

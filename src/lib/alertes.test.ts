@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import {
   MOTIF_REACTIVATION,
+  facteurPrincipal,
   MOTIF_RESORPTION,
   construireDigest,
   rapprocherAlertes,
@@ -82,5 +83,17 @@ describe('construireDigest', () => {
   });
   it("renvoie null s'il n'y a rien à digérer", () => {
     expect(construireDigest([{ score: 10, niveau: 'FAIBLE', statut: 'RESOLUE', titre: 'x' }])).toBeNull();
+  });
+});
+
+describe('facteurPrincipal', () => {
+  it('renvoie le facteur au poids le plus fort', () => {
+    expect(
+      facteurPrincipal([
+        { code: 'BUDGET', label: 'Burn', detail: 'x', points: 10 },
+        { code: 'VELOCITE', label: 'Dérive', detail: 'y', points: 30 },
+      ])!.code,
+    ).toBe('VELOCITE');
+    expect(facteurPrincipal([])).toBeNull();
   });
 });

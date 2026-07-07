@@ -4,6 +4,7 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { cn } from '@/lib/utils';
 import { NAV_ITEMS, type PmoType } from '@/lib/constants';
+import { Icone } from '@/components/ui/Icones';
 
 /** Navigation adaptative : n'affiche que les modules pertinents pour le type
  *  du plan actif (ex. « Agile / SI » n'apparaît que pour un plan SI). */
@@ -25,7 +26,7 @@ export function Nav({ typePmo, vertical = false }: { typePmo?: PmoType | null; v
               isActive(t.href) ? 'bg-white text-ink' : 'text-slate-300 hover:bg-white/10',
             )}
           >
-            <span aria-hidden className="text-base leading-none">{t.icon}</span>
+            <Icone nom={t.icon} className="h-[17px] w-[17px] shrink-0" />
             {t.label}
           </Link>
         ))}
