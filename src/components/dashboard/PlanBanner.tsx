@@ -1,4 +1,4 @@
-import { PMO_TYPE_LABEL, PMO_TYPE_DESCRIPTION, SNSR_OBJECTIF, type PmoType } from '@/lib/constants';
+import { PMO_TYPE_LABEL, PMO_TYPE_DESCRIPTION, PMO_TYPE_BADGE, SNSR_OBJECTIF, type PmoType } from '@/lib/constants';
 import type { AgileSnapshot } from '@/lib/data';
 import { fmtDate, fmtPct } from '@/lib/utils';
 
@@ -8,12 +8,6 @@ type PlanInfo = {
   objectif: string | null;
   dateDebut: Date | string | null;
   dateFin: Date | string | null;
-};
-
-const BADGE_STYLE: Record<PmoType, { bg: string; fg: string; icon: string }> = {
-  ECOSYSTEME: { bg: 'rgba(27,158,98,0.12)', fg: '#1B9E62', icon: '🛣️' },
-  INTERNE: { bg: 'rgba(0,107,63,0.12)', fg: '#006B3F', icon: '🏛️' },
-  SI: { bg: 'rgba(30,79,216,0.12)', fg: '#1E4FD8', icon: '💻' },
 };
 
 /**
@@ -32,7 +26,7 @@ export function PlanBanner({
   agile?: AgileSnapshot | null;
 }) {
   const type = (plan.typePmo as PmoType) ?? 'INTERNE';
-  const style = BADGE_STYLE[type] ?? BADGE_STYLE.INTERNE;
+  const style = PMO_TYPE_BADGE[type] ?? PMO_TYPE_BADGE.INTERNE;
 
   return (
     <div className="card mb-5 flex flex-wrap items-center gap-4 p-4" style={{ borderLeft: `4px solid ${style.fg}` }}>
