@@ -24,6 +24,7 @@ export type PmoType = (typeof PMO_TYPES)[number];
 export const NAV_ITEMS = [
   { href: '/ma-journee', label: 'Ma journée', icon: '☀️', modules: PMO_TYPES },
   { href: '/', label: 'Tableau de bord', icon: '📊', modules: PMO_TYPES },
+  { href: '/alertes', label: 'Alertes', icon: '🚨', modules: PMO_TYPES },
   { href: '/actions', label: "Plan d'actions", icon: '🗂️', modules: PMO_TYPES },
   { href: '/planning', label: 'Planning', icon: '🗓️', modules: PMO_TYPES },
   { href: '/agile', label: 'Agile / SI', icon: '🧩', modules: ['SI'] as PmoType[] },
