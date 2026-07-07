@@ -36,6 +36,7 @@ export function serializeAction(a: ActionWithRelations) {
     indicateur: a.indicateur,
     cibleIndicateur: a.cibleIndicateur,
     valeurIndicateur: a.valeurIndicateur,
+    confiance: a.confiance,
     createdAt: a.createdAt.toISOString(),
     updatedAt: a.updatedAt.toISOString(),
   };

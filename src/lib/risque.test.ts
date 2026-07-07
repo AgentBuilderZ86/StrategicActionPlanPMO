@@ -66,6 +66,13 @@ describe('facteursAction', () => {
     expect(d).toBeDefined();
     expect(d!.points).toBe(20); // 5 semaines, plafonné
   });
+  it('intègre le signal humain de confiance déclaré au check-in', () => {
+    const f = facteursAction(base({ avancement: 55, confiance: 1 }), TODAY);
+    const c = f.find((x) => x.code === 'CONFIANCE');
+    expect(c).toBeDefined();
+    expect(c!.points).toBe(12);
+    expect(facteursAction(base({ avancement: 55, confiance: 4 }), TODAY).some((x) => x.code === 'CONFIANCE')).toBe(false);
+  });
   it('signale un blocage déclaré et ignore les actions terminées', () => {
     expect(facteursAction(base({ statut: 'BLOQUE', avancement: 55 }), TODAY).some((x) => x.code === 'BLOQUE')).toBe(true);
     expect(facteursAction(base({ statut: 'TERMINE', avancement: 10 }), TODAY)).toHaveLength(0);

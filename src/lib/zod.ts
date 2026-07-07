@@ -51,6 +51,7 @@ export const actionCreateSchema = z.object({
   indicateur: z.string().max(200).optional().nullable(),
   cibleIndicateur: numOpt,
   valeurIndicateur: numOpt,
+  confiance: z.coerce.number().int().min(1).max(5).optional().nullable(),
 });
 
 export const actionUpdateSchema = actionCreateSchema.partial().omit({ planId: true });

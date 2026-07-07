@@ -12,6 +12,7 @@ import {
 } from './aggregations';
 import { pivot, crossMatrix } from './analyses';
 import { computeInsights, computeRisques } from './risque';
+import { computeMaJournee, type MaJournee } from './ma-journee';
 import { computeVelocity } from './agile';
 import { getSelectedPlanId } from './plan-context';
 import type { DimensionKey } from './constants';
@@ -206,3 +207,21 @@ export async function getAgileSnapshot(planId: string) {
 }
 
 export type AgileSnapshot = Awaited<ReturnType<typeof getAgileSnapshot>>;
+
+/** Données « Ma journée » : actions du plan + validations en attente (pilotage). */
+export async function getMaJourneeData(
+  planId: string,
+  user: { name?: string | null; perimetrePays?: string[] | null; role: string },
+): Promise<MaJournee & { validationsEnAttente: number }> {
+  const [actionsRaw, validationsEnAttente] = await Promise.all([
+    prisma.action.findMany({ where: { planId }, include: ACTION_INCLUDE }),
+    user.role === 'ADMIN' || user.role === 'PMO'
+      ? prisma.demandeValidation.count({
+          where: { statut: 'EN_ATTENTE', action: { planId } },
+        })
+      : Promise.resolve(0),
+  ]);
+  return { ...computeMaJournee(actionsRaw.map(serializeAction), user), validationsEnAttente };
+}
+
+export type MaJourneeData = Awaited<ReturnType<typeof getMaJourneeData>>;

@@ -109,6 +109,8 @@ model Action {
   cibleIndicateur Float?
   // Valeur réalisée de l'indicateur
   valeurIndicateur Float?
+  // Indice de confiance du responsable (1–5), déclaré au check-in hebdomadaire.
+  confiance   Int?
   createdAt   DateTime  @default(now())
   updatedAt   DateTime  @updatedAt
 
