@@ -72,7 +72,7 @@ export function ActionsTree({
             {n.titre}
           </span>
           <span className="hidden w-40 shrink-0 md:block">
-            <ProgressBar value={n.avancement} color={n.enRetard ? '#E8A13D' : '#1E4FD8'} />
+            <ProgressBar value={n.avancement} color={n.enRetard ? 'var(--warning)' : 'var(--brand)'} />
           </span>
           <span className="hidden shrink-0 items-center gap-1 sm:flex">
             <StatutBadge statut={n.statut} />

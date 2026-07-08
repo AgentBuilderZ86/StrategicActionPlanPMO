@@ -41,7 +41,7 @@ export default async function RapportsPage() {
                 {f.lignes.map((ligne, i) => (
                   <tr key={i} className="border-t border-slate-100">
                     {ligne.map((cell, j) => (
-                      <td key={j} className={`td ${j === 0 ? 'font-medium text-ink' : 'tabular-nums text-slate-600'}`}>{cell}</td>
+                      <td key={j} className={`td ${j === 0 ? 'font-medium text-ink' : 'num text-slate-600'}`}>{cell}</td>
                     ))}
                   </tr>
                 ))}

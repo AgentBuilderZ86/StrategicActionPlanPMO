@@ -12,7 +12,7 @@ export function PointsAttention({ actions }: { actions: AggAction[] }) {
       {actions.map((a) => {
         const color = a.statut === 'BLOQUE' ? STATUT_COLOR.BLOQUE : STATUT_COLOR.A_LANCER;
         return (
-          <div key={a.id} className="flex items-center gap-3 rounded-xl bg-slate-50 p-3" style={{ borderLeft: `4px solid ${a.enRetard ? '#E8A13D' : color}` }}>
+          <div key={a.id} className="flex items-center gap-3 rounded-xl bg-slate-50 p-3" style={{ borderLeft: `4px solid ${a.enRetard ? 'var(--warning)' : color}` }}>
             <div className="min-w-0 grow">
               <div className="truncate font-semibold text-ink">{a.titre}</div>
               <div className="text-xs text-slate-500">

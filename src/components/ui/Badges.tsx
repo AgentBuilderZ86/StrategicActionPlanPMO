@@ -1,27 +1,21 @@
 import {
   STATUT_LABEL,
   STATUT_COLOR,
+  STATUT_BG,
   PRIORITE_LABEL,
   PRIORITE_COLOR,
   type Statut,
   type Priorite,
 } from '@/lib/constants';
 
-function hexToRgba(hex: string, alpha: number) {
-  const h = hex.replace('#', '');
-  const r = parseInt(h.slice(0, 2), 16);
-  const g = parseInt(h.slice(2, 4), 16);
-  const b = parseInt(h.slice(4, 6), 16);
-  return `rgba(${r},${g},${b},${alpha})`;
-}
-
 export function StatutBadge({ statut }: { statut: string }) {
   const s = statut as Statut;
-  const color = STATUT_COLOR[s] ?? '#64748B';
+  const color = STATUT_COLOR[s] ?? 'oklch(48% 0.015 150)';
+  const bg = STATUT_BG[s] ?? 'oklch(94% 0.005 150)';
   return (
     <span
-      className="inline-flex items-center gap-1.5 whitespace-nowrap rounded-full px-2.5 py-0.5 text-xs font-semibold"
-      style={{ backgroundColor: hexToRgba(color, 0.12), color }}
+      className="inline-flex items-center gap-1.5 whitespace-nowrap rounded-full py-[5px] pl-2 pr-2.5 text-[11px] font-semibold"
+      style={{ backgroundColor: bg, color }}
     >
       <span className="h-1.5 w-1.5 rounded-full" style={{ backgroundColor: color }} />
       {STATUT_LABEL[s] ?? statut}
@@ -31,10 +25,12 @@ export function StatutBadge({ statut }: { statut: string }) {
 
 export function PrioriteBadge({ priorite }: { priorite: string }) {
   const p = priorite as Priorite;
-  const color = PRIORITE_COLOR[p] ?? '#64748B';
+  const color = PRIORITE_COLOR[p] ?? 'oklch(48% 0.015 150)';
   return (
-    <span className="inline-flex items-center gap-1.5 text-xs font-medium text-ink">
-      <span className="h-2 w-2 rounded-full" style={{ backgroundColor: color }} />
+    <span className="inline-flex items-center gap-1.5 text-[11.5px] font-semibold" style={{ color }}>
+      <svg width="11" height="11" viewBox="0 0 24 24" fill="none" aria-hidden>
+        <path d="M12 3l9 16H3z" stroke="currentColor" strokeWidth="2.4" strokeLinejoin="round" />
+      </svg>
       {PRIORITE_LABEL[p] ?? priorite}
     </span>
   );
@@ -42,8 +38,15 @@ export function PrioriteBadge({ priorite }: { priorite: string }) {
 
 export function RetardBadge() {
   return (
-    <span className="inline-flex items-center gap-1 rounded-full bg-statut-rouge/10 px-2 py-0.5 text-[11px] font-bold text-statut-rouge">
-      ⏰ En retard
+    <span
+      className="inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[11px] font-bold"
+      style={{ backgroundColor: 'var(--warning-bg)', color: 'var(--warning)' }}
+    >
+      <svg width="11" height="11" viewBox="0 0 24 24" fill="none" aria-hidden>
+        <circle cx="12" cy="12" r="9" stroke="currentColor" strokeWidth="2" />
+        <path d="M12 7v5l3.5 2" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+      </svg>
+      En retard
     </span>
   );
 }

@@ -48,10 +48,10 @@ export default async function CopilPage() {
         {/* KPIs */}
         <div className="grid grid-cols-3 gap-4 lg:grid-cols-6">
           <KpiCard label="Actions" value={k.total} />
-          <KpiCard label="Avancement" value={fmtPct(k.avancementMoyen)} accent="#1E4FD8" />
-          <KpiCard label="Terminées" value={k.terminees} accent="#1B9E62" />
-          <KpiCard label="Bloquées" value={k.bloquees} accent="#D64545" />
-          <KpiCard label="En retard" value={k.enRetard} accent="#E8A13D" />
+          <KpiCard label="Avancement" value={fmtPct(k.avancementMoyen)} accent="var(--pblue)" />
+          <KpiCard label="Terminées" value={k.terminees} accent="var(--success)" />
+          <KpiCard label="Bloquées" value={k.bloquees} accent="var(--danger)" />
+          <KpiCard label="En retard" value={k.enRetard} accent="var(--warning)" />
           <KpiCard label="Budget" value={fmtMoney(k.budgetTotal)} sub={`Consommé ${fmtPct(consoPct)}`} />
         </div>
 

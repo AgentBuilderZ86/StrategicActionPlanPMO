@@ -56,10 +56,13 @@ export function NotificationBell() {
     <div ref={ref} className="relative">
       <button
         onClick={() => setOpen((o) => !o)}
-        className="relative flex h-9 w-9 items-center justify-center rounded-lg text-white/80 hover:bg-white/10 hover:text-white"
+        className="relative flex h-9 w-9 items-center justify-center rounded-lg text-muted transition-colors hover:bg-canvas hover:text-ink"
         aria-label="Notifications"
       >
-        <span aria-hidden className="text-lg">🔔</span>
+        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" aria-hidden>
+          <path d="M6 9a6 6 0 1112 0c0 4 1.5 5.5 2 6H4c.5-.5 2-2 2-6z" stroke="currentColor" strokeWidth="2" strokeLinejoin="round" />
+          <path d="M10 18.5a2 2 0 004 0" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+        </svg>
         {nonLues > 0 && (
           <span className="absolute -right-0.5 -top-0.5 flex h-4 min-w-4 items-center justify-center rounded-full bg-statut-rouge px-1 text-[10px] font-bold text-white">
             {nonLues > 9 ? '9+' : nonLues}

@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { NAV_ITEMS, type PmoType } from '@/lib/constants';
+import { NavIcon, type NavIconId } from './NavIcon';
 
 type ActionResult = { id: string; titre: string; code: string | null };
 
@@ -66,11 +67,17 @@ export function CommandPalette({ planId, typePmo }: { planId: string | null; typ
     <>
       <button
         onClick={() => setOpen(true)}
-        className="flex items-center gap-2 rounded-lg border border-slate-200 px-3 py-1.5 text-xs font-medium text-slate-500 hover:bg-slate-50"
+        className="flex items-center gap-2 rounded-lg border bg-canvas px-3 py-[7px] text-xs font-medium text-muted transition-colors hover:border-brand"
+        style={{ borderColor: 'var(--border)' }}
       >
-        <span aria-hidden>🔍</span>
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" aria-hidden>
+          <circle cx="11" cy="11" r="7" stroke="currentColor" strokeWidth="2" />
+          <line x1="16.5" y1="16.5" x2="21" y2="21" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+        </svg>
         <span className="hidden sm:inline">Rechercher…</span>
-        <kbd className="hidden rounded border border-slate-200 bg-slate-50 px-1 text-[10px] sm:inline">Ctrl K</kbd>
+        <kbd className="hidden rounded border bg-white px-1 text-[10px] sm:inline" style={{ borderColor: 'var(--border)' }}>
+          Ctrl K
+        </kbd>
       </button>
 
       {open && (
@@ -100,9 +107,9 @@ export function CommandPalette({ planId, typePmo }: { planId: string | null; typ
                     <button
                       key={t.href}
                       onClick={() => allerA(t.href)}
-                      className="flex w-full items-center gap-2.5 rounded-lg px-2.5 py-2 text-left text-sm text-ink hover:bg-slate-50"
+                      className="flex w-full items-center gap-2.5 rounded-lg px-2.5 py-2 text-left text-sm text-ink hover:bg-canvas"
                     >
-                      <span aria-hidden>{t.icon}</span> {t.label}
+                      <NavIcon id={t.icon as NavIconId} size={15} className="shrink-0 text-muted" /> {t.label}
                     </button>
                   ))}
                 </div>

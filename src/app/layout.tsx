@@ -1,5 +1,5 @@
 import type { Metadata } from 'next';
-import { Archivo, Inter } from 'next/font/google';
+import { IBM_Plex_Sans, IBM_Plex_Mono } from 'next/font/google';
 import './globals.css';
 import { AppShell } from '@/components/shell/AppShell';
 import { Sidebar } from '@/components/shell/Sidebar';
@@ -9,8 +9,18 @@ import { Providers } from '@/components/Providers';
 import { getActivePlan } from '@/lib/data';
 import type { PmoType } from '@/lib/constants';
 
-const archivo = Archivo({ subsets: ['latin'], variable: '--font-archivo', display: 'swap' });
-const inter = Inter({ subsets: ['latin'], variable: '--font-inter', display: 'swap' });
+const plexSans = IBM_Plex_Sans({
+  subsets: ['latin'],
+  weight: ['400', '500', '600', '700'],
+  variable: '--font-plex',
+  display: 'swap',
+});
+const plexMono = IBM_Plex_Mono({
+  subsets: ['latin'],
+  weight: ['500', '600'],
+  variable: '--font-plex-mono',
+  display: 'swap',
+});
 
 export const metadata: Metadata = {
   title: 'PMO NARSA — Stratégie Nationale de la Sécurité Routière',
@@ -22,7 +32,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
   const plan = await getActivePlan().catch(() => null);
 
   return (
-    <html lang="fr" className={`${archivo.variable} ${inter.variable}`}>
+    <html lang="fr" className={`${plexSans.variable} ${plexMono.variable}`}>
       <body className="min-h-screen font-sans antialiased">
         <Providers>
           <AppShell
@@ -30,6 +40,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
             notificationBell={<NotificationBell />}
             userMenu={<UserMenu />}
             planId={plan?.id ?? null}
+            planNom={plan?.nom ?? null}
             typePmo={(plan?.typePmo as PmoType | undefined) ?? null}
           >
             {children}

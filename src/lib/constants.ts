@@ -22,22 +22,22 @@ export type PmoType = (typeof PMO_TYPES)[number];
  * « Agile / SI ». Filtré par `Nav` selon le plan actif.
  */
 export const NAV_ITEMS = [
-  { href: '/', label: 'Tableau de bord', icon: '📊', modules: PMO_TYPES },
-  { href: '/actions', label: "Plan d'actions", icon: '🗂️', modules: PMO_TYPES },
-  { href: '/planning', label: 'Planning', icon: '🗓️', modules: PMO_TYPES },
-  { href: '/agile', label: 'Agile / SI', icon: '🧩', modules: ['SI'] as PmoType[] },
-  { href: '/analyses', label: 'Analyses', icon: '📈', modules: PMO_TYPES },
-  { href: '/rapports', label: 'Rapports', icon: '📄', modules: PMO_TYPES },
-  { href: '/copil', label: 'Comité de pilotage', icon: '🎯', modules: ['ECOSYSTEME', 'INTERNE'] as PmoType[] },
-  { href: '/parametres', label: 'Paramètres', icon: '⚙️', modules: PMO_TYPES },
+  { href: '/', label: 'Tableau de bord', icon: 'dashboard', sub: "Vue d'ensemble du plan", modules: PMO_TYPES },
+  { href: '/actions', label: "Plan d'actions", icon: 'actions', sub: 'Suivi et édition des actions', modules: PMO_TYPES },
+  { href: '/planning', label: 'Planning', icon: 'planning', sub: 'Gantt et calendrier', modules: PMO_TYPES },
+  { href: '/agile', label: 'Agile / SI', icon: 'agile', sub: 'Sprints, Kanban et métriques', modules: ['SI'] as PmoType[] },
+  { href: '/analyses', label: 'Analyses', icon: 'analyses', sub: 'Comparaisons multi-axes', modules: PMO_TYPES },
+  { href: '/rapports', label: 'Rapports', icon: 'rapports', sub: 'Synthèses exportables', modules: PMO_TYPES },
+  { href: '/copil', label: 'Comité de pilotage', icon: 'copil', sub: 'Synthèse exécutive', modules: ['ECOSYSTEME', 'INTERNE'] as PmoType[] },
+  { href: '/parametres', label: 'Paramètres', icon: 'parametres', sub: 'Référentiels et administration', modules: PMO_TYPES },
 ] as const;
 
 /** Style visuel (badge, carte) par type de PMO — partagé par PlanBanner,
  *  PortfolioCard et PlanSwitcher. */
 export const PMO_TYPE_BADGE: Record<PmoType, { bg: string; fg: string; icon: string }> = {
-  ECOSYSTEME: { bg: 'rgba(27,158,98,0.12)', fg: '#1B9E62', icon: '🛣️' },
-  INTERNE: { bg: 'rgba(0,107,63,0.12)', fg: '#006B3F', icon: '🏛️' },
-  SI: { bg: 'rgba(30,79,216,0.12)', fg: '#1E4FD8', icon: '💻' },
+  ECOSYSTEME: { bg: 'oklch(93% 0.045 155)', fg: 'oklch(44% 0.11 155)', icon: '🛣️' },
+  INTERNE: { bg: 'oklch(93% 0.045 155)', fg: 'oklch(35% 0.08 155)', icon: '🏛️' },
+  SI: { bg: 'oklch(93% 0.03 240)', fg: 'oklch(50% 0.13 240)', icon: '💻' },
 };
 
 export const STATUT_LABEL: Record<Statut, string> = {
@@ -47,11 +47,20 @@ export const STATUT_LABEL: Record<Statut, string> = {
   BLOQUE: 'Bloqué',
 };
 
+// Couleurs de statut (maquette) : à lancer gris, en cours bleu, réalisé vert,
+// bloqué rouge — avec fond pastel assorti pour les pills.
 export const STATUT_COLOR: Record<Statut, string> = {
-  A_LANCER: '#64748B', // gris
-  EN_COURS: '#006B3F', // vert NARSA
-  TERMINE: '#1B9E62', // vert clair
-  BLOQUE: '#D64545', // rouge
+  A_LANCER: 'oklch(48% 0.015 150)',
+  EN_COURS: 'oklch(56% 0.13 240)',
+  TERMINE: 'oklch(56% 0.13 155)',
+  BLOQUE: 'oklch(58% 0.19 25)',
+};
+
+export const STATUT_BG: Record<Statut, string> = {
+  A_LANCER: 'oklch(94% 0.005 150)',
+  EN_COURS: 'oklch(93% 0.03 240)',
+  TERMINE: 'oklch(93% 0.045 155)',
+  BLOQUE: 'oklch(93% 0.045 25)',
 };
 
 export const PRIORITE_LABEL: Record<Priorite, string> = {
@@ -61,9 +70,9 @@ export const PRIORITE_LABEL: Record<Priorite, string> = {
 };
 
 export const PRIORITE_COLOR: Record<Priorite, string> = {
-  HAUTE: '#D64545',
-  MOYENNE: '#E8A13D',
-  BASSE: '#64748B',
+  HAUTE: 'oklch(58% 0.19 25)',
+  MOYENNE: 'oklch(62% 0.15 70)',
+  BASSE: 'oklch(48% 0.015 150)',
 };
 
 export const PRIORITE_RANG: Record<Priorite, number> = {
@@ -171,14 +180,18 @@ export function droitsEffectifs(role: Role, droits: Droits | null | undefined): 
 }
 
 // Palette « statut » pour la heatmap (rouge → ambre → vert)
+// Tokens JS (Recharts, styles inline) alignés sur la palette oklch de la
+// maquette ; les attributs SVG acceptent les couleurs CSS modernes.
 export const COLORS = {
-  canvas: '#F4F6F5',
-  ink: '#0D2818',
-  accent: '#006B3F',
-  vert: '#1B9E62',
-  ambre: '#E8A13D',
-  rouge: '#D64545',
-  gris: '#64748B',
+  canvas: 'oklch(97% 0.008 150)',
+  ink: 'oklch(22% 0.015 150)',
+  accent: 'oklch(44% 0.11 155)',
+  brandDark: 'oklch(24% 0.045 155)',
+  vert: 'oklch(56% 0.13 155)',
+  bleu: 'oklch(56% 0.13 240)',
+  ambre: 'oklch(62% 0.15 70)',
+  rouge: 'oklch(58% 0.19 25)',
+  gris: 'oklch(48% 0.015 150)',
 };
 
 // Monnaie — Maroc : MAD (Dirham marocain), exprimé en milliers

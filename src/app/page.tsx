@@ -29,8 +29,7 @@ export default async function DashboardPage({
 
   return (
     <div>
-      <PageHeader title="Tableau de bord exécutif" subtitle={`Vue d’ensemble — ${plan.nom}`} />
-      <PlanBanner plan={plan} avancementMoyen={data.kpis.avancementMoyen} agile={agile} />
+      <PlanBanner plan={plan} kpis={data.kpis} agile={agile} />
       <DashboardClient planId={plan.id} axes={axes.map((a) => ({ id: a.id, nom: a.nom }))} initial={data} />
     </div>
   );

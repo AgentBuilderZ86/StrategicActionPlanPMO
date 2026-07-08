@@ -156,7 +156,7 @@ export function ActionsClient({ planId, referentiels }: { planId: string; refere
           {PRIORITES.map((p) => <option key={p} value={p}>{PRIORITE_LABEL[p]}</option>)}
         </select>
         <label className="flex items-center gap-1.5 px-2 text-sm font-medium text-ink">
-          <input type="checkbox" checked={filters.enRetard} onChange={(e) => setFilter({ enRetard: e.target.checked })} className="accent-[#D64545]" />
+          <input type="checkbox" checked={filters.enRetard} onChange={(e) => setFilter({ enRetard: e.target.checked })} style={{ accentColor: 'var(--danger)' }} />
           En retard
         </label>
         <div className="ml-auto flex items-center gap-2">
@@ -231,9 +231,9 @@ export function ActionsClient({ planId, referentiels }: { planId: string; refere
                   </div>
                 </td>
                 <td className="td"><PrioriteBadge priorite={a.priorite} /></td>
-                <td className="td w-44"><ProgressBar value={a.avancement} color={a.enRetard ? '#E8A13D' : '#1E4FD8'} /></td>
+                <td className="td w-44"><ProgressBar value={a.avancement} color={a.enRetard ? 'var(--warning)' : 'var(--brand)'} /></td>
                 <td className={cn('td whitespace-nowrap text-xs', a.enRetard ? 'font-semibold text-statut-rouge' : 'text-ink')}>{fmtDate(a.dateFin)}</td>
-                <td className="td whitespace-nowrap text-xs font-semibold tabular-nums text-ink">{fmtMoney(a.budget)}</td>
+                <td className="td num whitespace-nowrap text-xs font-semibold text-ink">{fmtMoney(a.budget)}</td>
                 <td className="td whitespace-nowrap text-right">
                   {canEdit ? (
                     <>

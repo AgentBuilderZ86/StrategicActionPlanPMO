@@ -42,24 +42,15 @@ export function moyenne(values: number[]): number {
   return values.reduce((s, v) => s + v, 0) / values.length;
 }
 
-/** Couleur heatmap : 0 % rouge → 50 % ambre → 100 % vert. */
+/** Couleur heatmap par paliers (maquette) : rouge → orange → jaune → vert. */
 export function heatColor(pct: number, count: number): { bg: string; fg: string } {
-  if (count === 0) return { bg: '#F1F3F5', fg: '#B6Bec9' };
-  const t = Math.max(0, Math.min(100, pct)) / 100;
-  // rouge (214,69,69) → ambre (232,161,61) → vert (27,158,98)
-  let r: number, g: number, b: number;
-  if (t < 0.5) {
-    const k = t / 0.5;
-    r = Math.round(214 + (232 - 214) * k);
-    g = Math.round(69 + (161 - 69) * k);
-    b = Math.round(69 + (61 - 69) * k);
-  } else {
-    const k = (t - 0.5) / 0.5;
-    r = Math.round(232 + (27 - 232) * k);
-    g = Math.round(161 + (158 - 161) * k);
-    b = Math.round(61 + (98 - 61) * k);
-  }
-  return { bg: `rgb(${r},${g},${b})`, fg: '#FFFFFF' };
+  if (count === 0) return { bg: 'oklch(95% 0.006 150)', fg: 'oklch(55% 0.01 150)' };
+  const v = Math.max(0, Math.min(100, pct));
+  if (v < 20) return { bg: 'oklch(64% 0.16 27)', fg: '#fff' };
+  if (v < 40) return { bg: 'oklch(70% 0.14 55)', fg: '#fff' };
+  if (v < 60) return { bg: 'oklch(78% 0.12 80)', fg: 'oklch(28% 0.05 80)' };
+  if (v < 80) return { bg: 'oklch(72% 0.12 125)', fg: 'oklch(24% 0.05 125)' };
+  return { bg: 'oklch(62% 0.13 150)', fg: '#fff' };
 }
 
 export const STATUT_FROM_AVANCEMENT = (av: number): Statut =>

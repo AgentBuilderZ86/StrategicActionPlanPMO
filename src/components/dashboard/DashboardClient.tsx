@@ -2,11 +2,10 @@
 
 import { useEffect, useState } from 'react';
 import type { DashboardData } from '@/lib/data';
-import { fmtMoney, fmtPct } from '@/lib/utils';
 import {
   DASHBOARD_WIDGETS, dashboardConfigParDefaut, type WidgetConfig, type WidgetKey,
 } from '@/lib/constants';
-import { KpiCard, SectionCard } from '@/components/ui/Cards';
+import { SectionCard } from '@/components/ui/Cards';
 import { Heatmap } from './Heatmap';
 import {
   AvancementParAxe,
@@ -101,9 +100,6 @@ export function DashboardClient({
     setLoading(false);
   };
 
-  const k = data.kpis;
-  const consoPct = k.budgetTotal > 0 ? (k.budgetConso / k.budgetTotal) * 100 : 0;
-
   return (
     <div className="space-y-5">
       {/* Filtres globaux (le choix du plan se fait désormais dans l'en-tête) */}
@@ -145,18 +141,7 @@ export function DashboardClient({
         </div>
       )}
 
-      {/* KPIs (toujours affichés) */}
-      <div className="grid grid-cols-2 gap-4 lg:grid-cols-4 xl:grid-cols-7">
-        <KpiCard label="Actions" value={k.total} />
-        <KpiCard label="Avancement" value={fmtPct(k.avancementMoyen)} accent="#1E4FD8" />
-        <KpiCard label="Terminées" value={k.terminees} accent="#1B9E62" />
-        <KpiCard label="En cours" value={k.enCours} />
-        <KpiCard label="Bloquées" value={k.bloquees} accent="#D64545" />
-        <KpiCard label="En retard" value={k.enRetard} accent="#E8A13D" />
-        <KpiCard label="Budget" value={fmtMoney(k.budgetTotal)} sub={`Consommé ${fmtPct(consoPct)}`} />
-      </div>
-
-      {/* Widgets configurables */}
+      {/* Widgets configurables (les KPI globaux vivent dans le hero PlanBanner) */}
       {configEffective.filter((w) => w.visible).map((w) => (
         <div key={w.key}>{widgetNode(w.key)}</div>
       ))}
