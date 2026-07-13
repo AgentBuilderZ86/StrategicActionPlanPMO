@@ -19,7 +19,8 @@ export type IconeNom =
   | 'pipeline'
   | 'delivery'
   | 'recherche'
-  | 'menu';
+  | 'menu'
+  | 'matrice';
 
 const TRACES: Record<IconeNom, React.ReactNode> = {
   journee: (
@@ -96,6 +97,14 @@ const TRACES: Record<IconeNom, React.ReactNode> = {
     </>
   ),
   menu: <path d="M4 6h16M4 12h16M4 18h16" />,
+  matrice: (
+    <>
+      <rect x="3" y="3" width="6" height="6" rx="1.2" />
+      <rect x="15" y="3" width="6" height="6" rx="1.2" />
+      <rect x="3" y="15" width="6" height="6" rx="1.2" />
+      <rect x="15" y="15" width="6" height="6" rx="1.2" />
+    </>
+  ),
 };
 
 export function Icone({

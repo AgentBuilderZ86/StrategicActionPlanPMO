@@ -1,7 +1,7 @@
 import { PageHeader } from '@/components/PageHeader';
 import { DashboardClient } from '@/components/dashboard/DashboardClient';
 import { PlanBanner } from '@/components/dashboard/PlanBanner';
-import { getActivePlan, getReferentiels, getDashboardData, getAgileSnapshot } from '@/lib/data';
+import { getActivePlan, getDashboardData, getAgileSnapshot } from '@/lib/data';
 import { DashboardDsi } from '@/components/ppm/DashboardDsi';
 import { getDelivery, getInitiatives } from '@/lib/ppm-db';
 
@@ -35,8 +35,7 @@ export default async function DashboardPage({
     );
   }
 
-  const [{ axes }, data, agile] = await Promise.all([
-    getReferentiels(plan.id),
+  const [data, agile] = await Promise.all([
     getDashboardData(plan.id),
     plan.typePmo === 'SI' ? getAgileSnapshot(plan.id) : Promise.resolve(null),
   ]);
@@ -45,7 +44,7 @@ export default async function DashboardPage({
     <div>
       <PageHeader title="Tableau de bord exécutif" subtitle={`Vue d’ensemble — ${plan.nom}`} />
       <PlanBanner plan={plan} avancementMoyen={data.kpis.avancementMoyen} agile={agile} />
-      <DashboardClient planId={plan.id} axes={axes.map((a) => ({ id: a.id, nom: a.nom }))} initial={data} />
+      <DashboardClient planId={plan.id} initial={data} />
     </div>
   );
 }

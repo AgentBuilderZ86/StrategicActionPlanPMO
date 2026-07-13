@@ -7,7 +7,6 @@ import {
   DASHBOARD_WIDGETS, dashboardConfigParDefaut, type WidgetConfig, type WidgetKey,
 } from '@/lib/constants';
 import { KpiCard, SectionCard } from '@/components/ui/Cards';
-import { Heatmap } from './Heatmap';
 import {
   AvancementParAxe,
   RepartitionStatuts,
@@ -27,11 +26,9 @@ const WIDGET_LABEL: Record<WidgetKey, string> = Object.fromEntries(
 
 export function DashboardClient({
   planId,
-  axes,
   initial,
 }: {
   planId: string;
-  axes: { id: string; nom: string }[];
   initial: DashboardData;
 }) {
   const [data, setData] = useState<DashboardData>(initial);
@@ -92,8 +89,6 @@ export function DashboardClient({
         return data.insights.length ? <InsightsAuto insights={data.insights} /> : null;
       case 'risques':
         return <SectionCard title="Alertes proactives" subtitle="Dérives détectées avant le retard — score de risque explicable (vélocité, budget, dormance, blocage, surcharge)"><RisquesProactifs risques={data.risques} /></SectionCard>;
-      case 'heatmap':
-        return <Heatmap heatmap={data.heatmap} axes={axes} />;
       case 'parAxe':
         return <SectionCard title="Avancement par axe" subtitle="Avancement moyen (%) par axe stratégique"><AvancementParAxe data={data.parAxe} /></SectionCard>;
       case 'statuts':
@@ -209,9 +204,6 @@ export function DashboardClient({
           )}
           {visible('attention') && (
             <div className="scrolly max-h-[52vh]">{widgetNode('attention')}</div>
-          )}
-          {visible('heatmap') && (
-            <div className="lg:col-span-2">{widgetNode('heatmap')}</div>
           )}
         </div>
       )}

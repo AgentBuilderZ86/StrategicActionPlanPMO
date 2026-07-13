@@ -22,6 +22,7 @@ export type PmoType = (typeof PMO_TYPES)[number];
  * « Agile / SI ». Filtré par `Nav` selon le plan actif.
  */
 export const NAV_ITEMS = [
+  { href: '/matrice-avancement', label: "Matrice d'avancement", icon: 'matrice', modules: ['ECOSYSTEME', 'INTERNE'] as PmoType[] },
   { href: '/ma-journee', label: 'Ma journée', icon: 'journee', modules: PMO_TYPES },
   { href: '/', label: 'Tableau de bord', icon: 'dashboard', modules: PMO_TYPES },
   { href: '/alertes', label: 'Alertes', icon: 'alertes', modules: PMO_TYPES },
@@ -223,7 +224,6 @@ export const DASHBOARD_WIDGETS = [
   { key: 'impactSR', label: 'Impact sécurité routière (Baromètre 2024)' },
   { key: 'insights', label: 'Insights automatiques' },
   { key: 'risques', label: 'Alertes proactives (moteur de risque)' },
-  { key: 'heatmap', label: 'Carte de chaleur (région × axe)' },
   { key: 'parAxe', label: 'Avancement par axe' },
   { key: 'statuts', label: 'Répartition par statut' },
   { key: 'parPays', label: 'Avancement par région' },
