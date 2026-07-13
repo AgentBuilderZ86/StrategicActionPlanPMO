@@ -204,14 +204,14 @@ export function DashboardClient({
 
       {onglet === 'pilotage' && (
         <div className="grid min-h-0 flex-1 gap-3 lg:grid-cols-2">
-          {visible('heatmap') && (
-            <div className="scrolly max-h-[52vh]">{widgetNode('heatmap')}</div>
-          )}
           {visible('risques') && (
             <div className="scrolly max-h-[52vh]">{widgetNode('risques')}</div>
           )}
           {visible('attention') && (
-            <div className="scrolly max-h-[40vh] lg:col-span-2">{widgetNode('attention')}</div>
+            <div className="scrolly max-h-[52vh]">{widgetNode('attention')}</div>
+          )}
+          {visible('heatmap') && (
+            <div className="lg:col-span-2">{widgetNode('heatmap')}</div>
           )}
         </div>
       )}
