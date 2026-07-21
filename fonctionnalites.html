@@ -1,0 +1,538 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PMO - Plan d'Action Stratégique | Fonctionnalités</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', sans-serif;
+            line-height: 1.6;
+            color: #1f2937;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            min-height: 100vh;
+        }
+
+        header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 60px 20px;
+            text-align: center;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+        }
+
+        header h1 {
+            font-size: 3em;
+            margin-bottom: 15px;
+            font-weight: 700;
+        }
+
+        header p {
+            font-size: 1.2em;
+            opacity: 0.95;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 40px 20px;
+        }
+
+        .feature-section {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 40px;
+            margin-bottom: 60px;
+            align-items: center;
+            background: white;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+        }
+
+        .feature-section:nth-child(even) {
+            grid-template-columns: 1fr 1fr;
+        }
+
+        .feature-section:nth-child(even) .content {
+            order: 2;
+        }
+
+        .feature-section:nth-child(even) .mockup {
+            order: 1;
+        }
+
+        .content {
+            padding: 40px;
+        }
+
+        .content h2 {
+            color: #667eea;
+            font-size: 2em;
+            margin-bottom: 20px;
+            font-weight: 700;
+        }
+
+        .content p {
+            color: #4b5563;
+            margin-bottom: 15px;
+            font-size: 1em;
+        }
+
+        .content ul {
+            list-style: none;
+            margin-top: 20px;
+        }
+
+        .content li {
+            padding: 10px 0;
+            padding-left: 30px;
+            position: relative;
+            color: #4b5563;
+        }
+
+        .content li:before {
+            content: "✓";
+            position: absolute;
+            left: 0;
+            color: #667eea;
+            font-weight: bold;
+            font-size: 1.2em;
+        }
+
+        .mockup {
+            background: linear-gradient(135deg, #f0f4ff 0%, #e8ecff 100%);
+            padding: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 400px;
+        }
+
+        .mockup-content {
+            width: 100%;
+            background: white;
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+        }
+
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+
+        .kpi-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 8px;
+            text-align: center;
+        }
+
+        .kpi-value {
+            font-size: 2em;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .kpi-label {
+            font-size: 0.9em;
+            opacity: 0.9;
+        }
+
+        .chart-placeholder {
+            background: linear-gradient(135deg, #f0f4ff 0%, #e8ecff 100%);
+            height: 250px;
+            border-radius: 8px;
+            display: flex;
+            align-items: flex-end;
+            padding: 20px;
+            gap: 10px;
+        }
+
+        .bar {
+            flex: 1;
+            background: linear-gradient(180deg, #667eea 0%, #764ba2 100%);
+            border-radius: 4px 4px 0 0;
+        }
+
+        .bar.h1 { height: 30%; }
+        .bar.h2 { height: 60%; }
+        .bar.h3 { height: 85%; }
+        .bar.h4 { height: 45%; }
+        .bar.h5 { height: 70%; }
+
+        .table-mockup {
+            width: 100%;
+            font-size: 0.9em;
+            margin-bottom: 15px;
+        }
+
+        .table-mockup th {
+            background: #f0f4ff;
+            padding: 10px;
+            text-align: left;
+            font-weight: 600;
+            color: #667eea;
+        }
+
+        .table-mockup td {
+            padding: 10px;
+            border-bottom: 1px solid #e8ecff;
+            color: #4b5563;
+        }
+
+        .status-badge {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.85em;
+            font-weight: 600;
+        }
+
+        .status-ok {
+            background: #d1fae5;
+            color: #065f46;
+        }
+
+        .status-warning {
+            background: #fef3c7;
+            color: #92400e;
+        }
+
+        .status-alert {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+
+        .heatmap {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 8px;
+            margin-bottom: 15px;
+        }
+
+        .heatmap-cell {
+            aspect-ratio: 1;
+            border-radius: 4px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.85em;
+            font-weight: bold;
+            color: white;
+        }
+
+        .hm1 { background: #fecaca; }
+        .hm2 { background: #fda29b; }
+        .hm3 { background: #f97066; }
+        .hm4 { background: #f1f5f9; border: 1px solid #ccc; }
+        .hm5 { background: #bbf7d0; }
+
+        @media (max-width: 768px) {
+            .feature-section {
+                grid-template-columns: 1fr;
+            }
+
+            .feature-section:nth-child(even) {
+                grid-template-columns: 1fr;
+            }
+
+            .feature-section:nth-child(even) .content,
+            .feature-section:nth-child(even) .mockup {
+                order: unset;
+            }
+
+            header h1 {
+                font-size: 2em;
+            }
+
+            .content {
+                padding: 20px;
+            }
+
+            .content h2 {
+                font-size: 1.5em;
+            }
+        }
+
+        .icons {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        .icon-btn {
+            width: 40px;
+            height: 40px;
+            border-radius: 8px;
+            background: #f0f4ff;
+            border: none;
+            cursor: pointer;
+            font-size: 1.2em;
+            transition: all 0.3s ease;
+        }
+
+        .icon-btn:hover {
+            background: #667eea;
+            color: white;
+            transform: scale(1.1);
+        }
+
+        footer {
+            background: #1f2937;
+            color: white;
+            text-align: center;
+            padding: 30px 20px;
+            margin-top: 60px;
+        }
+
+        .highlight {
+            color: #667eea;
+            font-weight: 600;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>📊 PMO</h1>
+        <p>Pilotage de Plan d'Action Stratégique - Multi-pays, Multi-entités</p>
+    </header>
+
+    <div class="container">
+        <!-- Feature 1: Dashboard Exécutif -->
+        <div class="feature-section">
+            <div class="content">
+                <h2>Dashboard Exécutif</h2>
+                <p>Vue synthétique de l'avancement de votre plan d'action stratégique avec des KPIs clés en temps réel.</p>
+                <ul>
+                    <li>KPIs principaux : avancement global, budget alloué/consommé</li>
+                    <li>Heatmap pays × axes pour identifier rapidement les zones de tension</li>
+                    <li>Courbes de tendance sur l'avancement par axe</li>
+                    <li>Points d'attention et actions en retard</li>
+                    <li>Filtre par période et sélecteur de plan</li>
+                    <li>Vue adaptée au rôle (PMO, contributeur, lecteur)</li>
+                </ul>
+            </div>
+            <div class="mockup">
+                <div class="mockup-content">
+                    <div class="dashboard-grid">
+                        <div class="kpi-card" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
+                            <div class="kpi-value">74%</div>
+                            <div class="kpi-label">Avancement Global</div>
+                        </div>
+                        <div class="kpi-card" style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);">
+                            <div class="kpi-value">8/15</div>
+                            <div class="kpi-label">Actions en Retard</div>
+                        </div>
+                    </div>
+                    <div class="chart-placeholder">
+                        <div class="bar h3"></div>
+                        <div class="bar h5"></div>
+                        <div class="bar h2"></div>
+                        <div class="bar h4"></div>
+                        <div class="bar h1"></div>
+                    </div>
+                    <p style="text-align: center; font-size: 0.9em; color: #667eea; margin-top: 10px; font-weight: 600;">Avancement par Axe</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Feature 2: Plan d'Actions -->
+        <div class="feature-section">
+            <div class="content">
+                <h2>Plan d'Actions</h2>
+                <p>Gestion complète de votre plan avec une table filtrable, triable et des outils de collaboration.</p>
+                <ul>
+                    <li>CRUD complet des actions (créer, lire, mettre à jour, supprimer)</li>
+                    <li>Édition rapide en drawer avec validation Zod</li>
+                    <li>Snapshots d'avancement pour suivre la tendance</li>
+                    <li>Flag « en retard » automatique</li>
+                    <li>Export CSV (FR, BOM UTF-8) et Excel</li>
+                    <li>Import CSV avec mapping de colonnes et rapport d'erreurs</li>
+                    <li>Pagination et recherche performante</li>
+                </ul>
+            </div>
+            <div class="mockup">
+                <div class="mockup-content">
+                    <table class="table-mockup">
+                        <thead>
+                            <tr>
+                                <th>Action</th>
+                                <th>Avancement</th>
+                                <th>Statut</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><strong>Déploiement RPA</strong></td>
+                                <td>85%</td>
+                                <td><span class="status-badge status-ok">À jour</span></td>
+                            </tr>
+                            <tr>
+                                <td><strong>Formation équipes</strong></td>
+                                <td>42%</td>
+                                <td><span class="status-badge status-warning">À surveiller</span></td>
+                            </tr>
+                            <tr>
+                                <td><strong>Migration données</strong></td>
+                                <td>15%</td>
+                                <td><span class="status-badge status-alert">En retard</span></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <div class="icons">
+                        <button class="icon-btn" title="Ajouter">➕</button>
+                        <button class="icon-btn" title="Éditer">✎</button>
+                        <button class="icon-btn" title="Exporter">⬇</button>
+                        <button class="icon-btn" title="Importer">⬆</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Feature 3: Analyses Multi-axes -->
+        <div class="feature-section">
+            <div class="content">
+                <h2>Analyses Multi-axes</h2>
+                <p>Analyser votre plan selon différentes dimensions pour des insights croisés et du drill-down.</p>
+                <ul>
+                    <li>Pivot dynamique par dimension (pays, entité, axe, etc.)</li>
+                    <li>Tableau de synthèse avec agrégations automatiques</li>
+                    <li>Graphiques comparés pour visualiser les écarts</li>
+                    <li>Matrice croisée dim1 × dim2</li>
+                    <li>Drill-down pour explorer les détails</li>
+                    <li>Export des résultats d'analyse</li>
+                </ul>
+            </div>
+            <div class="mockup">
+                <div class="mockup-content">
+                    <p style="font-weight: 600; color: #667eea; margin-bottom: 15px; font-size: 0.95em;">Heatmap Pays × Axes</p>
+                    <div class="heatmap">
+                        <div class="heatmap-cell hm3" style="grid-column: 1; grid-row: 1;">92</div>
+                        <div class="heatmap-cell hm5" style="grid-column: 2; grid-row: 1;">78</div>
+                        <div class="heatmap-cell hm2" style="grid-column: 3; grid-row: 1;">45</div>
+                        <div class="heatmap-cell hm1" style="grid-column: 4; grid-row: 1;">28</div>
+                        <div class="heatmap-cell hm5" style="grid-column: 5; grid-row: 1;">85</div>
+                        <div class="heatmap-cell hm5" style="grid-column: 1; grid-row: 2;">82</div>
+                        <div class="heatmap-cell hm2" style="grid-column: 2; grid-row: 2;">48</div>
+                        <div class="heatmap-cell hm3" style="grid-column: 3; grid-row: 2;">68</div>
+                        <div class="heatmap-cell hm1" style="grid-column: 4; grid-row: 2;">22</div>
+                        <div class="heatmap-cell hm5" style="grid-column: 5; grid-row: 2;">90</div>
+                    </div>
+                    <p style="font-size: 0.85em; color: #6b7280; text-align: center; margin-top: 10px;">Vert = Bon | Orange = À surveiller | Rouge = Critique</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Feature 4: Vue COPIL -->
+        <div class="feature-section">
+            <div class="content">
+                <h2>Vue COPIL</h2>
+                <p>Synthèse imprimable et prête pour vos comités de pilotage mensuels.</p>
+                <ul>
+                    <li>KPIs synthétiques pour la gouvernance</li>
+                    <li>Heatmap pays × axes en une page</li>
+                    <li>Top 5 points d'attention à escalader</li>
+                    <li>Faits marquants du mois</li>
+                    <li>Snapshot automatique du mois précédent</li>
+                    <li>Mise en page optimisée pour impression PDF</li>
+                    <li>Historique des snapshots COPIL</li>
+                </ul>
+            </div>
+            <div class="mockup">
+                <div class="mockup-content">
+                    <p style="font-weight: 700; color: #1f2937; margin-bottom: 15px; font-size: 1.1em;">📋 COPIL - Juillet 2026</p>
+                    <div style="background: #f0f4ff; padding: 15px; border-radius: 6px; margin-bottom: 15px;">
+                        <p style="font-size: 0.9em; color: #4b5563; margin-bottom: 10px;"><span style="font-weight: 600;">5 Points critiques :</span></p>
+                        <ul style="font-size: 0.85em; color: #4b5563; padding-left: 20px;">
+                            <li>Migration données [Entité A] — 15% avancement, retard 2 semaines</li>
+                            <li>Formation [Pays Nord] — Adhésion faible, 42% avancement</li>
+                            <li>Budget dépassé [Axe Digital] — +180k€ consommés</li>
+                        </ul>
+                    </div>
+                    <div style="display: flex; gap: 10px;">
+                        <button style="flex: 1; padding: 8px; background: #667eea; color: white; border: none; border-radius: 6px; cursor: pointer; font-size: 0.9em; font-weight: 600;">Imprimer</button>
+                        <button style="flex: 1; padding: 8px; background: #f0f4ff; color: #667eea; border: 1px solid #667eea; border-radius: 6px; cursor: pointer; font-size: 0.9em; font-weight: 600;">Exporter PDF</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Feature 5: Paramètres & Gestion -->
+        <div class="feature-section">
+            <div class="content">
+                <h2>Paramètres & Gestion</h2>
+                <p>Configuration complète de votre instance et gestion des utilisateurs et rôles.</p>
+                <ul>
+                    <li>Référentiels ordonnables : axes, pays, entités</li>
+                    <li>Renommage du plan</li>
+                    <li>Gestion des utilisateurs (ADMIN)</li>
+                    <li>Attribution des rôles : ADMIN, PMO, CONTRIBUTEUR, LECTEUR</li>
+                    <li>Contrôle d'accès granulaire par rôle</li>
+                    <li>Audit des actions (logs détaillés)</li>
+                    <li>Mode démo avec reset (développement)</li>
+                </ul>
+            </div>
+            <div class="mockup">
+                <div class="mockup-content">
+                    <p style="font-weight: 600; color: #667eea; margin-bottom: 15px; font-size: 0.95em;">⚙️ Rôles & Permissions</p>
+                    <table class="table-mockup" style="font-size: 0.85em;">
+                        <thead>
+                            <tr>
+                                <th>Rôle</th>
+                                <th>Lecture</th>
+                                <th>Édition</th>
+                                <th>Admin</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><strong>Admin</strong></td>
+                                <td>✓</td>
+                                <td>✓</td>
+                                <td>✓</td>
+                            </tr>
+                            <tr>
+                                <td><strong>PMO</strong></td>
+                                <td>✓</td>
+                                <td>✓</td>
+                                <td></td>
+                            </tr>
+                            <tr>
+                                <td><strong>Contributeur</strong></td>
+                                <td>✓</td>
+                                <td>Périmètre</td>
+                                <td></td>
+                            </tr>
+                            <tr>
+                                <td><strong>Lecteur</strong></td>
+                                <td>✓</td>
+                                <td></td>
+                                <td></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <footer>
+        <p>Application de pilotage PMO © 2026</p>
+        <p style="margin-top: 10px; font-size: 0.9em; opacity: 0.8;">Stack: Next.js 14 • TypeScript • Tailwind CSS • Prisma • PostgreSQL • NextAuth</p>
+    </footer>
+</body>
+</html>
